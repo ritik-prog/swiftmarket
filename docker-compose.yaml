@@ -28,13 +28,18 @@ services:
     volumes:
       - ./backend:/app
       - /app/node_modules
+    links:
+      - mongo
     depends_on:
       - mongo
+    restart: always
   mongo:
     build:
       context: .
       dockerfile: ./mongodb/mongodb.dockerfile
     restart: always
+    networks:
+      - mern-stack-network
     environment:
       MONGO_INITDB_ROOT_USERNAME: myuser
       MONGO_INITDB_ROOT_PASSWORD: mypassword
