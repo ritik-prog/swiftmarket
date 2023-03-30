@@ -1,0 +1,68 @@
+version: '3'
+services:
+  front:
+    build:
+      context: './frontend'
+      dockerfile: Dockerfile
+    ports:
+      - 3000:3000
+    container_name: react-container
+    environment:
+      - WATCHPACK_POLLING=true
+    networks:
+      - mern-stack-network
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    depends_on:
+      - backend
+  backend:
+    build:
+      context: './backend'
+      dockerfile: Dockerfile
+    ports:
+      - 5500:5500
+    container_name: express-container
+    networks:
+      - mern-stack-network
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+    depends_on:
+      - mongo
+  mongo:
+    build:
+      context: .
+      dockerfile: ./mongodb/mongodb.dockerfile
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: myuser
+      MONGO_INITDB_ROOT_PASSWORD: mypassword
+      MONGO_INITDB_DATABASE: mydatabase
+    volumes:
+      - type: bind
+        source: ./data
+        target: /data/db
+      - mongo-data:/data/db
+      - mongo-logs:/var/log/mongodb
+    ports:
+      - "27017:27017"
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "100m"
+        max-file: "10"
+    ulimits:
+      nproc: 65535
+      nofile:
+        soft: 65535
+        hard: 65535
+networks:
+  mern-stack-network:
+volumes:
+  mongo-data:
+  mongo-logs:
+
+
+
+
