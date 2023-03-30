@@ -1,0 +1,34 @@
+version: '3'
+
+services:
+  mongo:
+    build:
+      context: .
+      dockerfile: mongodb.dockerfile
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: myuser
+      MONGO_INITDB_ROOT_PASSWORD: mypassword
+      MONGO_INITDB_DATABASE: mydatabase
+    volumes:
+      - type: bind
+        source: ./data
+        target: /data/db
+      - mongo-data:/data/db
+      - mongo-logs:/var/log/mongodb
+    ports:
+      - "27017:27017"
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "100m"
+        max-file: "10"
+    ulimits:
+      nproc: 65535
+      nofile:
+        soft: 65535
+        hard: 65535
+
+volumes:
+  mongo-data:
+  mongo-logs:
