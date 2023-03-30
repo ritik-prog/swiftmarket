@@ -37,36 +37,35 @@ exports.signup = async (req, res) => {
 };
 
 exports.login = async (req, res) => {
-    async (req, res) => {
-        const errors = validationResult(req);
-        if (!errors.isEmpty()) {
-            return res.status(400).json({ errors: errors.array() });
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+    }
+
+    const { email, password } = req.body;
+
+    try {
+        const user = await User.findOne({ email });
+
+        if (!user) {
+            return res.status(401).json({ msg: 'Invalid email or password' });
         }
 
-        const { email, password } = req.body;
+        const isMatch = await bcrypt.compare(password, user.password);
 
-        try {
-            const user = await User.findOne({ email });
-
-            if (!user) {
-                return res.status(401).json({ msg: 'Invalid email or password' });
-            }
-
-            const isMatch = await bcrypt.compare(password, user.password);
-
-            if (!isMatch) {
-                return res.status(401).json({ msg: 'Invalid email or password' });
-            }
-
-            // const payload = { user: { id: user.id } };
-
-            const token = await user.generateAuthToken();
-
-            res.json({ token });
-        } catch (err) {
-            console.error(err.message);
-            res.status(500).send('Server Error');
+        if (!isMatch) {
+            return res.status(401).json({ msg: 'Invalid email or password' });
         }
+
+        // const payload = { user: { id: user.id } };
+
+        const token = await user.generateAuthToken();
+
+        res.json({ token });
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send('Server Error');
+
     }
 }
 

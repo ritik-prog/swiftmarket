@@ -6,6 +6,9 @@ const { rateLimiterMiddleware } = require('../Middleware/rateLimiterMiddleware')
 
 const router = express.Router();
 
+router.get('/', (req, res) => {
+    res.send('Auth api');
+});
 
 // Signup route
 router.post(
