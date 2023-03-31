@@ -14,6 +14,8 @@ const fs = require('fs');
 const authRouter = require('./Routes/auth/authRouter');
 const sellerRouter = require('./Routes/seller/sellerRouter');
 
+const rateLimiterMiddleware = require('./Middleware/rateLimiterMiddleware')
+
 const connectDB = require('./Config/connectDB');
 
 dotenv.config(); // load environment variables from .env file
@@ -22,34 +24,14 @@ connectDB(); // connect to MongoDB database
 const app = express();
 const PORT = process.env.PORT || 5500;
 
-const whitelist = ['127.0.0.1', '::ffff:127.0.0.1'];
-const bannedIps = [];
-
-// Set up rate limiter
-const limiter = rateLimit({
-    windowMs: 60 * 1000, // 1 minute
-    max: 30,
-    skip: (req, res) => {
-        // Skip rate limiting for requests from whitelisted IPs
-        return whitelist.includes(req.ip);
-    },
-    handler: (req, res) => {
-        // Ban the client for 30 minutes
-        res.status(429).send('Too many requests. Please try again later.');
-        const banExpiresAt = Date.now() + 30 * 60 * 1000; // 30 minutes
-        const clientIp = req.ip;
-        bannedIps[clientIp] = banExpiresAt;
-    },
-});
-
 // Use middlewares
 app.use(express.json());
 app.use(cookieParser());
 app.use(mongoSanitize());
-app.use(limiter);
 app.use(helmet()); // adds security-related headers to HTTP response
 app.use(morgan('combined')); // logs incoming HTTP requests
 app.use(cors());
+app.use(rateLimiterMiddleware)
 
 // Set up CSRF protection
 let csrfProtection;
