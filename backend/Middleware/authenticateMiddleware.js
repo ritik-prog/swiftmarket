@@ -1,6 +1,7 @@
 const jwt = require('jsonwebtoken');
+const User = require('../Models/auth/userSchema');
 
-const authenticateMiddleware = (req, res, next) => {
+const authenticateMiddleware = async (req, res, next) => {
     // Get token from header
     const token = req.header('Authorization')?.replace('Bearer ', '');
 
@@ -13,8 +14,26 @@ const authenticateMiddleware = (req, res, next) => {
         // Verify token
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
+        // Check if token is blacklisted
+        const user = await User.findOne({
+            _id: decoded._id,
+            'tokens.token': token,
+            'tokens.expiresAt': { $gte: Date.now() }
+        });
+
+        if (!user) {
+            throw new Error();
+        }
+
         // Set user in the request
-        req.user = decoded.user;
+        req.user = user;
+
+        // Check user verification status
+        console.log(user.verificationStatus)
+        if (!user.verificationStatus) {
+            return res.status(401).json({ error: 'Unauthorized: Email not verified' });
+        }
+
         next();
     } catch (err) {
         console.error(err);

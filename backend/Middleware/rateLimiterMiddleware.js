@@ -20,4 +20,4 @@ const rateLimiterMiddleware = rateLimit({
     },
 });
 
-module.exports = { rateLimiterMiddleware };
+module.exports = rateLimiterMiddleware;

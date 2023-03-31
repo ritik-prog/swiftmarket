@@ -1,7 +1,9 @@
 const bcrypt = require('bcryptjs');
 const { validationResult } = require('express-validator');
+const jwt = require("jsonwebtoken");
+const _ = require('lodash');
 
-const User = require('../../Models/userSchema');
+const User = require('../../Models/auth/userSchema');
 
 exports.signup = async (req, res) => {
     const errors = validationResult(req);
@@ -24,19 +26,16 @@ exports.signup = async (req, res) => {
             password,
             username,
             address,
-            paymentDetails,
-            productListing,
             verificationStatus: false, // default false
             role: "user", // default user role
             transactionHistory: [], // empty array
-            rating: 0 // default 0 rating
         });
 
         const salt = await bcrypt.genSalt(10);
         user.password = await bcrypt.hash(password, salt);
 
         const token = await user.generateAuthToken();
-
+        user.save();
         res.json({ token });
     } catch (err) {
         console.error(err.message);
@@ -55,13 +54,17 @@ exports.login = async (req, res) => {
     try {
         let user = await User.findOne({ email });
 
-        if (!user) {
+        console.log(user)
+        if (_.isEmpty(user)) {
             return res.status(400).json({ msg: 'Invalid Credentials' });
         }
 
+
         const isMatch = await bcrypt.compare(password, user.password);
+        console.log(isMatch)
 
         if (!isMatch) {
+            console.log("2")
             return res.status(400).json({ msg: 'Invalid Credentials' });
         }
 
@@ -74,12 +77,9 @@ exports.login = async (req, res) => {
                 email: user.email,
                 username: user.username,
                 address: user.address,
-                paymentDetails: user.paymentDetails,
-                productListing: user.productListing,
                 verificationStatus: user.verificationStatus,
                 role: user.role,
                 transactionHistory: user.transactionHistory,
-                rating: user.rating
             }
         });
     } catch (err) {
@@ -97,16 +97,15 @@ exports.getUser = async (req, res) => {
 
         const token = req.headers.authorization.split(' ')[1];
         const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
-
-        const user = await User.findById(decodedToken.id).select('-password');
+        console.log(decodedToken._id)
+        const user = await User.findById(decodedToken._id).select('-password');
 
         if (!user) {
             return res.status(404).json({ msg: 'User not found' });
         }
 
         // Check if user has permission to access this resource
-        if (user._id.toString() !== req.user.id) {
-            logger.warn(`Unauthorized access attempt by user ${req.user.id} for user ${user._id}`);
+        if (user._id.toString() !== decodedToken._id) {
             return res.status(401).json({ msg: 'Unauthorized' });
         }
 

@@ -1,16 +1,42 @@
 // Update user details
-// router.put('/updatedetails', authController.updateDetails);
+router.put('/updatedetails', authController.updateDetails);
 
 // Update password
-// router.put(
-//     '/updatepassword',
-//     [
-//         check('currentPassword', 'Current password is required').exists(),
-//         check('newPassword', 'Please enter a new password with 6 or more characters').isLength({ min: 6 }),
-//     ],
-//     authController.updatePassword
-// );
-
+router.put(
+    '/updatepassword',
+    [
+        check('currentPassword', 'Current password is required').exists(),
+        check('newPassword', 'Please enter a new password with 6 or more characters').isLength({ min: 6 }),
+    ],
+    authController.updatePassword
+);
 
 // Logout route
-// router.post('/logout', authController.logout);
+router.post('/logout', authController.logout);
+
+// Update user details
+router.put('/me', authenticateMiddleware, async (req, res) => {
+    try {
+        const user = await User.findById(req.user.id).select('-password -__v');
+        if (!user) {
+            return res.status(404).json({ msg: 'User not found' });
+        }
+
+        const { username, address, verificationStatus, role, paymentDetails, transactionHistory, rating, productListing } = req.body;
+
+        user.username = username || user.username;
+        user.address = address || user.address;
+        user.verificationStatus = verificationStatus || user.verificationStatus;
+        user.role = role || user.role;
+        user.paymentDetails = paymentDetails || user.paymentDetails;
+        user.transactionHistory = transactionHistory || user.transactionHistory;
+        user.rating = rating || user.rating;
+        user.productListing = productListing || user.productListing;
+
+        await user.save();
+        res.json(user);
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).json({ msg: 'Server Error' });
+    }
+});

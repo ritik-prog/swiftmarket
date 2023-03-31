@@ -20,20 +20,20 @@ const connectDB = async () => {
     }
 };
 
-// mongoose.set('runValidators', true); // enable running validators on update queries
+mongoose.set('runValidators', true); // enable running validators on update queries
 
-// mongoose.plugin(schema => {
-//     // add createdAt and updatedAt timestamps to documents
-//     schema.add({
-//         createdAt: { type: Date, default: Date.now },
-//         updatedAt: { type: Date, default: Date.now }
-//     });
+mongoose.plugin(schema => {
+    // add createdAt and updatedAt timestamps to documents
+    schema.add({
+        createdAt: { type: Date, default: Date.now },
+        updatedAt: { type: Date, default: Date.now }
+    });
 
-//     schema.pre('findOneAndUpdate', function () {
-//         // set the updatedAt field when updating a document
-//         this.set({ updatedAt: new Date() });
-//     });
-// });
+    schema.pre('findOneAndUpdate', function () {
+        // set the updatedAt field when updating a document
+        this.set({ updatedAt: new Date() });
+    });
+});
 
 mongoose.set('strictQuery', false);
 

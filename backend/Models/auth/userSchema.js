@@ -31,7 +31,7 @@ const userSchema = new mongoose.Schema({
         required: true,
         trim: true,
         minlength: 6,
-        maxlength: 50,
+        maxlength: 100,
     },
     address: {
         type: String,
@@ -56,15 +56,6 @@ const userSchema = new mongoose.Schema({
         type: [{ product: String, amount: Number, date: Date }],
         maxlength: 50,
     },
-    rating: {
-        type: Number,
-        min: 0,
-        max: 5,
-    },
-    productListing: {
-        type: [{ product: String, price: Number, available: Boolean }],
-        maxlength: 50,
-    },
     tokens: [
         {
             token: {
@@ -81,28 +72,29 @@ const userSchema = new mongoose.Schema({
         type: Date,
         default: Date.now,
     },
+    seller: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Seller'
+    },
 });
 
 // Generate JWT token
 userSchema.methods.generateAuthToken = async function () {
     const user = this;
     const token = jwt.sign({ _id: user._id.toString() }, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRY });
-    user.tokens = user.tokens.concat({ token });
+
+    // remove all existing tokens
+    user.tokens = [];
+
+    // add the new token
+    user.tokens.push({
+        token: token,
+        expiresAt: Date.now() + parseInt(process.env.JWT_EXPIRY) * 1000
+    });
+
     await user.save();
     return token;
 };
-
-// Hash the plain text password before saving
-userSchema.pre('save', async function (next) {
-    const user = this;
-
-    if (user.isModified('password')) {
-        const salt = await bcrypt.genSalt(10);
-        user.password = await bcrypt.hash(user.password, salt);
-    }
-
-    next();
-});
 
 const User = mongoose.model('User', userSchema);
 

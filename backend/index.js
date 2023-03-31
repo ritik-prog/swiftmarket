@@ -3,14 +3,18 @@ const cors = require('cors');
 const morgan = require('morgan');
 const helmet = require('helmet');
 const dotenv = require('dotenv');
-const authRouter = require('./Routes/authRouter');
-const connectDB = require('./Config/db');
 const rateLimit = require('express-rate-limit');
 const mongoSanitize = require('express-mongo-sanitize');
 const cookieParser = require('cookie-parser');
 const csurf = require('csurf');
 const https = require('https');
 const fs = require('fs');
+
+
+const authRouter = require('./Routes/auth/authRouter');
+const sellerRouter = require('./Routes/seller/sellerRouter');
+
+const connectDB = require('./Config/connectDB');
 
 dotenv.config(); // load environment variables from .env file
 connectDB(); // connect to MongoDB database
@@ -66,6 +70,7 @@ app.get('/', (req, res) => {
 });
 
 app.use('/api/auth', csrfProtection, authRouter);
+app.use('/api/seller', csrfProtection, sellerRouter);
 
 // Set up error handling middleware
 app.use((req, res, next) => {
