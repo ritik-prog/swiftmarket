@@ -14,7 +14,7 @@ const fs = require('fs');
 const authRouter = require('./Routes/auth/authRouter');
 const sellerRouter = require('./Routes/seller/sellerRouter');
 
-const rateLimiterMiddleware = require('./Middleware/rateLimiterMiddleware')
+const rateLimiterMiddleware = require('./Middleware/rateLimitermiddleware.js');
 
 const connectDB = require('./Config/connectDB');
 

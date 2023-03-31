@@ -76,7 +76,18 @@ const userSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Seller'
     },
-});
+    BanStatus: {
+        isBanned: {
+            type: Boolean,
+            default: false,
+        },
+        banExpiresAt: {
+            type: Date,
+            required: false,
+            default: null
+        },
+    }
+}, { timestamps: true });
 
 // Generate JWT token
 userSchema.methods.generateAuthToken = async function () {
