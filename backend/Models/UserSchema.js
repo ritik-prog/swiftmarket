@@ -3,6 +3,14 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
 const userSchema = new mongoose.Schema({
+    username: {
+        type: String,
+        required: true,
+        unique: true,
+        trim: true,
+        minlength: 4,
+        maxlength: 20,
+    },
     name: {
         type: String,
         required: true,
@@ -23,6 +31,38 @@ const userSchema = new mongoose.Schema({
         required: true,
         trim: true,
         minlength: 6,
+        maxlength: 50,
+    },
+    address: {
+        type: String,
+        trim: true,
+        maxlength: 100,
+    },
+    verificationStatus: {
+        type: Boolean,
+        default: false,
+    },
+    role: {
+        type: String,
+        enum: ['admin', 'user'],
+        default: 'user',
+    },
+    paymentDetails: {
+        type: Map,
+        of: String,
+        maxlength: 10,
+    },
+    transactionHistory: {
+        type: [{ product: String, amount: Number, date: Date }],
+        maxlength: 50,
+    },
+    rating: {
+        type: Number,
+        min: 0,
+        max: 5,
+    },
+    productListing: {
+        type: [{ product: String, price: Number, available: Boolean }],
         maxlength: 50,
     },
     tokens: [
