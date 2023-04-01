@@ -22,6 +22,7 @@
     "express-validator": "^6.15.0",
     "fs": "^0.0.1-security",
     "googleapis": "^114.0.0",
+    "handlebar": "^1.0.0",
     "helmet": "^6.0.1",
     "https": "^1.0.0",
     "jsonwebtoken": "^9.0.0",

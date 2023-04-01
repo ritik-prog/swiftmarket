@@ -5,7 +5,7 @@ const _ = require('lodash');
 
 const Ip = require('../../Models/auth/ipSchema');
 const User = require('../../Models/auth/userSchema');
-const { sendVerificationCode } = require('../../utils/userVerification');
+const { sendVerificationCode } = require('../auth/userVerification');
 
 exports.signup = async (req, res) => {
     const errors = validationResult(req);

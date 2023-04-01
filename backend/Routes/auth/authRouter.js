@@ -4,7 +4,7 @@ const authController = require('../../controllers/auth/authController');
 const authenticateMiddleware = require('../../middleware/authenticateMiddleware');
 const checkBanMiddleware = require('../../Middleware/checkBanMiddleware');
 const signupRateLimiter = require('../../Middleware/signupRateLimiter');
-const { sendVerificationCodeAgain, verifyUser } = require('../../utils/userVerification');
+const { sendVerificationCodeAgain, verifyUser } = require('../../Controllers/auth/userVerification');
 
 const router = express.Router();
 
