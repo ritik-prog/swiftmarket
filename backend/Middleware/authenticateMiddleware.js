@@ -29,7 +29,6 @@ const authenticateMiddleware = async (req, res, next) => {
         req.user = user;
 
         // Check user verification status
-        console.log(user.verificationStatus)
         if (!user.verificationStatus) {
             return res.status(401).json({ error: 'Unauthorized: Email not verified' });
         }

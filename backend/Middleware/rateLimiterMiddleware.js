@@ -7,7 +7,7 @@ const MAX_BAN_TIME = 30 * 60 * 1000; // 30 minutes
 
 const rateLimiterMiddleware = rateLimit({
     windowMs: 60 * 1000, // 1 minute
-    max: 30, // limit each IP to 30 requests per minute
+    max: 5, // limit each IP to 30 requests per minute
     async keyGenerator(req, res) {
         // Use the client IP address as the key
         const clientIp = req.ip;

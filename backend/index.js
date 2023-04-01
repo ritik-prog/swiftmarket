@@ -3,8 +3,8 @@ const cors = require('cors');
 const morgan = require('morgan');
 const helmet = require('helmet');
 const dotenv = require('dotenv');
-const rateLimit = require('express-rate-limit');
 const mongoSanitize = require('express-mongo-sanitize');
+const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const csurf = require('csurf');
 const https = require('https');
@@ -32,6 +32,10 @@ app.use(helmet()); // adds security-related headers to HTTP response
 app.use(morgan('combined')); // logs incoming HTTP requests
 app.use(cors());
 app.use(rateLimiterMiddleware)
+// parse application/x-www-form-urlencoded
+app.use(bodyParser.urlencoded({ extended: false }));
+// parse application/json
+app.use(bodyParser.json());
 
 // Set up CSRF protection
 let csrfProtection;

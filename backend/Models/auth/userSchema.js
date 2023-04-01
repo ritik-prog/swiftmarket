@@ -44,13 +44,32 @@ const userSchema = new mongoose.Schema({
     },
     role: {
         type: String,
-        enum: ['admin', 'user'],
+        enum: ['user', 'seller', 'admin', 'superadmin', 'root'],
         default: 'user',
     },
     paymentDetails: {
-        type: Map,
-        of: String,
-        maxlength: 10,
+        type: {
+            cardNumber: {
+                type: String,
+                required: true,
+                maxlength: 16
+            },
+            cardHolderName: {
+                type: String,
+                required: true,
+                maxlength: 50
+            },
+            expirationDate: {
+                type: String,
+                required: true,
+                validate: /^(0[1-9]|1[0-2])\/\d{4}$/
+            },
+            cvv: {
+                type: String,
+                required: true,
+                maxlength: 4
+            }
+        }
     },
     transactionHistory: {
         type: [{ product: String, amount: Number, date: Date }],
@@ -86,8 +105,28 @@ const userSchema = new mongoose.Schema({
             required: false,
             default: null
         },
+    },
+    verificationCode: {
+        type: String,
+        default: null,
+    },
+    verificationCodeExpiresAt: {
+        type: Date,
+        default: null,
     }
 }, { timestamps: true });
+
+// if user is being banned, remove all existing tokens
+userSchema.pre('save', async function (next) {
+    const user = this;
+
+    if (user.isModified('BanStatus.isBanned') && user.BanStatus.isBanned) {
+        user.tokens = [];
+    }
+
+    next();
+});
+
 
 // Generate JWT token
 userSchema.methods.generateAuthToken = async function () {

@@ -96,7 +96,6 @@ const sellerSchema = new mongoose.Schema({
 
 // Generate sellerID before saving to the database
 sellerSchema.pre('save', function (next) {
-    console.log(this)
     if (!this.sellerID) {
         this.sellerID = uuidv4().toUpperCase();
     }
