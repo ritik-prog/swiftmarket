@@ -4,9 +4,16 @@ const authController = require('../../controllers/auth/authController');
 const authenticateMiddleware = require('../../middleware/authenticateMiddleware');
 const checkBanMiddleware = require('../../Middleware/checkBanMiddleware');
 const signupRateLimiter = require('../../Middleware/signupRateLimiter');
-const { sendVerificationCodeAgain, verifyUser } = require('../../Controllers/auth/userVerification');
+const { sendVerificationCodeAgain, verifyUser } = require('../../Controllers/auth/verificationController');
+const { sendEmail } = require('../../utils/sendEmail');
 
 const router = express.Router();
+
+
+// router.post('/', async (req, res) => {
+//     let status = await sendEmail('ritikmakhija2002@gmail.com', {}, 'verficationCode.hbs');
+//     res.send(status);
+// });
 
 // Signup route
 router.post(

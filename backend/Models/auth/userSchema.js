@@ -48,25 +48,27 @@ const userSchema = new mongoose.Schema({
         default: 'user',
     },
     paymentDetails: {
-        type: {
+        blockchainWalletAddress: {
+            type: String
+        },
+        paypalAccountEmailAddress: {
+            type: String
+        },
+        card: {
             cardNumber: {
                 type: String,
-                required: true,
                 maxlength: 16
             },
             cardHolderName: {
                 type: String,
-                required: true,
                 maxlength: 50
             },
             expirationDate: {
                 type: String,
-                required: true,
                 validate: /^(0[1-9]|1[0-2])\/\d{4}$/
             },
             cvv: {
                 type: String,
-                required: true,
                 maxlength: 4
             }
         }
@@ -83,14 +85,6 @@ const userSchema = new mongoose.Schema({
             },
         },
     ],
-    createdAt: {
-        type: Date,
-        default: Date.now,
-    },
-    updatedAt: {
-        type: Date,
-        default: Date.now,
-    },
     seller: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Seller'
@@ -113,7 +107,15 @@ const userSchema = new mongoose.Schema({
     verificationCodeExpiresAt: {
         type: Date,
         default: null,
-    }
+    },
+    createdAt: {
+        type: Date,
+        default: Date.now,
+    },
+    updatedAt: {
+        type: Date,
+        default: Date.now,
+    },
 }, { timestamps: true });
 
 // if user is being banned, remove all existing tokens

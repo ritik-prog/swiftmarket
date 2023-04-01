@@ -13,6 +13,7 @@ const fs = require('fs');
 
 const authRouter = require('./Routes/auth/authRouter');
 const sellerRouter = require('./Routes/seller/sellerRouter');
+const productRouter = require('./Routes/product/productRouter');
 
 const rateLimiterMiddleware = require('./Middleware/rateLimitermiddleware.js');
 
@@ -50,13 +51,9 @@ if (process.env.NODE_ENV === 'production') {
     csrfProtection = (req, res, next) => next();
 }
 
-//routes
-app.get('/', (req, res) => {
-    res.send('Welcome to Node.js, Express.js in Docker');
-});
-
 app.use('/api/auth', csrfProtection, authRouter);
 app.use('/api/seller', csrfProtection, sellerRouter);
+app.use('/api/product', csrfProtection, productRouter);
 
 // Set up error handling middleware
 app.use((req, res, next) => {

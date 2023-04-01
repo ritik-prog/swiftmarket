@@ -5,7 +5,7 @@ const _ = require('lodash');
 
 const Ip = require('../../Models/auth/ipSchema');
 const User = require('../../Models/auth/userSchema');
-const { sendVerificationCode } = require('../auth/userVerification');
+const { sendVerificationCode } = require('./verificationController');
 
 exports.signup = async (req, res) => {
     const errors = validationResult(req);
@@ -61,7 +61,7 @@ exports.signup = async (req, res) => {
 
         res.json({ token });
     } catch (err) {
-        res.status(500).send('Server Error');
+        res.status(500).send('Server Error' + err);
     }
 };
 

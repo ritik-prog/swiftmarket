@@ -144,4 +144,3 @@ sellerSchema.post('findOneAndUpdate', function (error, doc, next) {
 const Seller = mongoose.model('Seller', sellerSchema);
 
 module.exports = Seller;
-
