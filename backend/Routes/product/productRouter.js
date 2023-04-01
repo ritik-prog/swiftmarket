@@ -1,10 +1,6 @@
 const express = require('express');
-const { check } = require('express-validator');
 const authenticateMiddleware = require('../../middleware/authenticateMiddleware');
-const authorizeMiddleware = require('../../middleware/authorizeMiddleware');
-const sellerController = require('../../controllers/seller/sellerController');
-const Product = require('../../Models/product/productSchema');
-const { getSellerProduct, createProductForSeller, getAllProductsOfSellerByUsername } = require('../../Controllers/product/productController');
+const { getSellerProduct, getAllProductsOfSellerByUsername, getProductById } = require('../../controllers/product/productController');
 
 const router = express.Router();
 
@@ -16,5 +12,8 @@ router.get('/:username/products',
 
 // GET a specific product of a seller
 router.get('/:username/product/:id', [authenticateMiddleware], getSellerProduct);
+
+// GET a product by ID
+router.get('/:id', getProductById);
 
 module.exports = router;

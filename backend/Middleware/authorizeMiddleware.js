@@ -1,6 +1,6 @@
 const jwt = require('jsonwebtoken');
 const { Unauthorized } = require('../Errors/Unauthorized');
-const User = require('../Models/auth/userSchema');
+const User = require('../models/auth/userSchema');
 
 const authorizeMiddleware = (role) => async (req, res, next) => {
     // Check if there is an Authorization header in the request

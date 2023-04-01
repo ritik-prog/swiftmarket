@@ -17,12 +17,17 @@ const checkBanMiddleware = async (req, res, next) => {
                     // Ban is still in effect
                     const duration = moment.duration(banExpiresAt.diff(now));
                     const hours = duration.asHours().toFixed(2);
+                    if (user.tokens.length > 0) {
+                        await user.updateOne({ $set: { tokens: [] } });
+                    }
                     return res.status(403).json({ error: `You are banned from this service. Time until unban: ${hours} hours` });
                 }
             } else {
                 // Permanent ban
                 // Delete all tokens from the user
-                await user.updateOne({ $set: { tokens: [] } });
+                if (user.tokens.length > 0) {
+                    await user.updateOne({ $set: { tokens: [] } });
+                }
                 return res.status(403).json({ error: `You are banned from this service permanently` });
             }
         }

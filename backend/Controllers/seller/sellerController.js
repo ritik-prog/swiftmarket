@@ -1,8 +1,117 @@
-const User = require('../../Models/auth/userSchema');
-const Seller = require('../../Models/seller/sellerSchema');
+const Seller = require('../../models/seller/sellerSchema');
+const applyForSellerModel = require('../../models/seller/applySellerSchema');
 const { validationResult } = require('express-validator');
 
-const Product = require('../../Models/product/productSchema');
+const Product = require('../../models/product/productSchema');
+
+// Apply for seller account
+const applyForSellerAccount = async (req, res, next) => {
+    try {
+        // Extract required fields from request body
+        const {
+            fullName,
+            email,
+            phoneNumber,
+            businessName,
+            businessRegistrationNumber,
+            businessType,
+            businessAddress,
+            businessWebsite,
+            taxIDNumber,
+            productCategories,
+        } = req.body;
+
+        // Create a new seller instance with required fields
+        const newSeller = new applyForSellerModel({
+            fullName,
+            email,
+            phoneNumber,
+            businessName,
+            businessRegistrationNumber,
+            businessType,
+            businessAddress,
+            businessWebsite,
+            taxIDNumber,
+            productCategories,
+            user: req.user._id, // Link the seller account to the current user
+        });
+
+        // Save the new seller instance to the database
+        const savedSeller = await newSeller.save();
+
+        res.status(201).json({
+            success: true,
+            message: 'Seller account created successfully',
+            data: savedSeller,
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: 'Internal server error',
+            error: error.message,
+        });
+    }
+};
+
+// Verify a seller
+const verifySeller = async (req, res) => {
+    // Check for validation errors
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+    }
+
+    const { email, code, paymentPreferences, blockchainWalletAddress, paypalAccountEmailAddress } = req.body;
+
+    try {
+        // Find the seller by the verification code
+        const seller = await Seller.findOne({ email: email });
+
+        if (!seller) {
+            return res.status(400).json({ errors: [{ message: 'Invalid or expired verification code' }] });
+        }
+
+        if (!seller.verificationStatus) {
+            // Check if the verification code is not expired
+            if (seller.verificationCodeExpiresAt < Date.now()) {
+                // If expired, generate a new code and send an email with the new code
+                const newVerificationCode = Math.floor(100000 + Math.random() * 900000);
+                seller.verificationCode = newVerificationCode;
+                seller.verificationCodeExpiresAt = Date.now() + 24 * 60 * 60 * 1000; // Set new code expiry to 24 hours
+                await seller.save();
+
+                const data = {
+                    username: seller.fullName,
+                    verificationCode: seller.verificationCode,
+                    verificationLink: 'https://example.com/verify'
+                };
+
+                const status = await sendEmail(seller.email, data, 'verficationCode.hbs');
+
+                res.status(202).json({ success: success, message: 'Verification code sent' });
+            } else {
+                if (seller.verificationCode === code) {
+                    seller.paymentPreferences = paymentPreferences;
+                    seller.blockchainWalletAddress = blockchainWalletAddress;
+                    seller.paypalAccountEmailAddress = paypalAccountEmailAddress;
+                    seller.verificationStatus = true;
+                    seller.verificationCode = null;
+                    seller.verificationCodeExpiresAt = null;
+                    await seller.save();
+                } else {
+                    res.status(400).json({ success: false, message: 'Wrong verification code' });
+                }
+            }
+            // Send a success response
+            res.status(200).json({ success: true, message: 'Seller account verified successfully' });
+        } else {
+            res.status(400).json({ success: false, message: 'Seller account already verified' });
+        }
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send('Server Error');
+    }
+};
 
 // Get a seller by ID
 const getSellerById = async (req, res) => {
@@ -228,4 +337,4 @@ const deleteProductForSeller = async (req, res) => {
     }
 };
 
-module.exports = { getSellerById, updateSellerById, deleteSellerById, deleteProductForSeller, updateProductForSeller, createProductForSeller };
+module.exports = { getSellerById, updateSellerById, deleteSellerById, deleteProductForSeller, updateProductForSeller, createProductForSeller, applyForSellerAccount, verifySeller };

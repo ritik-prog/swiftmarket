@@ -1,6 +1,6 @@
-const Seller = require('../../Models/seller/sellerSchema');
+const Seller = require('../../models/seller/sellerSchema');
 
-const Product = require('../../Models/product/productSchema');
+const Product = require('../../models/product/productSchema');
 
 // GET all products of a seller by username
 exports.getAllProductsOfSellerByUsername = async (req, res, next) => {
@@ -60,3 +60,24 @@ exports.getSellerProduct = async (req, res, next) => {
     }
 };
 
+// GET a product by ID
+exports.getProductById = async (req, res, next) => {
+    try {
+        const product = await Product.findById(req.params.id);
+        if (!product) {
+            return res.status(404).json({
+                status: 'error',
+                message: 'Product not found',
+            });
+        }
+        res.status(200).json({
+            status: 'success',
+            data: product,
+        });
+    } catch (err) {
+        res.status(500).json({
+            status: 'error',
+            message: 'Internal server error',
+        });
+    }
+};

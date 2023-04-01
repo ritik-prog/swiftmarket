@@ -3,8 +3,8 @@ const { validationResult } = require('express-validator');
 const jwt = require("jsonwebtoken");
 const _ = require('lodash');
 
-const Ip = require('../../Models/auth/ipSchema');
-const User = require('../../Models/auth/userSchema');
+const Ip = require('../../models/auth/ipSchema');
+const User = require('../../models/auth/userSchema');
 const { sendVerificationCode } = require('./verificationController');
 
 exports.signup = async (req, res) => {
@@ -20,7 +20,7 @@ exports.signup = async (req, res) => {
         let user = await User.findOne({ email });
 
         if (user) {
-            return res.status(400).json({ msg: 'User already exists' });
+            return res.status(400).json({ message: 'User already exists' });
         }
 
         user = new User({
@@ -59,7 +59,7 @@ exports.signup = async (req, res) => {
             await newIp.save();
         }
 
-        res.json({ token });
+        res.status(202).json({ token });
     } catch (err) {
         res.status(500).send('Server Error' + err);
     }
@@ -77,19 +77,19 @@ exports.login = async (req, res) => {
         let user = await User.findOne({ email });
 
         if (_.isEmpty(user)) {
-            return res.status(400).json({ msg: 'Invalid Credentials' });
+            return res.status(400).json({ message: 'Invalid Credentials' });
         }
 
 
         const isMatch = await bcrypt.compare(password, user.password);
 
         if (!isMatch) {
-            return res.status(400).json({ msg: 'Invalid Credentials' });
+            return res.status(400).json({ message: 'Invalid Credentials' });
         }
 
         const token = await user.generateAuthToken();
 
-        res.json({
+        res.status(202).json({
             token, user: {
                 id: user.id,
                 name: user.name,
@@ -97,8 +97,7 @@ exports.login = async (req, res) => {
                 username: user.username,
                 address: user.address,
                 verificationStatus: user.verificationStatus,
-                role: user.role,
-                transactionHistory: user.transactionHistory,
+                role: user.role
             }
         });
     } catch (err) {
@@ -111,7 +110,7 @@ exports.getUser = async (req, res) => {
     try {
         // Check if user is authenticated
         if (!req.headers.authorization) {
-            return res.status(401).json({ msg: 'Unauthorized' });
+            return res.status(401).json({ message: 'Unauthorized' });
         }
 
         const token = req.headers.authorization.split(' ')[1];
@@ -119,18 +118,18 @@ exports.getUser = async (req, res) => {
         const user = await User.findById(decodedToken._id).select('-password');
 
         if (!user) {
-            return res.status(404).json({ msg: 'User not found' });
+            return res.status(404).json({ message: 'User not found' });
         }
 
         // Check if user has permission to access this resource
         if (user._id.toString() !== decodedToken._id) {
-            return res.status(401).json({ msg: 'Unauthorized' });
+            return res.status(401).json({ message: 'Unauthorized' });
         }
 
-        res.json(user);
+        res.status(202).json(user);
     } catch (err) {
         console.error(err.message);
-        res.status(500).json({ msg: 'Server Error' });
+        res.status(500).json({ message: 'Server Error' });
     }
 };
 
@@ -143,7 +142,7 @@ exports.updateProfile = async (req, res) => {
 
         const user = await User.findById(req.user.id).select('-password -__v');
         if (!user) {
-            return res.status(404).json({ msg: 'User not found' });
+            return res.status(404).json({ message: 'User not found' });
         }
 
         const { username, name, email, address, paymentDetails } = req.body;
@@ -155,10 +154,10 @@ exports.updateProfile = async (req, res) => {
         user.paymentDetails = paymentDetails || user.paymentDetails;
 
         await user.save();
-        res.json(user);
+        res.status(202).json(user);
     } catch (err) {
         console.error(err.message);
-        res.status(500).json({ msg: 'Server Error' });
+        res.status(500).json({ message: 'Server Error' });
     }
 };
 
@@ -174,7 +173,7 @@ exports.updatePassword = async (req, res) => {
         // Check if current password matches
         const isMatch = await bcrypt.compare(req.body.currentPassword, user.password);
         if (!isMatch) {
-            return res.status(400).json({ msg: 'Invalid credentials' });
+            return res.status(400).json({ message: 'Invalid credentials' });
         }
 
         // Generate salt and hash for new password
@@ -186,10 +185,10 @@ exports.updatePassword = async (req, res) => {
         // Generate and save new auth token
         const token = await user.generateAuthToken();
 
-        res.json({ msg: 'Password updated successfully', token: token });
+        res.status(202).json({ message: 'Password updated successfully', token: token });
     } catch (err) {
         console.error(err.message);
-        res.status(500).json({ msg: 'Server Error' });
+        res.status(500).json({ message: 'Server Error' });
     }
 };
 
@@ -198,10 +197,10 @@ exports.logout = async (req, res) => {
         const user = await User.findById(req.user_id);
         user.tokens = [];
         await user.save();
-        res.status(200).json({ msg: 'Logged out successfully' });
+        res.status(200).json({ message: 'Logged out successfully' });
     } catch (err) {
         console.error(err.message);
-        res.status(500).json({ msg: 'Server Error' });
+        res.status(500).json({ message: 'Server Error' });
     }
 };
 

@@ -4,29 +4,22 @@ const authController = require('../../controllers/auth/authController');
 const authenticateMiddleware = require('../../middleware/authenticateMiddleware');
 const checkBanMiddleware = require('../../Middleware/checkBanMiddleware');
 const signupRateLimiter = require('../../Middleware/signupRateLimiter');
-const { sendVerificationCodeAgain, verifyUser } = require('../../Controllers/auth/verificationController');
-const { sendEmail } = require('../../utils/sendEmail');
+const { sendVerificationCodeAgain, verifyUser } = require('../../controllers/auth/verificationController');
 
 const router = express.Router();
-
-
-// router.post('/', async (req, res) => {
-//     let status = await sendEmail('ritikmakhija2002@gmail.com', {}, 'verficationCode.hbs');
-//     res.send(status);
-// });
 
 // Signup route
 router.post(
     '/signup',
     [
+        signupRateLimiter,
+        checkBanMiddleware,
         check('name', 'Name is required').not().isEmpty(),
         check('email', 'Please include a valid email').isEmail(),
         check('password', 'Please enter a password with 6 or more characters').isLength({ min: 6 }),
         check('username', 'Username is required').not().isEmpty(),
         check('address', 'Address is required').not().isEmpty(),
-        check('role', 'Role is required').not().isEmpty(),
-        signupRateLimiter,
-        checkBanMiddleware,
+        check('role', 'Role is required').not().isEmpty()
     ],
     authController.signup
 );
@@ -35,15 +28,16 @@ router.post(
 router.post(
     '/login',
     [
+        checkBanMiddleware,
         check('email', 'Please include a valid email').isEmail(),
         check('password', 'Password is required').exists(),
-        checkBanMiddleware,
     ],
     authController.login
 );
 
 // Get user details
-router.get('/profile', [authenticateMiddleware], authController.getUser);
+router.get('/profile', [
+    checkBanMiddleware, authenticateMiddleware], authController.getUser);
 
 // Update user details
 router.put(
@@ -78,17 +72,49 @@ router.put(
 );
 
 // Logout route
-router.post('/logout', authController.logout);
+router.post('/logout', [authenticateMiddleware], authController.logout);
 
 // Email Verification
-router.post('/sendVerificationCodeAgain', async (req, res) => {
-    let status = await sendVerificationCodeAgain(req.body.email);
-    res.send(status);
-});
+router.post('/sendVerificationCodeAgain',
+    [check('email').isEmail()],
+    async (req, res) => {
+        try {
+            const errors = validationResult(req);
+            if (!errors.isEmpty()) {
+                return res.status(400).json({
+                    status: 'error',
+                    message: 'Invalid email',
+                    errors: errors.array()
+                });
+            }
+            const { email } = req.body;
+            const status = await sendVerificationCodeAgain(email);
+            res.status(200).json({ status: 'success', message: status });
+        } catch (err) {
+            console.error(err.message);
+            res.status(500).json({ status: 'error', message: 'Server Error' });
+        }
+    });
 
-router.post('/verify', async (req, res) => {
-    let status = await verifyUser(req.body.email, req.body.code);
-    res.send(status);
-});
+router.post('/verify',
+    [check('email').isEmail(), check('code').isNumeric()],
+    async (req, res) => {
+        try {
+            const errors = validationResult(req);
+            if (!errors.isEmpty()) {
+                return res.status(400).json({
+                    status: 'error',
+                    message: 'Invalid email or verification code',
+                    errors: errors.array()
+                });
+            }
+            const { email, code } = req.body;
+            const status = await verifyUser(email, code);
+            res.status(200).json({ status: 'success', message: status });
+        } catch (err) {
+            console.error(err.message);
+            res.status(500).json({ status: 'error', message: 'Server Error' });
+        }
+    });
 
 module.exports = router;

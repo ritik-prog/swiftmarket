@@ -91,6 +91,26 @@ const sellerSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User'
     },
+    createdAt: {
+        type: Date,
+        default: Date.now,
+    },
+    updatedAt: {
+        type: Date,
+        default: Date.now,
+    },
+    verificationStatus: {
+        type: Boolean,
+        default: false,
+    },
+    verificationCode: {
+        type: String,
+        default: null,
+    },
+    verificationCodeExpiresAt: {
+        type: Date,
+        default: null,
+    },
 }, { timestamps: true });
 
 

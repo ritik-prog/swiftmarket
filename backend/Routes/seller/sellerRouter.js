@@ -6,6 +6,18 @@ const sellerController = require('../../controllers/seller/sellerController');
 
 const router = express.Router();
 
+// Apply for seller account
+router.post('/apply', [authenticateMiddleware], sellerController.applyForSellerAccount);
+
+// Route for verifying a seller
+router.post('/verify', [
+    authenticateMiddleware,
+    check('code', 'Verification code is required').notEmpty(),
+    check('paymentPreferences', 'Please include a valid payment preferences').notEmpty(),
+    check('blockchainWalletAddress', 'Please include a valid wallet address').notEmpty(),
+    check('paypalAccountEmailAddress', 'Please include a valid email').isEmail(),
+], sellerController.verifySeller);
+
 // Get a seller by ID
 router.get('/profile', [authenticateMiddleware, authorizeMiddleware('seller')], sellerController.getSellerById);
 
