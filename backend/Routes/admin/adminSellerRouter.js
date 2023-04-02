@@ -9,27 +9,27 @@ const router = express.Router();
 // Get applied sellers
 router.get(
     "/applied-sellers",
-    [authenticateMiddleware, authorizeMiddleware("admin")],
+    [authenticateMiddleware, authorizeMiddleware(["admin", "superadmin", "root"])],
     adminController.getAllApplySellers
 );
 
 // Accept seller
 router.post(
     "/approve-seller/:id",
-    [authenticateMiddleware, authorizeMiddleware("admin")],
+    [authenticateMiddleware, authorizeMiddleware(["admin", "superadmin", "root"])],
     adminController.acceptSeller
 );
 
 // Get all sellers
-router.get("/sellers", [authenticateMiddleware, authorizeMiddleware("admin")], adminController.getAllSellers);
+router.get("/sellers", [authenticateMiddleware, authorizeMiddleware(["admin", "superadmin", "root"])], adminController.getAllSellers);
 
 // Update seller
 router.put("/updateseller/:id", [
     authenticateMiddleware,
-    authorizeMiddleware("admin")
+    authorizeMiddleware(["admin", "superadmin", "root"])
 ], adminController.updateSeller);
 
 // Delete seller
-router.delete("/deleteseller/:id", [authenticateMiddleware, authorizeMiddleware("admin")], adminController.deleteSeller);
+router.delete("/deleteseller/:id", [authenticateMiddleware, authorizeMiddleware(["admin", "superadmin", "root"])], adminController.deleteSeller);
 
 module.exports = router;

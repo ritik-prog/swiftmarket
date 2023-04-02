@@ -7,13 +7,13 @@ const adminController = require("../../controllers/admin/adminController");
 const router = express.Router();
 
 // Display all users
-router.get("/users", [authenticateMiddleware, authorizeMiddleware("admin")], adminController.getAllUsers);
+router.get("/users", [authenticateMiddleware, authorizeMiddleware(["admin", "superadmin", "root"])], adminController.getAllUsers);
 
 // Create a new user
 router.post(
     "/newuser",
     [
-        authorizeMiddleware("admin"),
+        authorizeMiddleware(["admin", "superadmin", "root"]),
         check("username").isLength({ min: 4, max: 20 }),
         check("name").isLength({ min: 2, max: 50 }),
         check("email").isEmail().normalizeEmail(),
@@ -26,7 +26,7 @@ router.post(
 router.put(
     "/updateuser/:id",
     [
-        authorizeMiddleware("admin"),
+        authorizeMiddleware(["admin", "superadmin", "root"]),
         check("username")
             .notEmpty()
             .withMessage("Username is required")
@@ -57,7 +57,7 @@ router.put(
 // Delete a user
 router.delete(
     "/deleteuser/:id",
-    authorizeMiddleware("admin"),
+    authorizeMiddleware(["admin", "superadmin", "root"]),
     adminController.deleteUser
 );
 

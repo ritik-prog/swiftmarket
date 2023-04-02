@@ -9,14 +9,14 @@ const router = express.Router();
 // GET /products
 router.get(
     "/",
-    [authenticateMiddleware, authorizeMiddleware("admin")],
+    [authenticateMiddleware, authorizeMiddleware(["admin", "superadmin", "root"])],
     adminController.getAllProducts
 );
 
 // GET /products/seller/:username
 router.get(
     "/seller/:username",
-    [authenticateMiddleware, authorizeMiddleware("admin")],
+    [authenticateMiddleware, authorizeMiddleware(["admin", "superadmin", "root"])],
     adminController.getAllProductsOfSellerByUsername
 );
 
@@ -24,7 +24,7 @@ router.get(
 router.get(
     "/:id",
     [
-        [authenticateMiddleware, authorizeMiddleware("admin")],
+        [authenticateMiddleware, authorizeMiddleware(["admin", "superadmin", "root"])],
         param("id").isMongoId(),
     ],
     adminController.getProductById
@@ -35,7 +35,7 @@ router.put(
     "/:id",
     [
         authenticateMiddleware,
-        authorizeMiddleware("admin"),
+        authorizeMiddleware(["admin", "superadmin", "root"]),
         body("productName").trim().notEmpty(),
         body("productDescription").trim().notEmpty(),
         body("price").isFloat({ min: 0 }),
@@ -51,7 +51,7 @@ router.put(
 // DELETE /products/:id
 router.delete(
     "/:id",
-    [authenticateMiddleware, authorizeMiddleware("admin")],
+    [authenticateMiddleware, authorizeMiddleware(["admin", "superadmin", "root"])],
     adminController.deleteProduct
 );
 

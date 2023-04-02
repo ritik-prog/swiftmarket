@@ -19,12 +19,12 @@ router.post('/verify', [
 ], sellerController.verifySeller);
 
 // Get a seller by ID
-router.get('/profile', [authenticateMiddleware, authorizeMiddleware('seller')], sellerController.getSellerById);
+router.get('/profile', [authenticateMiddleware, authorizeMiddleware(['seller'])], sellerController.getSellerById);
 
 // Update a seller by ID
 router.put('/updateprofile', [
     authenticateMiddleware,
-    authorizeMiddleware('seller'),
+    authorizeMiddleware(['seller']),
     check('fullName').not().isEmpty(),
     check('email').isEmail(),
     check('phoneNumber').isMobilePhone(),
@@ -41,10 +41,10 @@ router.put('/updateprofile', [
 ], sellerController.updateSellerById);
 
 // Delete a seller by ID
-router.delete('/deleteprofile', [authenticateMiddleware, authorizeMiddleware('seller')], sellerController.deleteSellerById);
+router.delete('/deleteprofile', [authenticateMiddleware, authorizeMiddleware(['seller'])], sellerController.deleteSellerById);
 
 // Create a product of a seller
-router.put('/createproduct', [authenticateMiddleware, authorizeMiddleware('seller'), authorizeMiddleware('seller'),
+router.put('/createproduct', [authenticateMiddleware, authorizeMiddleware(['seller']),
     check('productName').notEmpty(),
     check('productDescription').notEmpty(),
     check('price').isNumeric().notEmpty(),
@@ -54,9 +54,9 @@ router.put('/createproduct', [authenticateMiddleware, authorizeMiddleware('selle
     check('thumbnailUrl').isString,], sellerController.createProductForSeller);
 
 // UPDATE a product of a seller
-router.put('/updateproduct', [authenticateMiddleware, authorizeMiddleware('seller')], sellerController.updateProductForSeller);
+router.put('/updateproduct', [authenticateMiddleware, authorizeMiddleware(['seller'])], sellerController.updateProductForSeller);
 
 // DELETE a product of a seller
-router.delete('/deleteproduct', [authenticateMiddleware, authorizeMiddleware('seller')], sellerController.deleteProductForSeller);
+router.delete('/deleteproduct', [authenticateMiddleware, authorizeMiddleware(['seller'])], sellerController.deleteProductForSeller);
 
 module.exports = router;
