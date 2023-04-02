@@ -70,7 +70,7 @@ const applySellerSchema = new mongoose.Schema({
 }, { timestamps: true });
 
 // Post save middleware for validation errors
-sellerSchema.post('validate', function (error, doc, next) {
+applySellerSchema.post('validate', function (error, doc, next) {
     if (error instanceof mongoose.Error.ValidationError) {
         const validationErrors = Object.values(error.errors).map(
             (err) => err.message

@@ -1,7 +1,9 @@
+const { validationResult } = require('express-validator');
+
 const User = require('../../models/auth/userSchema');
 const Seller = require('../../models/seller/sellerSchema');
 const applySeller = require('../../models/seller/applySellerSchema');
-const { validationResult } = require('express-validator');
+const authorizeChangeMiddleware = require('../../middleware/authorizeChangeMiddleware');
 
 // Get applied sellers
 const getAllApplySellers = async (req, res, next) => {
@@ -108,13 +110,6 @@ const createSeller = async (req, res) => {
     if (!errors.isEmpty()) {
         return res.status(400).json({ errors: errors.array() });
     }
-
-    var user = await User.findById(req.userId);
-
-    if (!user) {
-        throw new Error('User not found');
-    }
-
     try {
         const user = await User.findById(req.userId);
         if (!user) {
@@ -187,11 +182,6 @@ const updateSeller = async (req, res) => {
             return res.status(404).json({ status: 'fail', message: 'Seller not found' });
         }
 
-        // validate that user updating the seller is authorized
-        if (req.user.role !== 'admin' && req.user.id !== seller.userId.toString()) {
-            return res.status(403).json({ status: 'fail', message: 'Unauthorized' });
-        }
-
         // update seller information
         Object.keys(updates).forEach((key) => (seller[key] = updates[key]));
         await seller.save();
@@ -246,6 +236,8 @@ const createUser = async (req, res) => {
             return res.status(400).json({ status: 'error', message: 'User already exists' });
         }
 
+        authorizeChangeMiddleware(user.role);
+
         // Create new user
         user = new User({ username, name, email, password });
 
@@ -264,6 +256,7 @@ const createUser = async (req, res) => {
     }
 };
 
+// update user
 const updateUser = async (req, res) => {
     try {
         const errors = validationResult(req);
@@ -273,16 +266,13 @@ const updateUser = async (req, res) => {
         const { id } = req.params;
         const updates = req.body;
 
-        // check if user is authorized to update this user's information
-        if (req.user.role !== 'admin' && req.user._id.toString() !== id) {
-            return res.status(401).json({ status: 'error', message: 'Unauthorized' });
-        }
-
         // check if user exists
         const user = await User.findById(id);
         if (!user) {
             return res.status(404).json({ status: 'error', message: 'User not found' });
         }
+
+        authorizeChangeMiddleware(user.role);
 
         // update user information
         Object.keys(updates).forEach((key) => (user[key] = updates[key]));
@@ -295,15 +285,19 @@ const updateUser = async (req, res) => {
     }
 };
 
+// delete user
 const deleteUser = async (req, res) => {
     try {
         const { id } = req.params;
-        const user = await User.findByIdAndDelete(id);
+        const user = await User.findById(id);
 
         if (!user) {
             return res.status(404).json({ status: 'error', message: 'User not found' });
         }
 
+        authorizeChangeMiddleware(user.role);
+
+        await user.delete();
         res.status(200).json({ status: 'success', message: 'User deleted successfully' });
     } catch (err) {
         console.error(err.message);
@@ -311,5 +305,25 @@ const deleteUser = async (req, res) => {
     }
 };
 
+// ban user
+const banUser = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const user = await User.findById(id);
 
-module.exports = { getAllApplySellers, createSeller, acceptSeller, getAllUsers, createUser, updateUser, deleteUser, getAllSellers, updateSeller, deleteSeller };
+        if (!user) {
+            return res.status(404).json({ status: 'fail', message: 'User not found' });
+        }
+        authorizeChangeMiddleware(user.role);
+        user.banStatus.isBanned = true;
+        user.banStatus.banExpiresAt = req.body.expiresAt;
+        await user.save();
+
+        res.status(200).json({ status: 'success', message: 'User has been banned successfully' });
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).json({ status: 'error', message: 'Server Error' });
+    }
+};
+
+module.exports = { getAllApplySellers, createSeller, acceptSeller, getAllUsers, createUser, updateUser, deleteUser, getAllSellers, updateSeller, deleteSeller, banUser };

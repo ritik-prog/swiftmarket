@@ -89,7 +89,7 @@ const userSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Seller'
     },
-    BanStatus: {
+    banStatus: {
         isBanned: {
             type: Boolean,
             default: false,
@@ -121,14 +121,32 @@ const userSchema = new mongoose.Schema({
 // if user is being banned, remove all existing tokens
 userSchema.pre('save', async function (next) {
     const user = this;
-
     if (user.isModified('BanStatus.isBanned') && user.BanStatus.isBanned) {
         user.tokens = [];
     }
-
     next();
 });
 
+// role is set to seller if user is a seller
+userSchema.pre('save', async function (next) {
+    if (this.isModified('seller') && this.seller) {
+        // If the user has a linked seller, set their role to 'seller'
+        this.role = 'seller';
+    } else if (!this.seller && this.role === 'user') {
+        // If the user no longer has a linked seller, set their role back to 'user'
+        this.role = 'user';
+    }
+    next();
+});
+
+// if user is being deleted, delete the seller
+userSchema.pre('remove', async function (next) {
+    const user = this;
+    if (user.role === 'seller') {
+        await mongoose.model('Seller').findOneAndDelete({ user: user._id });
+    }
+    next();
+});
 
 // Generate JWT token
 userSchema.methods.generateAuthToken = async function () {

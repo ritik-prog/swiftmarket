@@ -55,7 +55,7 @@ router.put("/updateseller/:id", [
 router.delete("/deleteseller/:id", [authenticateMiddleware, authorizeMiddleware("admin")], adminController.deleteSeller);
 
 // Display all users
-router.get("/users", [authenticateMiddleware, authorizeMiddleware("admin")], UserController.getAllUsers);
+router.get("/users", [authenticateMiddleware, authorizeMiddleware("admin")], adminController.getAllUsers);
 
 // Create a new user
 router.post(
@@ -65,9 +65,9 @@ router.post(
         check("username").isLength({ min: 4, max: 20 }),
         check("name").isLength({ min: 2, max: 50 }),
         check("email").isEmail().normalizeEmail(),
-        check("password").isLength({ min: 6, max: 100 }),
+        check("password").isLength({ min: 6, max: 100 })
     ],
-    UserController.createUser
+    adminController.createUser
 );
 
 // Update an existing user
@@ -99,14 +99,17 @@ router.put(
             .isLength({ max: 100 })
             .withMessage("Address must be at most 100 characters long"),
     ],
-    UserController.updateUser
+    adminController.updateUser
 );
 
 // Delete a user
 router.delete(
     "/deleteuser/:id",
     authorizeMiddleware("admin"),
-    UserController.deleteUser
+    adminController.deleteUser
 );
+
+// Ban a user
+router.put('/users/:id/ban', [authorizeMiddleware('admin')], adminController.banUser);
 
 module.exports = router;

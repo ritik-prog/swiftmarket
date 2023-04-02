@@ -10,19 +10,19 @@ const authorizeMiddleware = (role) => async (req, res, next) => {
     }
 
     // Extract the token from the header
-    const token = authHeader.slice(7);
+    // const token = authHeader.slice(7);
 
     try {
         // Verify the token
-        const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
-        const user = await User.findById(decodedToken._id);
-        if (!user) {
-            throw new Unauthorized('Invalid or expired token');
-        }
-        if (user.role !== role) {
+        // const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
+        // const user = await User.findById(decodedToken._id);
+        // if (!user) {
+        //     throw new Unauthorized('Invalid or expired token');
+        // }
+        if (req.user.role !== role) {
             throw new Unauthorized('User not authorized to access this resource');
         }
-        req.user = user;
+        // req.user = user;
         next();
     } catch (err) {
         throw new Unauthorized('Invalid or expired token');

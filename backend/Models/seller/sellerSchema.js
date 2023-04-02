@@ -161,6 +161,15 @@ sellerSchema.post('findOneAndUpdate', function (error, doc, next) {
     }
 });
 
+sellerSchema.pre('remove', async function (next) {
+    const products = await mongoose.model('Product').find({ seller: this._id });
+    if (products.length) {
+        await mongoose.model('Product').deleteMany({ seller: this._id });
+    }
+    next();
+});
+
+
 const Seller = mongoose.model('Seller', sellerSchema);
 
 module.exports = Seller;

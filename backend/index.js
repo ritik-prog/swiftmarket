@@ -37,6 +37,10 @@ app.use(rateLimiterMiddleware)
 app.use(bodyParser.urlencoded({ extended: false }));
 // parse application/json
 app.use(bodyParser.json());
+app.use((req, res, next) => {
+    res.setHeader('Content-Security-Policy', "default-src 'self'");
+    next();
+});
 
 // Set up CSRF protection
 let csrfProtection;
