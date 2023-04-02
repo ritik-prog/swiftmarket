@@ -4,14 +4,14 @@ const moment = require('moment');
 const checkBanMiddleware = async (req, res, next) => {
     try {
         const user = await User.findOne({ email: req.body.email });
-        if (user && user.BanStatus.isBanned) {
-            if (user.BanStatus.banExpiresAt) {
-                const banExpiresAt = moment(user.BanStatus.banExpiresAt);
+        if (user && user.banStatus.isBanned) {
+            if (user.banStatus.banExpiresAt) {
+                const banExpiresAt = moment(user.banStatus.banExpiresAt);
                 const now = moment();
                 if (now.isAfter(banExpiresAt)) {
                     // Ban has expired, unban the user
-                    user.BanStatus.isBanned = false;
-                    user.BanStatus.banExpiresAt = null;
+                    user.banStatus.isBanned = false;
+                    user.banStatus.banExpiresAt = null;
                     await user.save();
                 } else {
                     // Ban is still in effect

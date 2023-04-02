@@ -14,6 +14,7 @@ const fs = require('fs');
 const authRouter = require('./Routes/auth/authRouter');
 const sellerRouter = require('./Routes/seller/sellerRouter');
 const productRouter = require('./Routes/product/productRouter');
+const superAdminRouter = require('./Routes/superadmin/superAdminRouter');
 
 const rateLimiterMiddleware = require('./Middleware/rateLimitermiddleware.js');
 
@@ -56,13 +57,27 @@ if (process.env.NODE_ENV === 'production') {
     csrfProtection = (req, res, next) => next();
 }
 
-app.use("/", csrfProtection, (req, res, next) => {
-    logger.error('Debugging info');
-})
+// app.use("/", csrfProtection, (req, res, next) => {
+//     try {
+//         logger.log({
+//             level: 'error',
+//             message: 'User not found',
+//             meta: {
+//                 code: 404,
+//                 userId: '123'
+//             },
+//             userId: '123',
+//         });
+//         res.status(200).send('Hello World');
+//     } catch (error) {
+//         res.status(500).send('Internal Server Error' + error);
+//     }
+// })
 
 app.use('/api/auth', csrfProtection, authRouter);
 app.use('/api/seller', csrfProtection, sellerRouter);
 app.use('/api/product', csrfProtection, productRouter);
+app.use('/api/superadmin', csrfProtection, superAdminRouter);
 
 // Set up error handling middleware
 app.use((req, res, next) => {
