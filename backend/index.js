@@ -17,7 +17,8 @@ const productRouter = require('./Routes/product/productRouter');
 
 const rateLimiterMiddleware = require('./Middleware/rateLimitermiddleware.js');
 
-const connectDB = require('./Config/connectDB');
+const connectDB = require('./utils/connectDB');
+const logger = require('./utils/logHandler');
 
 dotenv.config(); // load environment variables from .env file
 connectDB(); // connect to MongoDB database
@@ -54,6 +55,10 @@ if (process.env.NODE_ENV === 'production') {
 } else {
     csrfProtection = (req, res, next) => next();
 }
+
+app.use("/", csrfProtection, (req, res, next) => {
+    logger.error('Debugging info');
+})
 
 app.use('/api/auth', csrfProtection, authRouter);
 app.use('/api/seller', csrfProtection, sellerRouter);

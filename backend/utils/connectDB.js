@@ -35,6 +35,6 @@ mongoose.plugin(schema => {
     });
 });
 
-mongoose.set('strictQuery', false);
+mongoose.set('strictQuery', true);
 
 module.exports = connectDB;

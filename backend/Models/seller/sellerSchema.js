@@ -165,7 +165,7 @@ sellerSchema.pre('remove', async function (next) {
     next();
 });
 
-productSchema.pre(/^find/, function (next) {
+sellerSchema.pre(/^find/, function (next) {
     this.populate({
         path: 'user',
         select: 'fullName email phoneNumber'
