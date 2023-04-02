@@ -5,19 +5,18 @@ const Product = require('../../models/product/productSchema');
 // GET all products of a seller by username
 exports.getAllProductsOfSellerByUsername = async (req, res, next) => {
     try {
-        const seller = await Seller.findOne({ username: req.params.username });
+        const seller = await Seller.findOne({ username: req.params.username }).populate('products');
         if (!seller) {
             return res.status(404).json({
                 status: 'error',
                 message: 'Seller not found'
             });
         }
-        const products = await Product.find({ seller: seller._id });
         res.status(200).json({
             status: 'success',
             message: 'Retrieved all products of the seller',
             data: {
-                products
+                products: seller.products
             }
         });
     } catch (err) {

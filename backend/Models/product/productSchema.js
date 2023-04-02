@@ -1,3 +1,4 @@
+const { uniq } = require('lodash');
 const mongoose = require('mongoose');
 
 const productSchema = new mongoose.Schema(
@@ -11,6 +12,12 @@ const productSchema = new mongoose.Schema(
             type: String,
             required: true,
             trim: true
+        },
+        businessUsername: {
+            type: String,
+            required: true,
+            trim: true,
+            unique: true
         },
         productDescription: {
             type: String,

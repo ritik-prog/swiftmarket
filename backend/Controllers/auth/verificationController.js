@@ -25,7 +25,7 @@ const sendVerificationCode = async (email) => {
             };
 
             // Send email
-            await sendEmail(user.email, data, 'verficationCode.hbs');
+            await sendEmail(user.email, data, './verfication/verficationCode.hbs');
 
             return { success: true, message: 'Verification code sent successfully.', status: 200 };
         } else {
@@ -101,7 +101,7 @@ async function sendVerificationCodeAgain(email) {
             };
 
             // Send email
-            await sendEmail(user.email, data, 'verficationCode.hbs');
+            await sendEmail(user.email, data, './verfication/verficationCode.hbs');
             return { message: 'Verification code sent successfully.', status: 200, success: true };
         } else {
             return { success: false, message: 'User is already verified.', status: 500 };

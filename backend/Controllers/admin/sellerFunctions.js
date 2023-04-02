@@ -5,7 +5,6 @@ const Seller = require('../../models/seller/sellerSchema');
 const applySeller = require('../../models/seller/applySellerSchema');
 const sendEmail = require('../../utils/sendEmail');
 
-
 // Get applied sellers
 const getAllApplySellers = async (req, res, next) => {
     try {
@@ -39,6 +38,7 @@ const acceptSeller = async (req, res, next) => {
 
         // Create a new seller instance with required fields
         const newSeller = new sellerModel({
+            businessUsername: applySeller.businessUsername,
             businessNumber: applySeller.businessNumber,
             businessEmail: applySeller.businessEmail,
             businessName: applySeller.businessName,
@@ -70,7 +70,7 @@ const acceptSeller = async (req, res, next) => {
             verificationLink: 'https://example.com/verify'
         };
 
-        await sendEmail(newSeller.email, data, 'verifySeller.hbs');
+        await sendEmail(newSeller.email, data, './verfication/verifySeller.hbs');
 
         res.status(201).json({
             success: true,
@@ -122,10 +122,10 @@ const createSeller = async (req, res) => {
         }
 
         const {
-            fullName,
-            email,
-            phoneNumber,
+            businessUsername,
             businessName,
+            businessNumber,
+            businessEmail,
             businessRegistrationNumber,
             businessType,
             businessAddress,
@@ -138,9 +138,9 @@ const createSeller = async (req, res) => {
         } = req.body;
 
         seller = new Seller({
-            fullName,
-            email,
-            phoneNumber,
+            businessUsername,
+            businessEmail,
+            businessNumber,
             businessName,
             businessRegistrationNumber,
             businessType,

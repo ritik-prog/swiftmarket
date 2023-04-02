@@ -6,12 +6,11 @@ const router = express.Router();
 
 // GET all products of a seller by username
 router.get('/:username/products',
-    [authenticateMiddleware],
     getAllProductsOfSellerByUsername
 );
 
 // GET a specific product of a seller
-router.get('/:username/product/:id', [authenticateMiddleware], getSellerProduct);
+router.get('/:username/product/:id', getSellerProduct);
 
 // GET a product by ID
 router.get('/:id', getProductById);

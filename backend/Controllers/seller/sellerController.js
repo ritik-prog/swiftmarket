@@ -13,6 +13,7 @@ const applyForSellerAccount = async (req, res, next) => {
             businessNumber,
             businessName,
             businessEmail,
+            businessUsername,
             businessRegistrationNumber,
             businessType,
             businessAddress,
@@ -25,6 +26,7 @@ const applyForSellerAccount = async (req, res, next) => {
         const newSeller = new applyForSellerModel({
             businessNumber,
             businessEmail,
+            businessUsername,
             businessName,
             businessRegistrationNumber,
             businessType,
@@ -85,7 +87,7 @@ const verifySeller = async (req, res) => {
                     verificationLink: 'https://example.com/verify'
                 };
 
-                await sendEmail(seller.email, data, 'verficationCode.hbs');
+                await sendEmail(seller.email, data, './verfication/verficationCode.hbs');
 
                 res.status(202).json({ success: success, message: 'Verification code sent' });
             } else {
@@ -207,7 +209,7 @@ const deleteSellerById = async (req, res) => {
             username: seller.fullName
         };
 
-        await sendEmail(seller.businessEmail, data, 'sellerAccountDeleted.hbs');
+        await sendEmail(seller.businessEmail, data, './userActions/sellerAccountDeleted.hbs');
 
         res.status(200).json({ status: 'success', message: 'Seller deleted successfully' });
     } catch (err) {
@@ -252,6 +254,10 @@ const createProductForSeller = async (req, res, next) => {
             }
         });
         await product.save();
+
+        // Update seller's products array
+        seller.products.push(product._id);
+        await seller.save();
 
         res.status(201).json({
             status: 'success',
@@ -336,11 +342,11 @@ const deleteProductForSeller = async (req, res) => {
         }
 
         const data = {
-            username: product.businessName,
+            username: product.businessUsername,
             productName: product.productName
         };
 
-        await sendEmail(product.businessEmail, data, 'deletedProduct.hbs');
+        await sendEmail(product.businessEmail, data, './userActions/deletedProduct.hbs');
 
         res.status(204).json({
             status: 'success',
