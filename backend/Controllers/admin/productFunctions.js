@@ -1,12 +1,24 @@
 const Product = require('../../models/product/productSchema');
+const Seller = require('../../models/seller/sellerSchema');
+const sendEmail = require('../../utils/sendEmail');
 
 // Get all products
 const getAllProducts = async (req, res, next) => {
     try {
         const products = await Product.find();
-        return products;
+        return res.status(200).json({
+            status: "success",
+            message: "All products retrieved successfully",
+            data: {
+                products: products,
+            },
+        });
     } catch (err) {
         console.error(err);
+        return res.status(500).json({
+            status: "error",
+            message: "Internal server error",
+        });
     }
 };
 
@@ -28,6 +40,7 @@ const getAllProductsOfSellerByUsername = async (req, res, next) => {
             }
         });
     } catch (err) {
+        console.error(err);
         res.status(500).json({
             status: 'error',
             message: 'Internal server error'
@@ -38,12 +51,28 @@ const getAllProductsOfSellerByUsername = async (req, res, next) => {
 // Get a product by ID
 const getProductById = async (req, res, next) => {
     try {
-        const product = await Product.findById(req.body.productId);
-        return product;
+        const product = await Product.findById(req.params.id);
+        if (!product) {
+            return res.status(404).json({
+                status: 'error',
+                message: 'Product not found'
+            });
+        }
+        res.status(200).json({
+            status: 'success',
+            message: 'Retrieved product successfully',
+            data: {
+                product: product
+            }
+        });
     } catch (err) {
-        console.error(err);
+        res.status(500).json({
+            status: 'error',
+            message: 'Internal server error'
+        });
     }
 };
+
 
 // Update product
 const updateProduct = async (req, res, next) => {
@@ -114,6 +143,7 @@ const updateProduct = async (req, res, next) => {
     }
 };
 
+
 // DELETE product
 const deleteProduct = async (req, res, next) => {
     try {
@@ -138,9 +168,17 @@ const deleteProduct = async (req, res, next) => {
 
         res.status(204).json({
             status: 'success',
-            message: 'Deleted the product'
+            message: 'Product deleted successfully',
+            data: null
         });
-    } catch (err) {
+    } catch (error) {
+        console.error(error);
+        if (error instanceof mongoose.Error.CastError) {
+            return res.status(400).json({
+                status: 'error',
+                message: 'Invalid product ID'
+            });
+        }
         res.status(500).json({
             status: 'error',
             message: 'Internal server error'
