@@ -79,6 +79,17 @@ const productSchema = new mongoose.Schema(
         },
         updatedAt: {
             type: Date
+        },
+        updatedBy: {
+            role: {
+                type: String,
+                enum: ['seller', 'admin', 'superadmin', 'root'],
+                default: 'seller'
+            },
+            userId: {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: 'User'
+            }
         }
     },
     {
@@ -97,7 +108,7 @@ productSchema.virtual('reviews', {
 productSchema.pre(/^find/, function (next) {
     this.populate({
         path: 'seller',
-        select: 'fullName email phoneNumber'
+        select: 'businessName businessEmail businessNumber'
     });
     next();
 });

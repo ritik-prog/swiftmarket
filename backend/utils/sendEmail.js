@@ -48,4 +48,4 @@ async function sendEmail(email, data, templateName) {
     return result;
 }
 
-module.exports = { sendEmail }
+module.exports = sendEmail 

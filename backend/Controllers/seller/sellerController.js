@@ -1,18 +1,18 @@
-const Seller = require('../../models/seller/sellerSchema');
-const applyForSellerModel = require('../../models/seller/applySellerSchema');
 const { validationResult } = require('express-validator');
 
+const Seller = require('../../models/seller/sellerSchema');
+const applyForSellerModel = require('../../models/seller/applySellerSchema');
 const Product = require('../../models/product/productSchema');
+const sendEmail = require('../../utils/sendEmail');
 
 // Apply for seller account
 const applyForSellerAccount = async (req, res, next) => {
     try {
         // Extract required fields from request body
         const {
-            fullName,
-            email,
-            phoneNumber,
+            businessNumber,
             businessName,
+            businessEmail,
             businessRegistrationNumber,
             businessType,
             businessAddress,
@@ -23,9 +23,8 @@ const applyForSellerAccount = async (req, res, next) => {
 
         // Create a new seller instance with required fields
         const newSeller = new applyForSellerModel({
-            fullName,
-            email,
-            phoneNumber,
+            businessNumber,
+            businessEmail,
             businessName,
             businessRegistrationNumber,
             businessType,
@@ -86,7 +85,7 @@ const verifySeller = async (req, res) => {
                     verificationLink: 'https://example.com/verify'
                 };
 
-                const status = await sendEmail(seller.email, data, 'verficationCode.hbs');
+                await sendEmail(seller.email, data, 'verficationCode.hbs');
 
                 res.status(202).json({ success: success, message: 'Verification code sent' });
             } else {
@@ -202,12 +201,14 @@ const deleteSellerById = async (req, res) => {
             return res.status(404).json({ status: 'error', message: 'Seller not found' });
         }
 
-        // Check if user is authorized to delete the seller
-        if (seller.user.toString() !== req.body._id) {
-            return res.status(401).json({ status: 'error', message: 'Not authorized' });
-        }
-
         await Seller.findByIdAndDelete(req.body._id);
+
+        const data = {
+            username: seller.fullName
+        };
+
+        await sendEmail(seller.businessEmail, data, 'sellerAccountDeleted.hbs');
+
         res.status(200).json({ status: 'success', message: 'Seller deleted successfully' });
     } catch (err) {
         console.error(err.message);
@@ -244,7 +245,11 @@ const createProductForSeller = async (req, res, next) => {
             category: req.body.category,
             imagesUrl: req.body.imagesUrl,
             thumbnailUrl: req.body.thumbnailUrl,
-            featured: req.body.featured || false
+            featured: req.body.featured || false,
+            updatedBy: {
+                role: req.user.role,
+                userId: req.user._id
+            }
         });
         await product.save();
 
@@ -296,6 +301,10 @@ const updateProductForSeller = async (req, res) => {
         product.imagesUrl = req.body.imagesUrl;
         product.thumbnailUrl = req.body.thumbnailUrl;
         product.featured = req.body.featured || false;
+        product.updatedBy = {
+            role: req.user.role,
+            userId: req.user._id
+        }
 
         await product.save();
 
@@ -325,6 +334,14 @@ const deleteProductForSeller = async (req, res) => {
                 message: 'Product not found'
             });
         }
+
+        const data = {
+            username: product.businessName,
+            productName: product.productName
+        };
+
+        await sendEmail(product.businessEmail, data, 'deletedProduct.hbs');
+
         res.status(204).json({
             status: 'success',
             message: 'Deleted the product'

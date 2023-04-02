@@ -1,5 +1,5 @@
 const User = require('../../models/auth/userSchema');
-const { sendEmail } = require('../../utils/sendEmail');
+const sendEmail = require('../../utils/sendEmail');
 const generateVerificationCode = require('../../utils/generateCode');
 
 const sendVerificationCode = async (email) => {
@@ -25,7 +25,7 @@ const sendVerificationCode = async (email) => {
             };
 
             // Send email
-            const status = await sendEmail(user.email, data, 'verficationCode.hbs');
+            await sendEmail(user.email, data, 'verficationCode.hbs');
 
             return { success: true, message: 'Verification code sent successfully.', status: 200 };
         } else {
@@ -101,7 +101,7 @@ async function sendVerificationCodeAgain(email) {
             };
 
             // Send email
-            const status = await sendEmail(user.email, data, 'verficationCode.hbs');
+            await sendEmail(user.email, data, 'verficationCode.hbs');
             return { message: 'Verification code sent successfully.', status: 200, success: true };
         } else {
             return { success: false, message: 'User is already verified.', status: 500 };

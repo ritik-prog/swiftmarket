@@ -8,11 +8,7 @@ const sellerSchema = new mongoose.Schema({
         unique: true, // Make sellerID unique
         index: true // Add index for faster lookups
     },
-    fullName: {
-        type: String,
-        required: true
-    },
-    email: {
+    businessEmail: {
         type: String,
         required: true,
         unique: true,
@@ -21,7 +17,7 @@ const sellerSchema = new mongoose.Schema({
             message: 'Invalid Email Address'
         }
     },
-    phoneNumber: {
+    businessNumber: {
         type: String,
         required: true,
         validate: {
@@ -169,6 +165,13 @@ sellerSchema.pre('remove', async function (next) {
     next();
 });
 
+productSchema.pre(/^find/, function (next) {
+    this.populate({
+        path: 'user',
+        select: 'fullName email phoneNumber'
+    });
+    next();
+});
 
 const Seller = mongoose.model('Seller', sellerSchema);
 

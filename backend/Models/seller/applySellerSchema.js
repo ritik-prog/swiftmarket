@@ -2,11 +2,7 @@ const mongoose = require('mongoose');
 const validator = require('validator');
 
 const applySellerSchema = new mongoose.Schema({
-    fullName: {
-        type: String,
-        required: true,
-    },
-    email: {
+    businessEmail: {
         type: String,
         required: true,
         unique: true,
@@ -15,7 +11,7 @@ const applySellerSchema = new mongoose.Schema({
             message: 'Invalid Email Address',
         },
     },
-    phoneNumber: {
+    businessNumber: {
         type: String,
         required: true,
         validate: {
