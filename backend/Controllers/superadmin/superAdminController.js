@@ -10,10 +10,9 @@ const { validationResult } = require('express-validator');
 const getAdmins = async (req, res) => {
     try {
         const admins = await Admin.find({ role: 'superadmin' });
-        return res.status(200).json(admins);
+        return res.status(200).json({ admins, status: 'success' });
     } catch (err) {
-        console.error(err);
-        return res.status(500).json({ message: 'Internal server error.' });
+        handleError(res, err);
     }
 }
 
@@ -77,7 +76,7 @@ const createAdmin = async (req, res) => {
         await newAdmin.save();
 
         // Return the new admin document
-        res.status(201).json(newAdmin);
+        res.status(200).json({ newAdmin, status: 'success', });
     } catch (error) {
         handleError(res, err);
     }
@@ -147,7 +146,7 @@ const deleteAdmin = async (req, res) => {
             });
         }
         await admin.remove();
-        return res.status(200).json({ message: 'Admin deleted successfully.' });
+        return res.status(200).json({ status: 'success', message: 'Admin deleted successfully.' });
     } catch (err) {
         handleError(res, err);
     }

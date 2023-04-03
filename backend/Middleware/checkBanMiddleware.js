@@ -1,6 +1,8 @@
 const User = require('../models/auth/userSchema');
 const moment = require('moment');
 
+const handleError = require('../utils/errorHandler');
+
 const checkBanMiddleware = async (req, res, next) => {
     try {
         const user = await User.findOne({ email: req.body.email });
@@ -20,7 +22,7 @@ const checkBanMiddleware = async (req, res, next) => {
                     if (user.tokens.length > 0) {
                         await user.updateOne({ $set: { tokens: [] } });
                     }
-                    return res.status(403).json({ error: `You are banned from this service. Time until unban: ${hours} hours` });
+                    return res.status(417).json({ status: 'error', message: `You are banned from this service. Time until unban: ${hours} hours` });
                 }
             } else {
                 // Permanent ban
@@ -28,13 +30,12 @@ const checkBanMiddleware = async (req, res, next) => {
                 if (user.tokens.length > 0) {
                     await user.updateOne({ $set: { tokens: [] } });
                 }
-                return res.status(403).json({ error: `You are banned from this service permanently` });
+                return res.status(418).json({ status: 'error', message: `You are banned from this service permanently` });
             }
         }
         next();
     } catch (error) {
-        console.error(error);
-        return res.status(500).json({ error: 'Internal server error' });
+        handleError(res, err);
     }
 };
 

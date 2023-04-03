@@ -68,7 +68,7 @@ exports.signup = async (req, res) => {
             await newIp.save();
         }
 
-        res.status(202).json({ token });
+        res.status(200).json({ token, status: 'success', });
     } catch (err) {
         handleError(res, err);
     }
@@ -108,7 +108,7 @@ exports.login = async (req, res) => {
 
         const token = await user.generateAuthToken();
 
-        res.status(202).json({
+        res.status(200).json({
             token, user: {
                 id: user.id,
                 name: user.name,
@@ -117,7 +117,7 @@ exports.login = async (req, res) => {
                 address: user.address,
                 verificationStatus: user.verificationStatus,
                 role: user.role
-            }
+            }, status: 'success',
         });
     } catch (err) {
         handleError(res, err);
@@ -156,7 +156,7 @@ exports.getUser = async (req, res) => {
             });
         }
 
-        res.status(202).json(user);
+        res.status(200).json({ user, status: 'success', });
     } catch (err) {
         handleError(res, err);
     }
@@ -191,7 +191,18 @@ exports.updateProfile = async (req, res) => {
         user.paymentDetails = paymentDetails || user.paymentDetails;
 
         await user.save();
-        res.status(202).json(user);
+
+        const data = {
+            userUpdated: {
+                name: user.name,
+                email: user.email,
+                role: user.role
+            }
+        };
+
+        await sendEmail(user.email, data, './userAction/userAccountChange.hbs');
+
+        res.status(200).json({ user, status: 'success', });
     } catch (err) {
         handleError(res, err);
     }
@@ -228,7 +239,18 @@ exports.updatePassword = async (req, res) => {
         // Generate and save new auth token
         const token = await user.generateAuthToken();
 
-        res.status(202).json({ message: 'Password updated successfully', token: token });
+        const data = {
+            passwordUpdated: {
+                name: user.name,
+                email: user.email,
+                role: user.role
+            }
+        };
+
+        await sendEmail(user.email, data, './userAction/userAccountChange.hbs');
+
+
+        res.status(200).json({ message: 'Password updated successfully', token: token, status: 'success', });
     } catch (err) {
         handleError(res, err);
     }
@@ -239,7 +261,63 @@ exports.logout = async (req, res) => {
         const user = await User.findById(req.user_id);
         user.tokens = [];
         await user.save();
-        res.status(200).json({ message: 'Logged out successfully' });
+        res.status(200).json({ message: 'Logged out successfully', status: 'success' });
+    } catch (err) {
+        handleError(res, err);
+    }
+};
+
+exports.deleteAccount = async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        handleError(res, {
+            name: 'CustomValidationError',
+            status: 'error',
+            errors: errors.array()
+        });
+    }
+
+    const { token, password } = req.body;
+    try {
+        const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
+        const user = await User.findOne({
+            _id: decodedToken._id,
+            'tokens.token': token,
+            'tokens.expiresAt': { $gte: Date.now() }
+        });
+        if (!user) {
+            handleError(res, {
+                name: 'not_found',
+                status: 'error',
+                message: 'User not found'
+            });
+        }
+
+        const isMatch = await bcrypt.compare(password, user.password);
+        if (!isMatch) {
+            handleError(res, {
+                message: 'Invalid Credentials',
+                code: 401
+            });
+        }
+
+        await user.remove();
+        const data = {
+            userDeleted: {
+                name: user.name,
+                email: user.email,
+                role: user.role,
+                deletedAt: new Date()
+            }
+        };
+
+        await sendEmail(user.email, data, './userAction/userAccountChange.hbs');
+
+        res.status(200).json({
+            status: 'success',
+            message: 'User deleted successfully'
+        });
+
     } catch (err) {
         handleError(res, err);
     }

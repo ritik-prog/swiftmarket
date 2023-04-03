@@ -172,6 +172,32 @@ userSchema.methods.generateAuthToken = async function () {
     return token;
 };
 
+// Pre-hook to update seller and product ban status when user is banned
+userSchema.pre(["findOneAndUpdate", "updateMany", "update"], async function (next) {
+    const query = this.getQuery();
+    const docToUpdate = await this.model.findOne(query);
+
+    const isBannedChanged = this._update.banStatus && this._update.banStatus.isBanned !== undefined && this._update.banStatus.isBanned !== docToUpdate.banStatus.isBanned;
+
+    if (isBannedChanged && this._update.banStatus.isBanned) {
+        try {
+            // Find the associated seller and update their ban status
+            const seller = await User.findOne({ sellerId: docToUpdate.sellerId, role: 'seller' });
+            if (seller) {
+                seller.banStatus.isBanned = true;
+                seller.banStatus.banExpiresAt = this._update.banStatus.banExpiresAt;
+                await seller.save();
+            }
+
+            // Find all products associated with the banned user and set them as unavailable
+            await Product.updateMany({ sellerId: docToUpdate.sellerId }, { isAvailable: false });
+        } catch (error) {
+            console.error('Error updating seller and product ban status: ', error);
+        }
+    }
+    next();
+});
+
 const User = mongoose.model('User', userSchema);
 
 module.exports = User;

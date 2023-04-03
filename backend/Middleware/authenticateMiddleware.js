@@ -7,7 +7,7 @@ const authenticateMiddleware = async (req, res, next) => {
 
     // Check if not token
     if (!token) {
-        return res.status(401).json({ error: 'Unauthorized: No token provided' });
+        return res.status(403).json({ status: 'error', message: 'Unauthorized: No token provided' });
     }
 
     try {
@@ -31,18 +31,18 @@ const authenticateMiddleware = async (req, res, next) => {
         if (!req.body.code) {
             // Check user verification status
             if (user.verificationCode && !user.verificationStatus) {
-                return res.status(401).json({ message: 'Verification pending', code: 'verification_pending' });
+                return res.status(413).json({ status: 'info', message: 'Verification pending', code: 'verification_pending' });
             }
             // Check user verification status
             if (!user.verificationStatus) {
-                return res.status(401).json({ message: 'Unauthorized: Email not verified', code: 'unauthorized_email' });
+                return res.status(414).json({ status: 'error', message: 'Unauthorized: Email not verified', code: 'unauthorized_email' });
             }
         }
 
         next();
     } catch (err) {
         console.error(err);
-        res.status(401).json({ error: 'Unauthorized: Invalid token' });
+        res.status(415).json({ status: 'error', message: 'Unauthorized: Invalid token' });
     }
 };
 

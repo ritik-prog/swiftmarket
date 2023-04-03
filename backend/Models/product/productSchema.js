@@ -97,7 +97,11 @@ const productSchema = new mongoose.Schema(
                 type: mongoose.Schema.Types.ObjectId,
                 ref: 'User'
             }
-        }
+        },
+        isAvailable: {
+            type: Boolean,
+            default: true
+        },
     },
     {
         toJSON: { virtuals: true },

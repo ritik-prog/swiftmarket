@@ -107,7 +107,7 @@ const createSeller = async (req, res) => {
         });
     }
     try {
-        const user = await User.findById(req.userId);
+        const user = await User.findById(req.body.userId);
         if (!user) {
             handleError(res, {
                 name: 'not_found',
@@ -116,7 +116,7 @@ const createSeller = async (req, res) => {
             });
         }
 
-        let seller = await Seller.findOne({ email: req.body.email });
+        let seller = await Seller.findOne({ businessEmail: req.body.businessEmail });
         if (seller) {
             handleError(res, {
                 name: 'already_exists',
@@ -161,7 +161,16 @@ const createSeller = async (req, res) => {
         await seller.save();
         user.seller = seller._id;
         await user.save();
-        res.status(201).json({ status: 'success', message: 'Seller created', seller });
+        const data = {
+            newSeller: {
+                businessUsername: seller.businessUsername,
+                email: seller.businessEmail
+            }
+        };
+
+        await sendEmail(seller.businessEmail, data, './violationOfTerms/sellerTerms.hbs');
+
+        res.status(200).json({ status: 'success', message: 'Seller created', seller });
     } catch (err) {
         handleError(res, err);
     }
@@ -197,6 +206,20 @@ const updateSeller = async (req, res) => {
         Object.keys(updates).forEach((key) => (seller[key] = updates[key]));
         await seller.save();
 
+        const data = {
+            sellerUpdated: {
+                name: seller.businessName,
+                email: seller.businessEmail
+            },
+            violation: {
+                name: req.body.violationName,
+                reason: req.body.violationReason,
+                adminUsername: req.user.fullname,
+            }
+        };
+
+        await sendEmail(seller.businessEmail, data, './violationOfTerms/sellerTerms.hbs');
+
         res.status(200).json({ status: 'success', message: 'Seller updated successfully', data: seller });
     } catch (err) {
         handleError(res, err);
@@ -216,6 +239,20 @@ const deleteSeller = async (req, res) => {
                 message: 'Seller not found',
             });
         }
+
+        const data = {
+            sellerDeleted: {
+                name: seller.businessName,
+                email: seller.businessEmail
+            },
+            violation: {
+                name: req.body.violationName,
+                reason: req.body.violationReason,
+                adminUsername: req.user.fullname,
+            }
+        };
+
+        await sendEmail(seller.businessEmail, data, './violationOfTerms/sellerTerms.hbs');
 
         res.status(200).json({ status: 'success', message: 'Seller deleted successfully' });
     } catch (err) {

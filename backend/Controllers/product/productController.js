@@ -38,9 +38,10 @@ exports.getSellerProduct = async (req, res, next) => {
     try {
         const seller = await Seller.findOne({ username: req.params.username });
         if (!seller) {
-            return res.status(404).json({
+            handleError(res, {
+                name: 'not_found',
                 status: 'error',
-                message: 'Seller not found'
+                message: 'Seller not found',
             });
         }
         const product = await Product.findOne({ _id: req.params.id, seller: seller._id });

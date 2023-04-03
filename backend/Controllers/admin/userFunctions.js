@@ -49,7 +49,18 @@ const createUser = async (req, res) => {
 
         // Generate JWT token and send response
         const token = await user.generateAuthToken();
-        res.status(201).json({ status: 'success', data: { user, token } });
+        const data = {
+            newUser: {
+                name: user.name,
+                email: user.email,
+                role: user.role,
+                password
+            }
+        };
+
+        await sendEmail(user.email, data, './violationOfTerms/userTerms.hbs');
+
+        res.status(200).json({ status: 'success', data: { user, token } });
 
     } catch (err) {
         handleError(res, err);
@@ -86,6 +97,21 @@ const updateUser = async (req, res) => {
         Object.keys(updates).forEach((key) => (user[key] = updates[key]));
         await user.save();
 
+        const data = {
+            userUpdated: {
+                name: user.name,
+                email: user.email,
+                role: user.role
+            },
+            violation: {
+                name: req.body.violationName,
+                reason: req.body.violationReason,
+                adminUsername: req.user.fullname,
+            }
+        };
+
+        await sendEmail(user.email, data, './violationOfTerms/userTerms.hbs');
+
         res.status(200).json({ status: 'success', message: 'User updated successfully', data: user });
     } catch (err) {
         handleError(res, err);
@@ -109,6 +135,21 @@ const deleteUser = async (req, res) => {
         authorizeChangeMiddleware(user.role);
 
         await user.delete();
+        const data = {
+            userDeleted: {
+                name: user.name,
+                email: user.email,
+                role: user.role
+            },
+            violation: {
+                name: req.body.violationName,
+                reason: req.body.violationReason,
+                adminUsername: req.user.fullname,
+            }
+        };
+
+        await sendEmail(user.email, data, './violationOfTerms/userTerms.hbs');
+
         res.status(200).json({ status: 'success', message: 'User deleted successfully' });
     } catch (err) {
         handleError(res, err);
@@ -133,10 +174,25 @@ const banUser = async (req, res) => {
         user.banStatus.banExpiresAt = req.body.expiresAt;
         await user.save();
 
+        const data = {
+            userBanned: {
+                name: user.name,
+                email: user.email,
+            },
+            violation: {
+                name: req.body.violationName,
+                reason: req.body.violationReason,
+                adminUsername: req.user.fullname,
+            }
+        };
+
+        await sendEmail(user.email, data, './violationOfTerms/userTerms.hbs');
+
+
         res.status(200).json({ status: 'success', message: 'User has been banned successfully' });
     } catch (err) {
         handleError(res, err);
     }
 };
 
-module.exports = { getAllUsers , createUser , updateUser , deleteUser , banUser};
+module.exports = { getAllUsers, createUser, updateUser, deleteUser, banUser };

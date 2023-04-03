@@ -107,6 +107,17 @@ const sellerSchema = new mongoose.Schema({
         type: Date,
         default: null,
     },
+    banStatus: {
+        isBanned: {
+            type: Boolean,
+            default: false,
+        },
+        banExpiresAt: {
+            type: Date,
+            required: false,
+            default: null
+        },
+    },
 }, { timestamps: true });
 
 

@@ -65,8 +65,8 @@ const applyForSellerAccount = async (req, res, next) => {
         // Save the new seller instance to the database
         const savedSeller = await newSeller.save();
 
-        res.status(201).json({
-            success: true,
+        res.status(200).json({
+            status: 'success',
             message: 'Seller account created successfully',
             data: savedSeller,
         });
@@ -118,7 +118,7 @@ const verifySeller = async (req, res) => {
 
                 await sendEmail(seller.email, data, './verfication/verficationCode.hbs');
 
-                res.status(202).json({ success: success, message: 'Verification code sent' });
+                res.status(200).json({ status: 'success', message: 'Verification code sent' });
             } else {
                 if (seller.verificationCode === code) {
                     seller.paymentPreferences = paymentPreferences;
@@ -129,13 +129,13 @@ const verifySeller = async (req, res) => {
                     seller.verificationCodeExpiresAt = null;
                     await seller.save();
                 } else {
-                    return res.status(400).json({ errors: [{ message: 'Invalid or expired verification code' }] });
+                    return res.status(412).json({ message: 'Invalid or expired verification code', status: 'success' });
                 }
             }
             // Send a success response
-            res.status(200).json({ success: true, message: 'Seller account verified successfully' });
+            res.status(200).json({ status: 'success', message: 'Seller account verified successfully' });
         } else {
-            res.status(400).json({ success: false, message: 'Seller account already verified' });
+            res.status(411).json({ status: 'error', message: 'Seller account already verified' });
         }
     } catch (err) {
         handleError(res, err);
@@ -304,7 +304,7 @@ const createProductForSeller = async (req, res, next) => {
         seller.products.push(product._id);
         await seller.save();
 
-        res.status(201).json({
+        res.status(200).json({
             status: 'success',
             message: 'Created a new product',
             data: {
@@ -392,7 +392,7 @@ const deleteProductForSeller = async (req, res) => {
 
         await sendEmail(product.businessEmail, data, './userActions/deletedProduct.hbs');
 
-        res.status(204).json({
+        res.status(200).json({
             status: 'success',
             message: 'Deleted the product'
         });

@@ -1,16 +1,20 @@
-Perform following operation As Full Stack Web Developer expert and backend expert in below code
-1) Make it advance and include all possible features
-2) Make it production ready 
-3) Fix all Security Issues and Include any enhancement required
-5) don't change old features like generating of awt and more
-6) add any library required
-7) if you don't have context then take context from above chats
-8) include status code, status and message in all response
+Before generating any code, please take context from the code provided and the prompt itself and provide code not explanation.
 
-Note:- Don't give explanation or ideas directly give code
+As an expert Full Stack Web Developer and Backend Developer, your task is to enhance the below codebase to make it production-ready and secure. Follow the below guidelines:
 
-Strict Note:- No explanation
+1) Add all possible features to make the application more functional and user-friendly.
+2) Optimize the codebase for performance, efficiency, and scalability.
+3) Ensure the application is secure and free of vulnerabilities by addressing all security issues.
+4) Refactor the codebase to adhere to best practices and design patterns.
+5) Do not change existing features, such as the generation of an AWT token.
+6) Add any necessary libraries or dependencies to improve the application's functionality and performance.
+8) Use the context provided in our previous conversation to guide your work.
+9) Include status codes, status messages, and error messages in all API responses to improve clarity and user experience.
 
-Important Note:- Don't add any extra code just do whatever told on below code only
+Your code should be well-organized, well-documented, and efficient. You should not add any unnecessary code, and you should adhere to all requirements specified in this prompt.
 
-Code:-
+code:-
+
+
+- Generate left code
+Please generate the remaining lines of code to complete the task. Use the information and requirements provided so far to ensure that the code is correct and functional and don't provide any explanation.

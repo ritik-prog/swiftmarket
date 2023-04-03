@@ -50,10 +50,9 @@ router.post('/sendVerificationCodeAgain',
             }
             const { email } = req.body;
             const status = await sendVerificationCodeAgain(email);
-            res.status(200).json({ status: 'success', message: status });
+            res.status(200).json({ status: 'success', ...status });
         } catch (err) {
-            console.error(err.message);
-            res.status(500).json({ status: 'error', message: 'Server Error' });
+            handleError(res, err);
         }
     });
 
@@ -61,7 +60,9 @@ router.post('/verify',
     [check('email').isEmail(), check('code').isNumeric(), authenticateMiddleware],
     async (req, res) => {
         try {
-            if (req.user.verificationStatus) return res.status(400).json({ status: 'error', message: 'User already verified' });
+            if (req.user.verificationStatus) {
+                return res.status(411).json({ status: 'error', message: 'User already verified' });
+            }
             const errors = validationResult(req);
             if (!errors.isEmpty()) {
                 handleError(res, {
@@ -72,10 +73,9 @@ router.post('/verify',
             }
             const { email, code } = req.body;
             const status = await verifyUser(email, code);
-            res.status(200).json({ status: 'success', message: status });
+            res.status(200).json({ status: 'success', ...status });
         } catch (err) {
-            console.error(err.message);
-            res.status(500).json({ status: 'error', message: 'Server Error' });
+            handleError(res, err);
         }
     });
 
@@ -114,6 +114,9 @@ router.put(
     ],
     authController.updatePassword
 );
+
+// Delete account
+router.delete('/deleteaccount', [authenticateMiddleware], authController.deleteAccount);
 
 // Logout route
 router.post('/logout', [authenticateMiddleware], authController.logout);
