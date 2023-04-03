@@ -17,7 +17,7 @@ const getAllApplySellers = async (req, res, next) => {
             data: applySellers,
         });
     } catch (error) {
-        handleError(res, err);
+        return handleError(res, err);
     }
 };
 
@@ -28,7 +28,7 @@ const acceptSeller = async (req, res, next) => {
         const newSellerApplication = await applySeller.findById(req.params.id);
 
         if (!newSellerApplication) {
-            handleError(res, {
+            return handleError(res, {
                 name: 'not_found',
                 status: 'error',
                 message: 'Seller application not found',
@@ -77,7 +77,7 @@ const acceptSeller = async (req, res, next) => {
             data: savedSeller,
         });
     } catch (error) {
-        handleError(res, err);
+        return handleError(res, err);
     }
 };
 
@@ -92,7 +92,7 @@ const getAllSellers = async (req, res, next) => {
             data: sellers,
         });
     } catch (error) {
-        handleError(res, err);
+        return handleError(res, err);
     }
 };
 
@@ -100,7 +100,7 @@ const getAllSellers = async (req, res, next) => {
 const createSeller = async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-        handleError(res, {
+        return handleError(res, {
             name: 'CustomValidationError',
             status: 'error',
             errors: errors.array()
@@ -109,7 +109,7 @@ const createSeller = async (req, res) => {
     try {
         const user = await User.findById(req.body.userId);
         if (!user) {
-            handleError(res, {
+            return handleError(res, {
                 name: 'not_found',
                 status: 'error',
                 message: 'User not found',
@@ -118,7 +118,7 @@ const createSeller = async (req, res) => {
 
         let seller = await Seller.findOne({ businessEmail: req.body.businessEmail });
         if (seller) {
-            handleError(res, {
+            return handleError(res, {
                 name: 'already_exists',
                 status: 'error',
                 message: 'Seller already exists',
@@ -172,7 +172,7 @@ const createSeller = async (req, res) => {
 
         res.status(200).json({ status: 'success', message: 'Seller created', seller });
     } catch (err) {
-        handleError(res, err);
+        return handleError(res, err);
     }
 
 };
@@ -182,7 +182,7 @@ const updateSeller = async (req, res) => {
     try {
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
-            handleError(res, {
+            return handleError(res, {
                 name: 'CustomValidationError',
                 status: 'error',
                 errors: errors.array()
@@ -195,7 +195,7 @@ const updateSeller = async (req, res) => {
         // check if seller exists
         const seller = await Seller.findById(id);
         if (!seller) {
-            handleError(res, {
+            return handleError(res, {
                 name: 'not_found',
                 status: 'error',
                 message: 'Seller not found',
@@ -222,7 +222,7 @@ const updateSeller = async (req, res) => {
 
         res.status(200).json({ status: 'success', message: 'Seller updated successfully', data: seller });
     } catch (err) {
-        handleError(res, err);
+        return handleError(res, err);
     }
 };
 
@@ -233,7 +233,7 @@ const deleteSeller = async (req, res) => {
         const seller = await Seller.findByIdAndDelete(id);
 
         if (!seller) {
-            handleError(res, {
+            return handleError(res, {
                 name: 'not_found',
                 status: 'error',
                 message: 'Seller not found',
@@ -256,7 +256,7 @@ const deleteSeller = async (req, res) => {
 
         res.status(200).json({ status: 'success', message: 'Seller deleted successfully' });
     } catch (err) {
-        handleError(res, err);
+        return handleError(res, err);
     }
 };
 

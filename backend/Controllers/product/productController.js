@@ -8,13 +8,13 @@ exports.getAllProductsOfSellerByUsername = async (req, res, next) => {
     try {
         const seller = await Seller.findOne({ username: req.params.username }).populate('products');
         if (!seller) {
-            handleError(res, {
+            return handleError(res, {
                 name: 'not_found',
                 status: 'error',
                 message: 'Seller not found',
             });
         } else if (!seller.products || seller.products.length === 0) {
-            handleError(res, {
+            return handleError(res, {
                 name: 'not_found',
                 status: 'error',
                 message: 'No products found for the seller',
@@ -29,7 +29,7 @@ exports.getAllProductsOfSellerByUsername = async (req, res, next) => {
             });
         }
     } catch (err) {
-        handleError(res, err);
+        return handleError(res, err);
     }
 };
 
@@ -38,7 +38,7 @@ exports.getSellerProduct = async (req, res, next) => {
     try {
         const seller = await Seller.findOne({ username: req.params.username });
         if (!seller) {
-            handleError(res, {
+            return handleError(res, {
                 name: 'not_found',
                 status: 'error',
                 message: 'Seller not found',
@@ -46,7 +46,7 @@ exports.getSellerProduct = async (req, res, next) => {
         }
         const product = await Product.findOne({ _id: req.params.id, seller: seller._id });
         if (!product) {
-            handleError(res, {
+            return handleError(res, {
                 name: 'not_found',
                 status: 'error',
                 message: 'Product not found',
@@ -60,7 +60,7 @@ exports.getSellerProduct = async (req, res, next) => {
             }
         });
     } catch (err) {
-        handleError(res, err);
+        return handleError(res, err);
     }
 };
 
@@ -69,7 +69,7 @@ exports.getProductById = async (req, res, next) => {
     try {
         const product = await Product.findById(req.params.id);
         if (!product) {
-            handleError(res, {
+            return handleError(res, {
                 name: 'not_found',
                 status: 'error',
                 message: 'Product not found',
@@ -80,6 +80,6 @@ exports.getProductById = async (req, res, next) => {
             data: product,
         });
     } catch (err) {
-        handleError(res, err);
+        return handleError(res, err);
     }
 };

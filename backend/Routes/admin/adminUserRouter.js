@@ -3,17 +3,19 @@ const { check } = require("express-validator");
 const authenticateMiddleware = require("../../middleware/authenticateMiddleware");
 const authorizeMiddleware = require("../../middleware/authorizeMiddleware");
 const adminController = require("../../controllers/admin/adminController");
-
+const checkVerificationMiddleware = require("../../middleware/checkVerificationMiddleware");
 const router = express.Router();
 
 // Display all users
-router.get("/users", [authenticateMiddleware, authorizeMiddleware(["admin", "superadmin", "root"])], adminController.getAllUsers);
+router.get("/users", [authenticateMiddleware, authorizeMiddleware(["admin", "superadmin", "root"]), checkVerificationMiddleware], adminController.getAllUsers);
 
 // Create a new user
 router.post(
     "/newuser",
     [
+        authenticateMiddleware,
         authorizeMiddleware(["admin", "superadmin", "root"]),
+        checkVerificationMiddleware,
         check("username").isLength({ min: 4, max: 20 }),
         check("name").isLength({ min: 2, max: 50 }),
         check("email").isEmail().normalizeEmail(),
@@ -26,7 +28,9 @@ router.post(
 router.put(
     "/updateuser/:id",
     [
+        authenticateMiddleware,
         authorizeMiddleware(["admin", "superadmin", "root"]),
+        checkVerificationMiddleware,
         check("username")
             .notEmpty()
             .withMessage("Username is required")
@@ -57,11 +61,15 @@ router.put(
 // Delete a user
 router.delete(
     "/deleteuser/:id",
-    authorizeMiddleware(["admin", "superadmin", "root"]),
+    [authenticateMiddleware,
+        authorizeMiddleware(["admin", "superadmin", "root"]),
+        checkVerificationMiddleware],
     adminController.deleteUser
 );
 
 // Ban a user
-router.put('/users/:id/ban', [authorizeMiddleware('admin')], adminController.banUser);
+router.put('/users/:id/ban', [authenticateMiddleware,
+    authorizeMiddleware(["admin", "superadmin", "root"]),
+    checkVerificationMiddleware,], adminController.banUser);
 
 module.exports = router;

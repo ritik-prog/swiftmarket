@@ -15,7 +15,7 @@ const getAllProducts = async (req, res, next) => {
             },
         });
     } catch (err) {
-        handleError(res, err);
+        return handleError(res, err);
     }
 };
 
@@ -24,7 +24,7 @@ const getAllProductsOfSellerByUsername = async (req, res, next) => {
     try {
         const seller = await Seller.findOne({ username: req.params.username }).populate('products');
         if (!seller) {
-            handleError(res, {
+            return handleError(res, {
                 name: 'not_found',
                 status: 'error',
                 message: 'Seller not found',
@@ -38,7 +38,7 @@ const getAllProductsOfSellerByUsername = async (req, res, next) => {
             }
         });
     } catch (err) {
-        handleError(res, err);
+        return handleError(res, err);
     }
 };
 
@@ -47,7 +47,7 @@ const getProductById = async (req, res, next) => {
     try {
         const product = await Product.findById(req.params.id);
         if (!product) {
-            handleError(res, {
+            return handleError(res, {
                 name: 'not_found',
                 status: 'error',
                 message: 'Product not found',
@@ -61,7 +61,7 @@ const getProductById = async (req, res, next) => {
             }
         });
     } catch (err) {
-        handleError(res, err);
+        return handleError(res, err);
     }
 };
 
@@ -71,7 +71,7 @@ const updateProduct = async (req, res, next) => {
     try {
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
-            handleError(res, {
+            return handleError(res, {
                 name: 'CustomValidationError',
                 status: 'error',
                 errors: errors.array()
@@ -80,7 +80,7 @@ const updateProduct = async (req, res, next) => {
 
         const seller = await Seller.findOne({ _id: req.user._id });
         if (!seller) {
-            handleError(res, {
+            return handleError(res, {
                 name: 'not_found',
                 status: 'error',
                 message: 'Seller not found',
@@ -89,7 +89,7 @@ const updateProduct = async (req, res, next) => {
 
         const product = await Product.findOne({ _id: req.params.productId, seller: seller._id });
         if (!product) {
-            handleError(res, {
+            return handleError(res, {
                 name: 'not_found',
                 status: 'error',
                 message: 'Product not found',
@@ -129,7 +129,7 @@ const updateProduct = async (req, res, next) => {
             }
         });
     } catch (error) {
-        handleError(res, err);
+        return handleError(res, err);
     }
 };
 
@@ -139,7 +139,7 @@ const deleteProduct = async (req, res, next) => {
     try {
         const product = await Product.findOneAndDelete({ _id: req.params.id, seller: req.user._id });
         if (!product) {
-            handleError(res, {
+            return handleError(res, {
                 name: 'not_found',
                 status: 'error',
                 message: 'Product not found',
@@ -163,7 +163,7 @@ const deleteProduct = async (req, res, next) => {
             data: null
         });
     } catch (error) {
-        handleError(res, err);
+        return handleError(res, err);
     }
 };
 

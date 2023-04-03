@@ -3,12 +3,14 @@ const { check } = require('express-validator');
 const authenticateMiddleware = require('../../middleware/authenticateMiddleware');
 const authorizeMiddleware = require('../../middleware/authorizeMiddleware');
 const sellerController = require('../../controllers/seller/sellerController');
+const checkVerificationMiddleware = require('../../middleware/checkVerificationMiddleware');
 
 const router = express.Router();
 
 // Apply for seller account
 router.post('/apply', [
     authenticateMiddleware,
+    checkVerificationMiddleware,
     check('businessNumber').notEmpty().isNumeric(),
     check('businessName').notEmpty().isString().trim(),
     check('businessEmail').notEmpty().isEmail().normalizeEmail(),
@@ -24,6 +26,7 @@ router.post('/apply', [
 // Route for verifying a seller
 router.post('/verify', [
     authenticateMiddleware,
+    checkVerificationMiddleware,
     check('code', 'Verification code is required').notEmpty(),
     check('paymentPreferences', 'Please include a valid payment preferences').notEmpty(),
     check('blockchainWalletAddress', 'Please include a valid wallet address').notEmpty(),
@@ -31,12 +34,13 @@ router.post('/verify', [
 ], sellerController.verifySeller);
 
 // Get a seller by ID
-router.get('/profile', [authenticateMiddleware, authorizeMiddleware(['seller'])], sellerController.getSellerById);
+router.get('/profile', [authenticateMiddleware, authorizeMiddleware(['seller']), checkVerificationMiddleware], sellerController.getSellerById);
 
 // Update a seller by ID
 router.put('/updateprofile', [
     authenticateMiddleware,
     authorizeMiddleware(['seller']),
+    checkVerificationMiddleware,
     check('fullName').not().isEmpty(),
     check('email').isEmail(),
     check('phoneNumber').isMobilePhone(),
@@ -53,10 +57,10 @@ router.put('/updateprofile', [
 ], sellerController.updateSellerById);
 
 // Delete a seller by ID
-router.delete('/deleteprofile', [authenticateMiddleware, authorizeMiddleware(['seller'])], sellerController.deleteSellerById);
+router.delete('/deleteprofile', [authenticateMiddleware, authorizeMiddleware(['seller']), checkVerificationMiddleware], sellerController.deleteSellerById);
 
 // Create a product of a seller
-router.put('/createproduct', [authenticateMiddleware, authorizeMiddleware(['seller']),
+router.put('/createproduct', [authenticateMiddleware, authorizeMiddleware(['seller']), checkVerificationMiddleware,
     check('productName').notEmpty(),
     check('productDescription').notEmpty(),
     check('price').isNumeric().notEmpty(),
@@ -66,9 +70,9 @@ router.put('/createproduct', [authenticateMiddleware, authorizeMiddleware(['sell
     check('thumbnailUrl').isString,], sellerController.createProductForSeller);
 
 // UPDATE a product of a seller
-router.put('/updateproduct', [authenticateMiddleware, authorizeMiddleware(['seller'])], sellerController.updateProductForSeller);
+router.put('/updateproduct', [authenticateMiddleware, authorizeMiddleware(['seller']), checkVerificationMiddleware], sellerController.updateProductForSeller);
 
 // DELETE a product of a seller
-router.delete('/deleteproduct', [authenticateMiddleware, authorizeMiddleware(['seller'])], sellerController.deleteProductForSeller);
+router.delete('/deleteproduct', [authenticateMiddleware, authorizeMiddleware(['seller']), checkVerificationMiddleware], sellerController.deleteProductForSeller);
 
 module.exports = router;

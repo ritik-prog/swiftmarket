@@ -3,16 +3,17 @@ const sendEmail = require('../../utils/sendEmail');
 const generateVerificationCode = require('../../utils/generateCode');
 
 const handleError = require('../../utils/errorHandler');
+const errorCode = require('../../data/errorCode');
 
-const sendVerificationCode = async (email) => {
+const sendVerificationCode = async (res, email) => {
     try {
         // Check if user exists
         const user = await User.findOne({ email: email });
         if (!user) {
-            handleError(res, {
+            throw new Error({
                 name: 'not_found',
                 status: 'error',
-                message: 'Useer not found',
+                message: 'User not found'
             });
         }
         if (!user.verificationStatus) {
@@ -31,14 +32,18 @@ const sendVerificationCode = async (email) => {
             };
 
             // Send email
-            await sendEmail(user.email, data, './verfication/verficationCode.hbs');
+            await sendEmail(user.email, data, './verification/verificationCode.hbs');
 
             return { success: true, message: 'Verification code sent successfully.', status: 200 };
         } else {
-            return { success: false, message: 'User is already verified.', status: 500 };
+            return res.status(411).send({ status: 'error', message: 'User is already verified.' });
         }
     } catch (err) {
-        handleError(res, err);
+        throw new Error({
+            error: errorCode.SERVER_ERROR.code,
+            message: errorCode.SERVER_ERROR.message,
+            status: 500
+        });
     }
 };
 
@@ -47,7 +52,7 @@ const verifyUser = async (email, verificationCode) => {
         // Check if user exists and code has not expired
         const user = await User.findOne({ email: email });
         if (!user) {
-            handleError(res, {
+            throw new Error({
                 name: 'not_found',
                 status: 'error',
                 message: 'User not found'
@@ -75,7 +80,11 @@ const verifyUser = async (email, verificationCode) => {
 
         return { success: true, message: 'User verified successfully.', status: 200 };
     } catch (err) {
-        handleError(res, err);
+        throw new Error({
+            error: errorCode.SERVER_ERROR.code,
+            message: errorCode.SERVER_ERROR.message,
+            status: 500
+        });
     }
 };
 
@@ -84,7 +93,7 @@ async function sendVerificationCodeAgain(email) {
         // Check if user exists
         const user = await User.findOne({ email });
         if (!user) {
-            handleError(res, {
+            throw new Error({
                 name: 'not_found',
                 status: 'error',
                 message: 'User not found',
@@ -113,13 +122,17 @@ async function sendVerificationCodeAgain(email) {
             };
 
             // Send email
-            await sendEmail(user.email, data, './verfication/verficationCode.hbs');
+            await sendEmail(user.email, data, './verification/verificationCode.hbs');
             return { message: 'Verification code sent successfully.', status: 200, success: true };
         } else {
             return { success: false, message: 'User is already verified.', status: 500 };
         }
     } catch (err) {
-        handleError(res, err);
+        throw new Error({
+            error: errorCode.SERVER_ERROR.code,
+            message: errorCode.SERVER_ERROR.message,
+            status: 500
+        });
     }
 }
 

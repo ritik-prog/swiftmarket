@@ -12,7 +12,7 @@ const getAdmins = async (req, res) => {
         const admins = await Admin.find({ role: 'superadmin' });
         return res.status(200).json({ admins, status: 'success' });
     } catch (err) {
-        handleError(res, err);
+        return handleError(res, err);
     }
 }
 
@@ -21,7 +21,7 @@ const getAdminById = async (req, res) => {
     try {
         const admin = await Admin.findById(req.params.id);
         if (!admin) {
-            handleError(res, {
+            return handleError(res, {
                 name: 'not_found',
                 status: 'error',
                 message: 'Admin not found',
@@ -29,7 +29,7 @@ const getAdminById = async (req, res) => {
         }
         res.status(200).json(admin);
     } catch (err) {
-        handleError(res, err);
+        return handleError(res, err);
     }
 };
 
@@ -38,7 +38,7 @@ const createAdmin = async (req, res) => {
     try {
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
-            handleError(res, {
+            return handleError(res, {
                 name: 'CustomValidationError',
                 status: 'error',
                 errors: errors.array()
@@ -54,7 +54,7 @@ const createAdmin = async (req, res) => {
         // Check if the admin already exists
         const existingAdmin = await Admin.findOne({ email });
         if (existingAdmin) {
-            handleError(res, {
+            return handleError(res, {
                 name: 'already_exists',
                 status: 'error',
                 message: 'Admin already exists',
@@ -78,7 +78,7 @@ const createAdmin = async (req, res) => {
         // Return the new admin document
         res.status(200).json({ newAdmin, status: 'success', });
     } catch (error) {
-        handleError(res, err);
+        return handleError(res, err);
     }
 }
 
@@ -87,7 +87,7 @@ const updateAdmin = async (req, res) => {
     try {
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
-            handleError(res, {
+            return handleError(res, {
                 name: 'CustomValidationError',
                 status: 'error',
                 errors: errors.array()
@@ -106,7 +106,7 @@ const updateAdmin = async (req, res) => {
         // Check if the admin exists
         const admin = await Admin.findOne({ _id: ObjectId(adminId) });
         if (!admin) {
-            handleError(res, {
+            return handleError(res, {
                 name: 'not_found',
                 status: 'error',
                 message: 'Admin not found',
@@ -130,7 +130,7 @@ const updateAdmin = async (req, res) => {
         // Return the updated admin document
         res.json(admin);
     } catch (error) {
-        handleError(res, err);
+        return handleError(res, err);
     }
 }
 
@@ -139,7 +139,7 @@ const deleteAdmin = async (req, res) => {
     try {
         const admin = await Admin.findById(req.params.id);
         if (!admin) {
-            handleError(res, {
+            return handleError(res, {
                 name: 'not_found',
                 status: 'error',
                 message: 'Admin not found',
@@ -148,7 +148,7 @@ const deleteAdmin = async (req, res) => {
         await admin.remove();
         return res.status(200).json({ status: 'success', message: 'Admin deleted successfully.' });
     } catch (err) {
-        handleError(res, err);
+        return handleError(res, err);
     }
 }
 

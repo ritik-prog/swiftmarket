@@ -1,5 +1,11 @@
 const codes = {
     '200': 'Success',
+    '400': 'CustomValidationError',
+    '400': 'missing_fields',
+    '404': 'not_found',
+    '401': 'authentication_failed',
+    '403': 'unauthorized_access',
+    '410': 'already_exists',
     '411': 'User already verified',
     '412': 'Invalid or expired verification code',
     '413': 'Verification pending',
@@ -10,11 +16,5 @@ const codes = {
     '418': 'You are banned from this service permanently',
     '419': 'rate limit exceeded',
     '420': 'signup rate limit exceeded',
-    '400': 'CustomValidationError',
-    '400': 'missing_fields',
-    '404': 'user_not_found',
-    '401': 'authentication_failed',
-    '403': 'unauthorized_access',
     '500': 'server_error',
-    '410': 'already_exists',
 }

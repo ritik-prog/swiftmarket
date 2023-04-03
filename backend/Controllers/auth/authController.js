@@ -11,7 +11,7 @@ const handleError = require('../../utils/errorHandler');
 exports.signup = async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-        handleError(res, {
+        return handleError(res, {
             name: 'CustomValidationError',
             status: 'error',
             errors: errors.array()
@@ -25,7 +25,7 @@ exports.signup = async (req, res) => {
         let user = await User.findOne({ email });
 
         if (user) {
-            handleError(res, {
+            return handleError(res, {
                 name: 'already_exists',
                 status: 'error',
                 message: 'User already exists',
@@ -49,7 +49,7 @@ exports.signup = async (req, res) => {
         await user.generateAuthToken();
 
         await user.save().then(async () => {
-            await sendVerificationCode(user.email);
+            await sendVerificationCode(res, user.email);
         });
 
         const existingIp = await Ip.findOne({ address: ip });
@@ -70,14 +70,14 @@ exports.signup = async (req, res) => {
 
         res.status(200).json({ status: 'success' });
     } catch (err) {
-        handleError(res, err);
+        return handleError(res, err);
     }
 };
 
 exports.login = async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-        handleError(res, {
+        return handleError(res, {
             name: 'CustomValidationError',
             status: 'error',
             errors: errors.array()
@@ -90,9 +90,10 @@ exports.login = async (req, res) => {
         let user = await User.findOne({ email });
 
         if (_.isEmpty(user)) {
-            handleError(res, {
+            return handleError(res, {
                 message: 'Invalid Credentials',
-                code: 401
+                code: 401,
+                code: 'authentication_failed'
             });
         }
 
@@ -100,16 +101,25 @@ exports.login = async (req, res) => {
         const isMatch = await bcrypt.compare(password, user.password);
 
         if (!isMatch) {
-            handleError(res, {
+            return handleError(res, {
                 message: 'Invalid Credentials',
-                code: 401
+                status: 401,
+                code: 'authentication_failed'
             });
         }
 
         const token = await user.generateAuthToken();
 
+        // Set token in cookies
+        res.cookie('token', token, {
+            httpOnly: true, // cookie cannot be accessed from client-side scripts
+            secure: process.env.NODE_ENV === 'production', // cookie should only be sent over HTTPS in production
+            sameSite: 'strict', // cookie should only be sent for same-site requests
+            maxAge: 5 * 60 * 60 * 1000 // 5hr
+        });
+
         res.status(200).json({
-            token, user: {
+            user: {
                 id: user.id,
                 name: user.name,
                 email: user.email,
@@ -117,30 +127,35 @@ exports.login = async (req, res) => {
                 address: user.address,
                 verificationStatus: user.verificationStatus,
                 role: user.role
-            }, status: 'success',
+            },
+            status: 'success'
         });
     } catch (err) {
-        handleError(res, err);
+        return handleError(res, {
+            message: 'Invalid Credentials',
+            status: 401,
+            code: 'authentication_failed'
+        });
     }
-}
+};
 
 exports.getUser = async (req, res) => {
     try {
+        const token = req.cookies.token;
         // Check if user is authenticated
-        if (!req.headers.authorization) {
-            handleError(res, {
+        if (!token) {
+            return handleError(res, {
                 code: 'unauthorized_access',
                 status: 'error',
                 message: 'Unauthorized Access',
             });
         }
 
-        const token = req.headers.authorization.split(' ')[1];
         const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
         const user = await User.findById(decodedToken._id).select('-password');
 
         if (!user) {
-            handleError(res, {
+            return handleError(res, {
                 name: 'not_found',
                 status: 'error',
                 message: 'User not found',
@@ -149,7 +164,7 @@ exports.getUser = async (req, res) => {
 
         // Check if user has permission to access this resource
         if (user._id.toString() !== decodedToken._id) {
-            handleError(res, {
+            return handleError(res, {
                 code: 'unauthorized_access',
                 status: 'error',
                 message: 'Unauthorized Access',
@@ -158,7 +173,7 @@ exports.getUser = async (req, res) => {
 
         res.status(200).json({ user, status: 'success', });
     } catch (err) {
-        handleError(res, err);
+        return handleError(res, err);
     }
 };
 
@@ -166,7 +181,7 @@ exports.updateProfile = async (req, res) => {
     try {
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
-            handleError(res, {
+            return handleError(res, {
                 name: 'CustomValidationError',
                 status: 'error',
                 errors: errors.array()
@@ -175,7 +190,7 @@ exports.updateProfile = async (req, res) => {
 
         const user = await User.findById(req.user.id).select('-password -__v');
         if (!user) {
-            handleError(res, {
+            return handleError(res, {
                 name: 'not_found',
                 status: 'error',
                 message: 'User not found',
@@ -204,7 +219,7 @@ exports.updateProfile = async (req, res) => {
 
         res.status(200).json({ user, status: 'success', });
     } catch (err) {
-        handleError(res, err);
+        return handleError(res, err);
     }
 };
 
@@ -212,7 +227,7 @@ exports.updatePassword = async (req, res) => {
     try {
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
-            handleError(res, {
+            return handleError(res, {
                 name: 'CustomValidationError',
                 status: 'error',
                 errors: errors.array()
@@ -224,7 +239,7 @@ exports.updatePassword = async (req, res) => {
         // Check if current password matches
         const isMatch = await bcrypt.compare(req.body.currentPassword, user.password);
         if (!isMatch) {
-            handleError(res, {
+            return handleError(res, {
                 message: 'Invalid Credentials',
                 code: 401
             });
@@ -252,7 +267,7 @@ exports.updatePassword = async (req, res) => {
 
         res.status(200).json({ message: 'Password updated successfully', token: token, status: 'success', });
     } catch (err) {
-        handleError(res, err);
+        return handleError(res, err);
     }
 };
 
@@ -263,14 +278,14 @@ exports.logout = async (req, res) => {
         await user.save();
         res.status(200).json({ message: 'Logged out successfully', status: 'success' });
     } catch (err) {
-        handleError(res, err);
+        return handleError(res, err);
     }
 };
 
 exports.deleteAccount = async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-        handleError(res, {
+        return handleError(res, {
             name: 'CustomValidationError',
             status: 'error',
             errors: errors.array()
@@ -286,7 +301,7 @@ exports.deleteAccount = async (req, res) => {
             'tokens.expiresAt': { $gte: Date.now() }
         });
         if (!user) {
-            handleError(res, {
+            return handleError(res, {
                 name: 'not_found',
                 status: 'error',
                 message: 'User not found'
@@ -295,7 +310,7 @@ exports.deleteAccount = async (req, res) => {
 
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) {
-            handleError(res, {
+            return handleError(res, {
                 message: 'Invalid Credentials',
                 code: 401
             });
@@ -319,6 +334,6 @@ exports.deleteAccount = async (req, res) => {
         });
 
     } catch (err) {
-        handleError(res, err);
+        return handleError(res, err);
     }
 };

@@ -12,7 +12,7 @@ const applyForSellerAccount = async (req, res, next) => {
     try {
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
-            handleError(res, {
+            return handleError(res, {
                 name: 'CustomValidationError',
                 status: 'error',
                 errors: errors.array()
@@ -40,7 +40,7 @@ const applyForSellerAccount = async (req, res, next) => {
             ]
         });
         if (existingSeller) {
-            handleError(res, {
+            return handleError(res, {
                 name: 'already_exists',
                 status: 'error',
                 message: 'There is already an existing seller with the same business email or business username',
@@ -71,7 +71,7 @@ const applyForSellerAccount = async (req, res, next) => {
             data: savedSeller,
         });
     } catch (error) {
-        handleError(res, err);
+        return handleError(res, err);
     }
 };
 
@@ -80,7 +80,7 @@ const verifySeller = async (req, res) => {
     // Check for validation errors
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-        handleError(res, {
+        return handleError(res, {
             name: 'CustomValidationError',
             status: 'error',
             errors: errors.array()
@@ -94,7 +94,7 @@ const verifySeller = async (req, res) => {
         const seller = await Seller.findOne({ email: email });
 
         if (!seller) {
-            handleError(res, {
+            return handleError(res, {
                 name: 'not_found',
                 status: 'error',
                 message: 'Seller not found',
@@ -138,7 +138,7 @@ const verifySeller = async (req, res) => {
             res.status(411).json({ status: 'error', message: 'Seller account already verified' });
         }
     } catch (err) {
-        handleError(res, err);
+        return handleError(res, err);
     }
 };
 
@@ -147,7 +147,7 @@ const getSellerById = async (req, res) => {
     try {
         const seller = await Seller.findById(req.body._id);
         if (!seller) {
-            handleError(res, {
+            return handleError(res, {
                 name: 'not_found',
                 status: 'error',
                 message: 'Seller not found',
@@ -155,7 +155,7 @@ const getSellerById = async (req, res) => {
         }
         res.status(200).json({ status: 'success', data: seller });
     } catch (err) {
-        handleError(res, err);
+        return handleError(res, err);
     }
 };
 
@@ -163,7 +163,7 @@ const getSellerById = async (req, res) => {
 const updateSellerById = async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-        handleError(res, {
+        return handleError(res, {
             name: 'CustomValidationError',
             status: 'error',
             errors: errors.array()
@@ -173,7 +173,7 @@ const updateSellerById = async (req, res) => {
         let seller = await Seller.findById(req.params.id);
 
         if (!seller) {
-            handleError(res, {
+            return handleError(res, {
                 name: 'not_found',
                 status: 'error',
                 message: 'Seller not found',
@@ -221,7 +221,7 @@ const updateSellerById = async (req, res) => {
 
 
         if (seller.user.toString() !== req.user.id) {
-            handleError(res, {
+            return handleError(res, {
                 code: 'unauthorized_access',
                 status: 'error',
                 message: 'Unauthorized Access',
@@ -232,7 +232,7 @@ const updateSellerById = async (req, res) => {
 
         res.status(200).json({ status: 'success', message: 'Seller updated successfully', data: seller });
     } catch (err) {
-        handleError(res, err);
+        return handleError(res, err);
     }
 };
 
@@ -241,7 +241,7 @@ const deleteSellerById = async (req, res) => {
     try {
         const seller = await Seller.findById(req.body._id);
         if (!seller) {
-            handleError(res, {
+            return handleError(res, {
                 name: 'not_found',
                 status: 'error',
                 message: 'Seller not found',
@@ -258,7 +258,7 @@ const deleteSellerById = async (req, res) => {
 
         res.status(200).json({ status: 'success', message: 'Seller deleted successfully' });
     } catch (err) {
-        handleError(res, err);
+        return handleError(res, err);
     }
 };
 
@@ -267,7 +267,7 @@ const createProductForSeller = async (req, res, next) => {
     try {
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
-            handleError(res, {
+            return handleError(res, {
                 name: 'CustomValidationError',
                 status: 'error',
                 errors: errors.array()
@@ -276,7 +276,7 @@ const createProductForSeller = async (req, res, next) => {
 
         const seller = await Seller.findOne({ _id: req.user._id });
         if (!seller) {
-            handleError(res, {
+            return handleError(res, {
                 name: 'not_found',
                 status: 'error',
                 message: 'Seller not found',
@@ -312,7 +312,7 @@ const createProductForSeller = async (req, res, next) => {
             }
         });
     } catch (err) {
-        handleError(res, err);
+        return handleError(res, err);
     }
 };
 
@@ -321,7 +321,7 @@ const updateProductForSeller = async (req, res) => {
     try {
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
-            handleError(res, {
+            return handleError(res, {
                 name: 'CustomValidationError',
                 status: 'error',
                 errors: errors.array()
@@ -330,7 +330,7 @@ const updateProductForSeller = async (req, res) => {
 
         const seller = await Seller.findOne({ _id: req.user._id });
         if (!seller) {
-            handleError(res, {
+            return handleError(res, {
                 name: 'not_found',
                 status: 'error',
                 message: 'Seller not found',
@@ -339,7 +339,7 @@ const updateProductForSeller = async (req, res) => {
 
         const product = await Product.findOne({ _id: req.params.productId, seller: seller._id });
         if (!product) {
-            handleError(res, {
+            return handleError(res, {
                 name: 'not_found',
                 status: 'error',
                 message: 'Product not found',
@@ -369,7 +369,7 @@ const updateProductForSeller = async (req, res) => {
             }
         });
     } catch (error) {
-        handleError(res, err);
+        return handleError(res, err);
     }
 };
 
@@ -378,7 +378,7 @@ const deleteProductForSeller = async (req, res) => {
     try {
         const product = await Product.findOneAndDelete({ _id: req.params.id, seller: req.user._id });
         if (!product) {
-            handleError(res, {
+            return handleError(res, {
                 name: 'not_found',
                 status: 'error',
                 message: 'Product not found',
@@ -397,7 +397,7 @@ const deleteProductForSeller = async (req, res) => {
             message: 'Deleted the product'
         });
     } catch (err) {
-        handleError(res, err);
+        return handleError(res, err);
     }
 };
 

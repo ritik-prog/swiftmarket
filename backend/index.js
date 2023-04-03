@@ -12,6 +12,7 @@ const fs = require('fs');
 
 const authRouter = require('./Routes/auth/authRouter');
 const sellerRouter = require('./Routes/seller/sellerRouter');
+const adminRouter = require('./Routes/admin/adminRouter');
 const productRouter = require('./Routes/product/productRouter');
 const superAdminRouter = require('./Routes/superadmin/superAdminRouter');
 
@@ -57,12 +58,13 @@ if (process.env.NODE_ENV === 'production') {
 
 app.use('/api/auth', csrfProtection, authRouter);
 app.use('/api/seller', csrfProtection, sellerRouter);
+app.use('/api/admin', csrfProtection, adminRouter);
 app.use('/api/product', csrfProtection, productRouter);
 app.use('/api/superadmin', csrfProtection, superAdminRouter);
 
 // Set up error handling middleware
 app.use((req, res, next) => {
-    res.status(404).send('Not Found');
+    res.status(404).send({ error: 'not_found', message: 'Not Found' });
 });
 
 app.use((err, req, res, next) => {

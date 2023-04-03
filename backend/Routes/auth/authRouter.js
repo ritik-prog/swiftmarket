@@ -5,6 +5,9 @@ const authenticateMiddleware = require('../../middleware/authenticateMiddleware'
 const checkBanMiddleware = require('../../Middleware/checkBanMiddleware');
 const signupRateLimiter = require('../../Middleware/signupRateLimiter');
 const { sendVerificationCodeAgain, verifyUser } = require('../../controllers/auth/verificationController');
+const handleError = require('../../utils/errorHandler');
+const checkVerificationMiddleware = require('../../middleware/checkVerificationMiddleware');
+
 
 const router = express.Router();
 
@@ -37,57 +40,55 @@ router.post(
 
 // Email Verification
 router.post('/sendVerificationCodeAgain',
-    [check('email').isEmail(), authenticateMiddleware],
+    [authenticateMiddleware],
     async (req, res) => {
         try {
-            const errors = validationResult(req);
-            if (!errors.isEmpty()) {
-                handleError(res, {
-                    name: 'CustomValidationError',
-                    status: 'error',
-                    errors: errors.array()
-                });
-            }
-            const { email } = req.body;
+            const { email } = req.user;
             const status = await sendVerificationCodeAgain(email);
-            res.status(200).json({ status: 'success', ...status });
+            return res.status(200).json({ status: 'success', ...status });
         } catch (err) {
-            handleError(res, err);
+            return handleError(res, err);
         }
     });
 
 router.post('/verify',
-    [check('email').isEmail(), check('code').isNumeric(), authenticateMiddleware],
+    [
+        check('code').isLength({ min: 4, max: 4 }).isNumeric(),
+        authenticateMiddleware
+    ],
     async (req, res) => {
         try {
-            if (req.user.verificationStatus) {
-                return res.status(411).json({ status: 'error', message: 'User already verified' });
-            }
             const errors = validationResult(req);
             if (!errors.isEmpty()) {
-                handleError(res, {
+                return handleError(res, {
                     name: 'CustomValidationError',
                     status: 'error',
                     errors: errors.array()
                 });
             }
-            const { email, code } = req.body;
-            const status = await verifyUser(email, code);
+
+            if (req.user.verificationStatus) {
+                return res.status(411).json({ status: 'error', message: 'User already verified' });
+            }
+
+            const { code } = req.body;
+            const status = await verifyUser(req.user.email, code);
             res.status(200).json({ status: 'success', ...status });
         } catch (err) {
-            handleError(res, err);
+            return handleError(res, err);
         }
     });
 
 // Get user details
 router.get('/profile', [
-    checkBanMiddleware, authenticateMiddleware], authController.getUser);
+    checkBanMiddleware, authenticateMiddleware, checkVerificationMiddleware], authController.getUser);
 
 // Update user details
 router.put(
     '/updateprofile',
     [
-        authenticateMiddleware,
+        checkBanMiddleware,
+        authenticateMiddleware, checkVerificationMiddleware,
         check('username', 'Username is required').notEmpty().trim().escape(),
         check('name', 'Name is required').notEmpty().trim().escape(),
         check('email', 'Please enter a valid email address').isEmail().normalizeEmail(),
@@ -109,6 +110,9 @@ router.put(
 router.put(
     '/updatepassword',
     [
+        checkBanMiddleware,
+        authenticateMiddleware,
+        checkVerificationMiddleware,
         check('currentPassword', 'Current password is required').exists(),
         check('newPassword', 'Please enter a new password with 6 or more characters').isLength({ min: 6 }),
     ],
@@ -116,9 +120,11 @@ router.put(
 );
 
 // Delete account
-router.delete('/deleteaccount', [authenticateMiddleware], authController.deleteAccount);
+router.delete('/deleteaccount', [checkBanMiddleware, authenticateMiddleware,
+    checkVerificationMiddleware,], authController.deleteAccount);
 
 // Logout route
-router.post('/logout', [authenticateMiddleware], authController.logout);
+router.post('/logout', [checkBanMiddleware, authenticateMiddleware,
+    checkVerificationMiddleware,], authController.logout);
 
 module.exports = router;

@@ -1,8 +1,8 @@
 const authorizeMiddleware = (roles) => async (req, res, next) => {
     try {
         // Check if there is an Authorization header in the request
-        const authHeader = req.headers.authorization;
-        if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        const token = req.cookies.token;
+        if (!token) {
             throw new Unauthorized('Authorization header missing or invalid');
         }
 

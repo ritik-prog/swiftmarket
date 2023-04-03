@@ -22,7 +22,7 @@ function handleError(res, err) {
             message: 'User not found'
         });
     }
-
+    
     if (err.code === errorCode.AUTHENTICATION_FAILED.code) {
         return res.status(401).json({
             error: errorCode.AUTHENTICATION_FAILED.code,
