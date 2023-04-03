@@ -47,6 +47,12 @@ const userSchema = new mongoose.Schema({
         enum: ['user', 'seller', 'admin', 'superadmin', 'root'],
         default: 'user',
     },
+    orders: [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Order'
+        },
+    ],
     paymentDetails: {
         blockchainWalletAddress: {
             type: String

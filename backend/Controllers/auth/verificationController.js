@@ -2,12 +2,18 @@ const User = require('../../models/auth/userSchema');
 const sendEmail = require('../../utils/sendEmail');
 const generateVerificationCode = require('../../utils/generateCode');
 
+const handleError = require('../../utils/errorHandler');
+
 const sendVerificationCode = async (email) => {
     try {
         // Check if user exists
         const user = await User.findOne({ email: email });
         if (!user) {
-            return { success: false, message: 'User not found.', status: 404 };
+            handleError(res, {
+                name: 'not_found',
+                status: 'error',
+                message: 'Useer not found',
+            });
         }
         if (!user.verificationStatus) {
             const verificationCode = generateVerificationCode();
@@ -32,8 +38,7 @@ const sendVerificationCode = async (email) => {
             return { success: false, message: 'User is already verified.', status: 500 };
         }
     } catch (err) {
-        console.error(err);
-        return { success: false, message: 'Failed to send verification code.', status: 500 };
+        handleError(res, err);
     }
 };
 
@@ -42,7 +47,11 @@ const verifyUser = async (email, verificationCode) => {
         // Check if user exists and code has not expired
         const user = await User.findOne({ email: email });
         if (!user) {
-            return { success: false, message: 'User not found.', status: 404 };
+            handleError(res, {
+                name: 'not_found',
+                status: 'error',
+                message: 'User not found'
+            });
         }
         if (user.verificationStatus) {
             user.verificationStatus = true;
@@ -66,8 +75,7 @@ const verifyUser = async (email, verificationCode) => {
 
         return { success: true, message: 'User verified successfully.', status: 200 };
     } catch (err) {
-        console.error(err);
-        return { success: false, message: 'Failed to verify user.', status: 500 };
+        handleError(res, err);
     }
 };
 
@@ -76,7 +84,11 @@ async function sendVerificationCodeAgain(email) {
         // Check if user exists
         const user = await User.findOne({ email });
         if (!user) {
-            return { message: 'User not found', status: 404, success: false };
+            handleError(res, {
+                name: 'not_found',
+                status: 'error',
+                message: 'User not found',
+            });
         }
 
         // Check if user has not verified yet
@@ -107,8 +119,7 @@ async function sendVerificationCodeAgain(email) {
             return { success: false, message: 'User is already verified.', status: 500 };
         }
     } catch (err) {
-        console.error(err);
-        return { message: 'Failed to send verification code.', status: 500, success: false };
+        handleError(res, err);
     }
 }
 

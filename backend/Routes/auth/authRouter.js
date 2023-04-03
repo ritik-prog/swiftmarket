@@ -42,9 +42,9 @@ router.post('/sendVerificationCodeAgain',
         try {
             const errors = validationResult(req);
             if (!errors.isEmpty()) {
-                return res.status(400).json({
+                handleError(res, {
+                    name: 'CustomValidationError',
                     status: 'error',
-                    message: 'Invalid email',
                     errors: errors.array()
                 });
             }
@@ -64,9 +64,9 @@ router.post('/verify',
             if (req.user.verificationStatus) return res.status(400).json({ status: 'error', message: 'User already verified' });
             const errors = validationResult(req);
             if (!errors.isEmpty()) {
-                return res.status(400).json({
+                handleError(res, {
+                    name: 'CustomValidationError',
                     status: 'error',
-                    message: 'Invalid email or verification code',
                     errors: errors.array()
                 });
             }

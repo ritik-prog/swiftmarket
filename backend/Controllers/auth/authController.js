@@ -6,11 +6,16 @@ const _ = require('lodash');
 const Ip = require('../../models/auth/ipSchema');
 const User = require('../../models/auth/userSchema');
 const { sendVerificationCode } = require('./verificationController');
+const handleError = require('../../utils/errorHandler');
 
 exports.signup = async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-        return res.status(400).json({ errors: errors.array() });
+        handleError(res, {
+            name: 'CustomValidationError',
+            status: 'error',
+            errors: errors.array()
+        });
     }
 
     const ip = req.ip;
@@ -20,7 +25,11 @@ exports.signup = async (req, res) => {
         let user = await User.findOne({ email });
 
         if (user) {
-            return res.status(400).json({ message: 'User already exists' });
+            handleError(res, {
+                name: 'already_exists',
+                status: 'error',
+                message: 'User already exists',
+            });
         }
 
         user = new User({
@@ -61,14 +70,18 @@ exports.signup = async (req, res) => {
 
         res.status(202).json({ token });
     } catch (err) {
-        res.status(500).send('Server Error' + err);
+        handleError(res, err);
     }
 };
 
 exports.login = async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-        return res.status(400).json({ errors: errors.array() });
+        handleError(res, {
+            name: 'CustomValidationError',
+            status: 'error',
+            errors: errors.array()
+        });
     }
 
     const { email, password } = req.body;
@@ -77,14 +90,20 @@ exports.login = async (req, res) => {
         let user = await User.findOne({ email });
 
         if (_.isEmpty(user)) {
-            return res.status(400).json({ message: 'Invalid Credentials' });
+            handleError(res, {
+                message: 'Invalid Credentials',
+                code: 401
+            });
         }
 
 
         const isMatch = await bcrypt.compare(password, user.password);
 
         if (!isMatch) {
-            return res.status(400).json({ message: 'Invalid Credentials' });
+            handleError(res, {
+                message: 'Invalid Credentials',
+                code: 401
+            });
         }
 
         const token = await user.generateAuthToken();
@@ -101,8 +120,7 @@ exports.login = async (req, res) => {
             }
         });
     } catch (err) {
-        console.error(err.message);
-        res.status(500).send('Server Error');
+        handleError(res, err);
     }
 }
 
@@ -110,7 +128,11 @@ exports.getUser = async (req, res) => {
     try {
         // Check if user is authenticated
         if (!req.headers.authorization) {
-            return res.status(401).json({ message: 'Unauthorized' });
+            handleError(res, {
+                code: 'unauthorized_access',
+                status: 'error',
+                message: 'Unauthorized Access',
+            });
         }
 
         const token = req.headers.authorization.split(' ')[1];
@@ -118,18 +140,25 @@ exports.getUser = async (req, res) => {
         const user = await User.findById(decodedToken._id).select('-password');
 
         if (!user) {
-            return res.status(404).json({ message: 'User not found' });
+            handleError(res, {
+                name: 'not_found',
+                status: 'error',
+                message: 'User not found',
+            });
         }
 
         // Check if user has permission to access this resource
         if (user._id.toString() !== decodedToken._id) {
-            return res.status(401).json({ message: 'Unauthorized' });
+            handleError(res, {
+                code: 'unauthorized_access',
+                status: 'error',
+                message: 'Unauthorized Access',
+            });
         }
 
         res.status(202).json(user);
     } catch (err) {
-        console.error(err.message);
-        res.status(500).json({ message: 'Server Error' });
+        handleError(res, err);
     }
 };
 
@@ -137,12 +166,20 @@ exports.updateProfile = async (req, res) => {
     try {
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
-            return res.status(422).json({ errors: errors.array() });
+            handleError(res, {
+                name: 'CustomValidationError',
+                status: 'error',
+                errors: errors.array()
+            });
         }
 
         const user = await User.findById(req.user.id).select('-password -__v');
         if (!user) {
-            return res.status(404).json({ message: 'User not found' });
+            handleError(res, {
+                name: 'not_found',
+                status: 'error',
+                message: 'User not found',
+            });
         }
 
         const { username, name, email, address, paymentDetails } = req.body;
@@ -156,8 +193,7 @@ exports.updateProfile = async (req, res) => {
         await user.save();
         res.status(202).json(user);
     } catch (err) {
-        console.error(err.message);
-        res.status(500).json({ message: 'Server Error' });
+        handleError(res, err);
     }
 };
 
@@ -165,7 +201,11 @@ exports.updatePassword = async (req, res) => {
     try {
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
-            return res.status(422).json({ errors: errors.array() });
+            handleError(res, {
+                name: 'CustomValidationError',
+                status: 'error',
+                errors: errors.array()
+            });
         }
 
         const user = await User.findById(req.user.id);
@@ -173,7 +213,10 @@ exports.updatePassword = async (req, res) => {
         // Check if current password matches
         const isMatch = await bcrypt.compare(req.body.currentPassword, user.password);
         if (!isMatch) {
-            return res.status(400).json({ message: 'Invalid credentials' });
+            handleError(res, {
+                message: 'Invalid Credentials',
+                code: 401
+            });
         }
 
         // Generate salt and hash for new password
@@ -187,8 +230,7 @@ exports.updatePassword = async (req, res) => {
 
         res.status(202).json({ message: 'Password updated successfully', token: token });
     } catch (err) {
-        console.error(err.message);
-        res.status(500).json({ message: 'Server Error' });
+        handleError(res, err);
     }
 };
 
@@ -199,8 +241,6 @@ exports.logout = async (req, res) => {
         await user.save();
         res.status(200).json({ message: 'Logged out successfully' });
     } catch (err) {
-        console.error(err.message);
-        res.status(500).json({ message: 'Server Error' });
+        handleError(res, err);
     }
 };
-

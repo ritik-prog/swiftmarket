@@ -7,7 +7,19 @@ const sellerController = require('../../controllers/seller/sellerController');
 const router = express.Router();
 
 // Apply for seller account
-router.post('/apply', [authenticateMiddleware], sellerController.applyForSellerAccount);
+router.post('/apply', [
+    authenticateMiddleware,
+    check('businessNumber').notEmpty().isNumeric(),
+    check('businessName').notEmpty().isString().trim(),
+    check('businessEmail').notEmpty().isEmail().normalizeEmail(),
+    check('businessUsername').notEmpty().isString().trim(),
+    check('businessRegistrationNumber').notEmpty().isString().trim(),
+    check('businessType').notEmpty().isString().trim(),
+    check('businessAddress').notEmpty().isString().trim(),
+    check('businessWebsite').notEmpty().isURL(),
+    check('taxIDNumber').notEmpty().isString().trim(),
+    check('productCategories').isArray(),
+], sellerController.applyForSellerAccount);
 
 // Route for verifying a seller
 router.post('/verify', [

@@ -1,29 +1,35 @@
 const Seller = require('../../models/seller/sellerSchema');
 
 const Product = require('../../models/product/productSchema');
+const handleError = require('../../data/errorCode');
 
 // GET all products of a seller by username
 exports.getAllProductsOfSellerByUsername = async (req, res, next) => {
     try {
         const seller = await Seller.findOne({ username: req.params.username }).populate('products');
         if (!seller) {
-            return res.status(404).json({
+            handleError(res, {
+                name: 'not_found',
                 status: 'error',
-                message: 'Seller not found'
+                message: 'Seller not found',
+            });
+        } else if (!seller.products || seller.products.length === 0) {
+            handleError(res, {
+                name: 'not_found',
+                status: 'error',
+                message: 'No products found for the seller',
+            });
+        } else {
+            res.status(200).json({
+                status: 'success',
+                message: 'Retrieved all products of the seller',
+                data: {
+                    products: seller.products
+                }
             });
         }
-        res.status(200).json({
-            status: 'success',
-            message: 'Retrieved all products of the seller',
-            data: {
-                products: seller.products
-            }
-        });
     } catch (err) {
-        res.status(500).json({
-            status: 'error',
-            message: 'Internal server error'
-        });
+        handleError(res, err);
     }
 };
 
@@ -39,9 +45,10 @@ exports.getSellerProduct = async (req, res, next) => {
         }
         const product = await Product.findOne({ _id: req.params.id, seller: seller._id });
         if (!product) {
-            return res.status(404).json({
+            handleError(res, {
+                name: 'not_found',
                 status: 'error',
-                message: 'Product not found'
+                message: 'Product not found',
             });
         }
         res.status(200).json({
@@ -52,10 +59,7 @@ exports.getSellerProduct = async (req, res, next) => {
             }
         });
     } catch (err) {
-        res.status(500).json({
-            status: 'error',
-            message: 'Internal Server Error'
-        });
+        handleError(res, err);
     }
 };
 
@@ -64,7 +68,8 @@ exports.getProductById = async (req, res, next) => {
     try {
         const product = await Product.findById(req.params.id);
         if (!product) {
-            return res.status(404).json({
+            handleError(res, {
+                name: 'not_found',
                 status: 'error',
                 message: 'Product not found',
             });
@@ -74,9 +79,6 @@ exports.getProductById = async (req, res, next) => {
             data: product,
         });
     } catch (err) {
-        res.status(500).json({
-            status: 'error',
-            message: 'Internal server error',
-        });
+        handleError(res, err);
     }
 };

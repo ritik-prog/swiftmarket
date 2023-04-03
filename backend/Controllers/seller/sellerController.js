@@ -5,9 +5,19 @@ const applyForSellerModel = require('../../models/seller/applySellerSchema');
 const Product = require('../../models/product/productSchema');
 const sendEmail = require('../../utils/sendEmail');
 
+const handleError = require('../../utils/errorHandler');
+
 // Apply for seller account
 const applyForSellerAccount = async (req, res, next) => {
     try {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            handleError(res, {
+                name: 'CustomValidationError',
+                status: 'error',
+                errors: errors.array()
+            });
+        }
         // Extract required fields from request body
         const {
             businessNumber,
@@ -21,6 +31,21 @@ const applyForSellerAccount = async (req, res, next) => {
             taxIDNumber,
             productCategories,
         } = req.body;
+
+        // Check if there is already an existing seller with the same business email or business username
+        const existingSeller = await Seller.findOne({
+            $or: [
+                { businessEmail: businessEmail },
+                { businessUsername: businessUsername }
+            ]
+        });
+        if (existingSeller) {
+            handleError(res, {
+                name: 'already_exists',
+                status: 'error',
+                message: 'There is already an existing seller with the same business email or business username',
+            });
+        }
 
         // Create a new seller instance with required fields
         const newSeller = new applyForSellerModel({
@@ -46,11 +71,7 @@ const applyForSellerAccount = async (req, res, next) => {
             data: savedSeller,
         });
     } catch (error) {
-        res.status(500).json({
-            success: false,
-            message: 'Internal server error',
-            error: error.message,
-        });
+        handleError(res, err);
     }
 };
 
@@ -59,7 +80,11 @@ const verifySeller = async (req, res) => {
     // Check for validation errors
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-        return res.status(400).json({ errors: errors.array() });
+        handleError(res, {
+            name: 'CustomValidationError',
+            status: 'error',
+            errors: errors.array()
+        });
     }
 
     const { email, code, paymentPreferences, blockchainWalletAddress, paypalAccountEmailAddress } = req.body;
@@ -69,7 +94,11 @@ const verifySeller = async (req, res) => {
         const seller = await Seller.findOne({ email: email });
 
         if (!seller) {
-            return res.status(400).json({ errors: [{ message: 'Invalid or expired verification code' }] });
+            handleError(res, {
+                name: 'not_found',
+                status: 'error',
+                message: 'Seller not found',
+            });
         }
 
         if (!seller.verificationStatus) {
@@ -100,7 +129,7 @@ const verifySeller = async (req, res) => {
                     seller.verificationCodeExpiresAt = null;
                     await seller.save();
                 } else {
-                    res.status(400).json({ success: false, message: 'Wrong verification code' });
+                    return res.status(400).json({ errors: [{ message: 'Invalid or expired verification code' }] });
                 }
             }
             // Send a success response
@@ -109,8 +138,7 @@ const verifySeller = async (req, res) => {
             res.status(400).json({ success: false, message: 'Seller account already verified' });
         }
     } catch (err) {
-        console.error(err.message);
-        res.status(500).send('Server Error');
+        handleError(res, err);
     }
 };
 
@@ -119,15 +147,15 @@ const getSellerById = async (req, res) => {
     try {
         const seller = await Seller.findById(req.body._id);
         if (!seller) {
-            return res.status(404).json({ status: 'error', message: 'Seller not found' });
+            handleError(res, {
+                name: 'not_found',
+                status: 'error',
+                message: 'Seller not found',
+            });
         }
         res.status(200).json({ status: 'success', data: seller });
     } catch (err) {
-        console.error(err.message);
-        if (err.kind === 'ObjectId') {
-            return res.status(404).json({ status: 'error', message: 'Seller not found' });
-        }
-        res.status(500).json({ status: 'error', message: 'Server Error', error: err.message });
+        handleError(res, err);
     }
 };
 
@@ -135,63 +163,76 @@ const getSellerById = async (req, res) => {
 const updateSellerById = async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-        return res.status(400).json({ status: 'error', message: 'Validation error', errors: errors.array() });
+        handleError(res, {
+            name: 'CustomValidationError',
+            status: 'error',
+            errors: errors.array()
+        });
     }
-
-    const {
-        fullName,
-        email,
-        phoneNumber,
-        businessName,
-        businessRegistrationNumber,
-        businessType,
-        businessAddress,
-        businessWebsite,
-        taxIDNumber,
-        paymentPreferences,
-        blockchainWalletAddress,
-        paypalAccountEmailAddress,
-        productCategories,
-        productListings,
-        salesHistory,
-        ratingsAndReviews
-    } = req.body;
-
-    const sellerFields = {};
-    if (fullName) sellerFields.fullName = fullName;
-    if (email) sellerFields.email = email;
-    if (phoneNumber) sellerFields.phoneNumber = phoneNumber;
-    if (businessName) sellerFields.businessName = businessName;
-    if (businessRegistrationNumber) sellerFields.businessRegistrationNumber = businessRegistrationNumber;
-    if (businessType) sellerFields.businessType = businessType;
-    if (businessAddress) sellerFields.businessAddress = businessAddress;
-    if (businessWebsite) sellerFields.businessWebsite = businessWebsite;
-    if (taxIDNumber) sellerFields.taxIDNumber = taxIDNumber;
-    if (paymentPreferences) sellerFields.paymentPreferences = paymentPreferences;
-    if (blockchainWalletAddress) sellerFields.blockchainWalletAddress = blockchainWalletAddress;
-    if (paypalAccountEmailAddress) sellerFields.paypalAccountEmailAddress = paypalAccountEmailAddress;
-    if (productCategories) sellerFields.productCategories = productCategories;
-    if (productListings) sellerFields.productListings = productListings;
-    if (salesHistory) sellerFields.salesHistory = salesHistory;
-    if (ratingsAndReviews) sellerFields.ratingsAndReviews = ratingsAndReviews;
-
     try {
         let seller = await Seller.findById(req.params.id);
 
         if (!seller) {
-            return res.status(404).json({ status: 'error', message: 'Seller not found' });
+            handleError(res, {
+                name: 'not_found',
+                status: 'error',
+                message: 'Seller not found',
+            });
         }
 
+
+
+        const {
+            fullName,
+            email,
+            phoneNumber,
+            businessName,
+            businessRegistrationNumber,
+            businessType,
+            businessAddress,
+            businessWebsite,
+            taxIDNumber,
+            paymentPreferences,
+            blockchainWalletAddress,
+            paypalAccountEmailAddress,
+            productCategories,
+            productListings,
+            salesHistory,
+            ratingsAndReviews
+        } = req.body;
+
+        const sellerFields = {};
+        if (fullName) sellerFields.fullName = fullName;
+        if (email) sellerFields.email = email;
+        if (phoneNumber) sellerFields.phoneNumber = phoneNumber;
+        if (businessName) sellerFields.businessName = businessName;
+        if (businessRegistrationNumber) sellerFields.businessRegistrationNumber = businessRegistrationNumber;
+        if (businessType) sellerFields.businessType = businessType;
+        if (businessAddress) sellerFields.businessAddress = businessAddress;
+        if (businessWebsite) sellerFields.businessWebsite = businessWebsite;
+        if (taxIDNumber) sellerFields.taxIDNumber = taxIDNumber;
+        if (paymentPreferences) sellerFields.paymentPreferences = paymentPreferences;
+        if (blockchainWalletAddress) sellerFields.blockchainWalletAddress = blockchainWalletAddress;
+        if (paypalAccountEmailAddress) sellerFields.paypalAccountEmailAddress = paypalAccountEmailAddress;
+        if (productCategories) sellerFields.productCategories = productCategories;
+        if (productListings) sellerFields.productListings = productListings;
+        if (salesHistory) sellerFields.salesHistory = salesHistory;
+        if (ratingsAndReviews) sellerFields.ratingsAndReviews = ratingsAndReviews;
+
+
         if (seller.user.toString() !== req.user.id) {
-            return res.status(401).json({ status: 'error', message: 'Not authorized' });
+            handleError(res, {
+                code: 'unauthorized_access',
+                status: 'error',
+                message: 'Unauthorized Access',
+            });
         }
 
         seller = await Seller.findByIdAndUpdate(req.params.id, { $set: sellerFields }, { new: true });
 
         res.status(200).json({ status: 'success', message: 'Seller updated successfully', data: seller });
     } catch (err) {
-        console.error(err.message);
-        res.status(500).json({ status: 'error', message: 'Server error' });
+        handleError(res, err);
     }
 };
 
@@ -200,7 +241,11 @@ const deleteSellerById = async (req, res) => {
     try {
         const seller = await Seller.findById(req.body._id);
         if (!seller) {
-            return res.status(404).json({ status: 'error', message: 'Seller not found' });
+            handleError(res, {
+                name: 'not_found',
+                status: 'error',
+                message: 'Seller not found',
+            });
         }
 
         await Seller.findByIdAndDelete(req.body._id);
@@ -213,8 +258,7 @@ const deleteSellerById = async (req, res) => {
 
         res.status(200).json({ status: 'success', message: 'Seller deleted successfully' });
     } catch (err) {
-        console.error(err.message);
-        res.status(500).json({ status: 'error', message: 'Server error' });
+        handleError(res, err);
     }
 };
 
@@ -223,18 +267,19 @@ const createProductForSeller = async (req, res, next) => {
     try {
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
-            return res.status(422).json({
+            handleError(res, {
+                name: 'CustomValidationError',
                 status: 'error',
-                message: 'Validation error',
                 errors: errors.array()
             });
         }
 
         const seller = await Seller.findOne({ _id: req.user._id });
         if (!seller) {
-            return res.status(404).json({
+            handleError(res, {
+                name: 'not_found',
                 status: 'error',
-                message: 'Seller not found'
+                message: 'Seller not found',
             });
         }
 
@@ -267,7 +312,7 @@ const createProductForSeller = async (req, res, next) => {
             }
         });
     } catch (err) {
-        next(err);
+        handleError(res, err);
     }
 };
 
@@ -276,26 +321,28 @@ const updateProductForSeller = async (req, res) => {
     try {
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
-            return res.status(422).json({
+            handleError(res, {
+                name: 'CustomValidationError',
                 status: 'error',
-                message: 'Validation error',
                 errors: errors.array()
             });
         }
 
         const seller = await Seller.findOne({ _id: req.user._id });
         if (!seller) {
-            return res.status(404).json({
+            handleError(res, {
+                name: 'not_found',
                 status: 'error',
-                message: 'Seller not found'
+                message: 'Seller not found',
             });
         }
 
         const product = await Product.findOne({ _id: req.params.productId, seller: seller._id });
         if (!product) {
-            return res.status(404).json({
+            handleError(res, {
+                name: 'not_found',
                 status: 'error',
-                message: 'Product not found'
+                message: 'Product not found',
             });
         }
 
@@ -322,11 +369,7 @@ const updateProductForSeller = async (req, res) => {
             }
         });
     } catch (error) {
-        console.error(error);
-        res.status(500).json({
-            status: 'error',
-            message: 'Something went wrong'
-        });
+        handleError(res, err);
     }
 };
 
@@ -335,9 +378,10 @@ const deleteProductForSeller = async (req, res) => {
     try {
         const product = await Product.findOneAndDelete({ _id: req.params.id, seller: req.user._id });
         if (!product) {
-            return res.status(404).json({
+            handleError(res, {
+                name: 'not_found',
                 status: 'error',
-                message: 'Product not found'
+                message: 'Product not found',
             });
         }
 
@@ -353,10 +397,7 @@ const deleteProductForSeller = async (req, res) => {
             message: 'Deleted the product'
         });
     } catch (err) {
-        res.status(500).json({
-            status: 'error',
-            message: 'Internal server error'
-        });
+        handleError(res, err);
     }
 };
 

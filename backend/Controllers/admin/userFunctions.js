@@ -2,6 +2,7 @@ const { validationResult } = require('express-validator');
 
 const User = require('../../models/auth/userSchema');
 const authorizeChangeMiddleware = require('../../middleware/authorizeChangeMiddleware');
+const handleError = require('../../utils/errorHandler');
 
 // Get all users
 const getAllUsers = async (req, res) => {
@@ -9,8 +10,7 @@ const getAllUsers = async (req, res) => {
         const users = await User.find({});
         res.status(200).json({ status: 'success', message: 'Users retrieved successfully', data: users });
     } catch (err) {
-        console.error(err.message);
-        res.status(500).json({ status: 'error', message: 'Server Error' });
+        handleError(res, err);
     }
 };
 
@@ -19,14 +19,22 @@ const createUser = async (req, res) => {
     try {
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
-            return res.status(422).json({ status: 'error', message: 'Validation failed', errors: errors.array() });
+            handleError(res, {
+                name: 'CustomValidationError',
+                status: 'error',
+                errors: errors.array()
+            });
         }
         const { username, name, email, password } = req.body;
 
         // Check if user already exists
         let user = await User.findOne({ $or: [{ username }, { email }] });
         if (user) {
-            return res.status(400).json({ status: 'error', message: 'User already exists' });
+            handleError(res, {
+                name: 'already_exists',
+                status: 'error',
+                message: 'User already exists',
+            });
         }
 
         authorizeChangeMiddleware(user.role);
@@ -44,8 +52,7 @@ const createUser = async (req, res) => {
         res.status(201).json({ status: 'success', data: { user, token } });
 
     } catch (err) {
-        console.error(err.message);
-        res.status(500).json({ status: 'error', message: 'Server Error' });
+        handleError(res, err);
     }
 };
 
@@ -54,7 +61,11 @@ const updateUser = async (req, res) => {
     try {
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
-            return res.status(422).json({ status: 'error', message: 'Validation failed', errors: errors.array() });
+            handleError(res, {
+                name: 'CustomValidationError',
+                status: 'error',
+                errors: errors.array()
+            });
         }
         const { id } = req.params;
         const updates = req.body;
@@ -62,7 +73,11 @@ const updateUser = async (req, res) => {
         // check if user exists
         const user = await User.findById(id);
         if (!user) {
-            return res.status(404).json({ status: 'error', message: 'User not found' });
+            handleError(res, {
+                name: 'not_found',
+                status: 'error',
+                message: 'User not found',
+            });
         }
 
         authorizeChangeMiddleware(user.role);
@@ -73,8 +88,7 @@ const updateUser = async (req, res) => {
 
         res.status(200).json({ status: 'success', message: 'User updated successfully', data: user });
     } catch (err) {
-        console.error(err.message);
-        res.status(500).json({ status: 'error', message: 'Server Error' });
+        handleError(res, err);
     }
 };
 
@@ -85,7 +99,11 @@ const deleteUser = async (req, res) => {
         const user = await User.findById(id);
 
         if (!user) {
-            return res.status(404).json({ status: 'error', message: 'User not found' });
+            handleError(res, {
+                name: 'not_found',
+                status: 'error',
+                message: 'User not found',
+            });
         }
 
         authorizeChangeMiddleware(user.role);
@@ -93,8 +111,7 @@ const deleteUser = async (req, res) => {
         await user.delete();
         res.status(200).json({ status: 'success', message: 'User deleted successfully' });
     } catch (err) {
-        console.error(err.message);
-        res.status(500).json({ status: 'error', message: 'Server Error' });
+        handleError(res, err);
     }
 };
 
@@ -105,7 +122,11 @@ const banUser = async (req, res) => {
         const user = await User.findById(id);
 
         if (!user) {
-            return res.status(404).json({ status: 'fail', message: 'User not found' });
+            handleError(res, {
+                name: 'not_found',
+                status: 'error',
+                message: 'User not found',
+            });
         }
         authorizeChangeMiddleware(user.role);
         user.banStatus.isBanned = true;
@@ -114,8 +135,7 @@ const banUser = async (req, res) => {
 
         res.status(200).json({ status: 'success', message: 'User has been banned successfully' });
     } catch (err) {
-        console.error(err.message);
-        res.status(500).json({ status: 'error', message: 'Server Error' });
+        handleError(res, err);
     }
 };
 
