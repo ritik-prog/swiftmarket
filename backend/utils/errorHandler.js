@@ -1,4 +1,4 @@
-import errorCode from "../data/errorCode";
+const errorCode = require("../data/errorCode");
 
 function handleError(res, err) {
 
@@ -51,7 +51,7 @@ function handleError(res, err) {
         });
     }
 
-
+    console.log(err)
     return res.status(500).json({
         error: errorCode.SERVER_ERROR.code,
         message: errorCode.SERVER_ERROR.message

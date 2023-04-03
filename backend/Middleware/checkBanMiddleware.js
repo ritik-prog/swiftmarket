@@ -2,9 +2,14 @@ const User = require('../models/auth/userSchema');
 const moment = require('moment');
 
 const handleError = require('../utils/errorHandler');
+const Unauthorized = require('./../errors/Unauthorized');
 
 const checkBanMiddleware = async (req, res, next) => {
     try {
+        const authHeader = req.headers.authorization;
+        if (!authHeader || !authHeader.startsWith('Bearer ')) {
+            throw new Unauthorized('Authorization header missing or invalid');
+        }
         const user = await User.findOne({ email: req.body.email });
         if (user && user.banStatus.isBanned) {
             if (user.banStatus.banExpiresAt) {
@@ -34,7 +39,7 @@ const checkBanMiddleware = async (req, res, next) => {
             }
         }
         next();
-    } catch (error) {
+    } catch (err) {
         handleError(res, err);
     }
 };

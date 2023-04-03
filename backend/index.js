@@ -10,7 +10,6 @@ const csurf = require('csurf');
 const https = require('https');
 const fs = require('fs');
 
-
 const authRouter = require('./Routes/auth/authRouter');
 const sellerRouter = require('./Routes/seller/sellerRouter');
 const productRouter = require('./Routes/product/productRouter');
@@ -19,7 +18,6 @@ const superAdminRouter = require('./Routes/superadmin/superAdminRouter');
 const rateLimiterMiddleware = require('./Middleware/rateLimitermiddleware.js');
 
 const connectDB = require('./utils/connectDB');
-const logger = require('./utils/logHandler');
 
 dotenv.config(); // load environment variables from .env file
 connectDB(); // connect to MongoDB database
@@ -34,7 +32,6 @@ app.use(mongoSanitize());
 app.use(helmet()); // adds security-related headers to HTTP response
 app.use(morgan('combined')); // logs incoming HTTP requests
 app.use(cors());
-app.use(rateLimiterMiddleware)
 // parse application/x-www-form-urlencoded
 app.use(bodyParser.urlencoded({ extended: false }));
 // parse application/json
@@ -43,6 +40,7 @@ app.use((req, res, next) => {
     res.setHeader('Content-Security-Policy', "default-src 'self'");
     next();
 });
+app.use(rateLimiterMiddleware);
 
 // Set up CSRF protection
 let csrfProtection;
@@ -56,23 +54,6 @@ if (process.env.NODE_ENV === 'production') {
 } else {
     csrfProtection = (req, res, next) => next();
 }
-
-// app.use("/", csrfProtection, (req, res, next) => {
-//     try {
-//         logger.log({
-//             level: 'error',
-//             message: 'User not found',
-//             meta: {
-//                 code: 404,
-//                 userId: '123'
-//             },
-//             userId: '123',
-//         });
-//         res.status(200).send('Hello World');
-//     } catch (error) {
-//         res.status(500).send('Internal Server Error' + error);
-//     }
-// })
 
 app.use('/api/auth', csrfProtection, authRouter);
 app.use('/api/seller', csrfProtection, sellerRouter);

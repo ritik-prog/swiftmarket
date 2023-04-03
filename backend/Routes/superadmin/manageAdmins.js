@@ -1,6 +1,6 @@
 const express = require('express');
 
-const { param } = require('express-validator');
+const { param, check } = require('express-validator');
 
 const authenticateMiddleware = require('../../middleware/authenticateMiddleware');
 const authorizeMiddleware = require('../../middleware/authorizeMiddleware');

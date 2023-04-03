@@ -46,7 +46,7 @@ exports.signup = async (req, res) => {
         const salt = await bcrypt.genSalt(10);
         user.password = await bcrypt.hash(password, salt);
 
-        const token = await user.generateAuthToken();
+        await user.generateAuthToken();
 
         await user.save().then(async () => {
             await sendVerificationCode(user.email);
@@ -68,7 +68,7 @@ exports.signup = async (req, res) => {
             await newIp.save();
         }
 
-        res.status(200).json({ token, status: 'success', });
+        res.status(200).json({ status: 'success' });
     } catch (err) {
         handleError(res, err);
     }
