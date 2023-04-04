@@ -1,19 +1,8 @@
+const mongoose = require('mongoose');
 const errorCode = require("../data/errorCode");
 
-function handleError(res, err) {
-    if (err instanceof mongoose.Error.ValidationError) {
-        return res.status(400).json({
-            error: errorCode.MISSING_FIELDS.code,
-            message: err.message
-        });
-    }
 
-    if (err instanceof mongoose.Error.CastError) {
-        return res.status(404).json({
-            error: errorCode.USER_NOT_FOUND.code,
-            message: 'User not found'
-        });
-    }
+function handleError(res, err) {
 
     if (err.name === 'CustomValidationError') {
         return res.status(400).json({
@@ -78,6 +67,21 @@ function handleError(res, err) {
         });
     }
 
+    if (err instanceof mongoose.Error.ValidationError) {
+        return res.status(400).json({
+            error: errorCode.MISSING_FIELDS.code,
+            message: err.message
+        });
+    }
+
+    if (err instanceof mongoose.Error.CastError) {
+        return res.status(404).json({
+            error: errorCode.USER_NOT_FOUND.code,
+            message: 'User not found'
+        });
+    }
+    
+    console.log(err);
     return res.status(500).json({
         error: errorCode.SERVER_ERROR.code,
         message: errorCode.SERVER_ERROR.message

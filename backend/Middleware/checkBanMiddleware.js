@@ -1,8 +1,6 @@
 const User = require('../models/auth/userSchema');
 const moment = require('moment');
-
 const handleError = require('../utils/errorHandler');
-const Unauthorized = require('./../errors/Unauthorized');
 
 const checkBanMiddleware = async (req, res, next) => {
     try {

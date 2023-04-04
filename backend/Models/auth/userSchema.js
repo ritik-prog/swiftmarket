@@ -44,7 +44,7 @@ const userSchema = new mongoose.Schema({
     },
     role: {
         type: String,
-        enum: ['user', 'seller', 'admin', 'superadmin', 'root'],
+        enum: ['user', 'seller', 'tickethandler', 'admin', 'superadmin', 'root'],
         default: 'user',
     },
     orders: [
@@ -59,30 +59,18 @@ const userSchema = new mongoose.Schema({
         },
         paypalAccountEmailAddress: {
             type: String
-        },
-        card: {
-            cardNumber: {
-                type: String,
-                maxlength: 16
-            },
-            cardHolderName: {
-                type: String,
-                maxlength: 50
-            },
-            expirationDate: {
-                type: String,
-                validate: /^(0[1-9]|1[0-2])\/\d{4}$/
-            },
-            cvv: {
-                type: String,
-                maxlength: 4
-            }
         }
     },
     transactionHistory: {
-        type: [{ product: String, amount: Number, date: Date }],
-        maxlength: 50,
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Transaction'
     },
+    tickets: [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Ticket'
+        },
+    ],
     tokens: [
         {
             token: {
@@ -134,13 +122,14 @@ userSchema.pre('save', async function (next) {
 });
 
 userSchema.pre(['find', 'findOne', 'findOneAndUpdate', 'findOneAndDelete', 'update'], function (next) {
-    if (this._conditions.hasOwnProperty('email') || this._conditions.hasOwnProperty('_id')) { // check if query has email condition (for login)
-        this.select('-tokens');
-        next();
+    if (this._conditions.hasOwnProperty('email') || this._conditions.hasOwnProperty('_id')) {
+        if (!this.field || !this.field.includes('password')) {
+            this.select('-tokens');
+        }
     } else {
         this.select('-password -tokens');
-        next();
     }
+    next();
 });
 
 // role is set to seller if user is a seller
@@ -180,6 +169,30 @@ userSchema.methods.generateAuthToken = async function () {
 
     await user.save();
     return token;
+};
+
+// find by credentials
+userSchema.statics.findByCredentials = async (email, password) => {
+    const user = await User.findOne({ email }).select('+password');
+
+    if (!user) {
+        return { token: "", user };
+    }
+
+    const isMatch = await bcrypt.compare(password, user.password);
+
+    if (!isMatch) {
+        console.log(user);
+        return handleError(res, {
+            message: 'Invalid Credentials',
+            status: 401,
+            code: 'authentication_failed'
+        });
+    }
+
+    const token = await user.generateAuthToken();
+
+    return { token, user };
 };
 
 // Pre-hook to update seller and product ban status when user is banned

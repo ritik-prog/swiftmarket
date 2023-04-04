@@ -11,22 +11,6 @@ const orderSchema = new mongoose.Schema({
         required: true,
         default: Date.now,
     },
-    products: [
-        {
-            productName: {
-                type: String,
-                required: true,
-            },
-            productPrice: {
-                type: Number,
-                required: true,
-            },
-            productQuantity: {
-                type: Number,
-                required: true,
-            },
-        }
-    ],
     shippingAddress: {
         type: String,
         required: true,
@@ -42,34 +26,6 @@ const orderSchema = new mongoose.Schema({
         required: true,
         default: 'Placed',
     },
-    trackingDetails: {
-        carrierName: {
-            type: String,
-            required: false,
-        },
-        trackingNumber: {
-            type: String,
-            required: false,
-        },
-        trackingUrl: {
-            type: String,
-            required: false,
-        },
-        deliveryDate: {
-            type: Date,
-            required: false,
-        },
-        deliveryStatus: {
-            type: String,
-            required: false,
-            enum: ['In Transit', 'Out for Delivery', 'Delivered', 'Exception'],
-        },
-    },
-    seller: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
-        required: true,
-    },
     customer: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
@@ -82,7 +38,14 @@ const orderSchema = new mongoose.Schema({
     notes: {
         type: String,
         required: false
-    }
+    },
+    subOrders: [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'SubOrder',
+            required: true,
+        }
+    ],
 });
 
 orderSchema.pre('save', function (next) {
@@ -93,7 +56,10 @@ orderSchema.pre('save', function (next) {
 });
 
 orderSchema.statics.getOrderById = async function (id) {
-    const order = await this.findById(id).populate('seller', 'firstName lastName email').populate('customer', 'firstName lastName email');
+    const order = await this.findById(id)
+        .populate('customer', 'firstName lastName email')
+        .populate('subOrders.seller', 'businessName businessNumber businessEmail sellerID')
+        .populate('subOrders.products', 'productName productPrice productQuantity seller');
     if (!order) {
         throw new Error('Order not found');
     }

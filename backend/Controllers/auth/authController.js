@@ -1,7 +1,6 @@
 const bcrypt = require('bcryptjs');
 const { validationResult } = require('express-validator');
 const jwt = require("jsonwebtoken");
-const _ = require('lodash');
 
 const Ip = require('../../models/auth/ipSchema');
 const User = require('../../models/auth/userSchema');
@@ -20,7 +19,7 @@ exports.signup = async (req, res) => {
     }
 
     const ip = req.ip;
-    const { name, email, password, username, address } = req.body;
+    const { name, email, password, username } = req.body;
 
     try {
         let user = await User.findOne({ email });
@@ -37,11 +36,7 @@ exports.signup = async (req, res) => {
             name,
             email,
             password,
-            username,
-            address,
-            verificationStatus: false, // default false
-            role: "user", // default user role
-            transactionHistory: [], // empty array
+            username
         });
 
         const salt = await bcrypt.genSalt(10);
@@ -96,49 +91,38 @@ exports.login = async (req, res) => {
     const { email, password } = req.body;
 
     try {
-        const user = await User.findOne({ email });
-        if (_.isEmpty(user)) {
-            console.log(user);
-            return handleError(res, {
-                message: 'Invalid Credentials',
-                status: 401,
-                code: 'authentication_failed'
+        User.findByCredentials(email, password).then(async ({ token, user }) => {
+
+            if (!user) {
+                return handleError(res, {
+                    message: 'Invalid Credentials',
+                    status: 401,
+                    code: 'authentication_failed'
+                });
+            }
+
+            // Set token in cookies
+            res.cookie('token', token, {
+                httpOnly: true, // cookie cannot be accessed from client-side scripts
+                secure: process.env.NODE_ENV === 'production', // cookie should only be sent over HTTPS in production
+                sameSite: 'strict', // cookie should only be sent for same-site requests
+                maxAge: 5 * 60 * 60 * 1000 // 5hr
             });
-        }
 
-        console.log(password, user.password)
-        const isMatch = await bcrypt.compare(password, user.password);
-
-        if (!isMatch) {
-            console.log(user);
-            return handleError(res, {
-                message: 'Invalid Credentials',
-                status: 401,
-                code: 'authentication_failed'
+            res.status(200).json({
+                user: {
+                    id: user.id,
+                    name: user.name,
+                    email: user.email,
+                    username: user.username,
+                    address: user.address,
+                    verificationStatus: user.verificationStatus,
+                    role: user.role
+                },
+                status: 'success'
             });
-        }
-
-        const token = await user.generateAuthToken();
-
-        // Set token in cookies
-        res.cookie('token', token, {
-            httpOnly: true, // cookie cannot be accessed from client-side scripts
-            secure: process.env.NODE_ENV === 'production', // cookie should only be sent over HTTPS in production
-            sameSite: 'strict', // cookie should only be sent for same-site requests
-            maxAge: 5 * 60 * 60 * 1000 // 5hr
-        });
-
-        res.status(200).json({
-            user: {
-                id: user.id,
-                name: user.name,
-                email: user.email,
-                username: user.username,
-                address: user.address,
-                verificationStatus: user.verificationStatus,
-                role: user.role
-            },
-            status: 'success'
+        }).catch((err) => {
+            throw err;
         });
     } catch (err) {
         return handleError(res, {
@@ -313,7 +297,7 @@ exports.deleteAccount = async (req, res) => {
             'tokens.token': token,
             'tokens.expiresAt': { $gte: Date.now() }
         });
-        
+
         if (!user) {
             return handleError(res, {
                 name: 'not_found',

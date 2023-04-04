@@ -5,7 +5,6 @@ const logSchema = new mongoose.Schema({
     message: { type: String, required: true, immutable: true },
     timestamp: { type: Date, required: true, immutable: true },
     meta: mongoose.Schema.Types.Mixed,
-    jaishreeram: { type: String, required: true, immutable: true }
 }, { timestamps: true });
 
 const Log = mongoose.model('logs', logSchema);
