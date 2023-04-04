@@ -5,11 +5,30 @@ const ticketController = require('../../controllers/ticketmaster/ticketMasterCon
 const authenticateMiddleware = require('../../middleware/authenticateMiddleware');
 const authorizeMiddleware = require('../../middleware/authorizeMiddleware');
 
+const Ticket = require('../../models/ticket/ticketSchema');
+
 // Get all tickets
 router.get('/tickets', [authenticateMiddleware, authorizeMiddleware(['ticketmaster', 'admin', 'superadmin', 'root'])], ticketController.getAllTickets);
 
 // POST join ticket as agent
 router.post('/:id/join', [authenticateMiddleware, authorizeMiddleware(['ticketmaster', 'admin', 'superadmin', 'root'])], ticketController.ticketJoin);
+
+// Get tickets assigned to current ticketmaster
+router.get('/assigned', ticketAuthorize, async (req, res) => {
+    try {
+        const tickets = await Ticket.find({ agent_id: req.user._id })
+            .populate({
+                path: 'messages.user_id',
+                select: 'username'
+            })
+            .populate('order');
+        res.json(tickets);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Server error' });
+    }
+});
+
 
 // Route to reassign a ticket to another agent
 router.put('/:id/reassign', [authenticateMiddleware, authorizeMiddleware(['ticketmaster', 'admin', 'superadmin', 'root'])], ticketController.reassignTicket);

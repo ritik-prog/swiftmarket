@@ -1,85 +1,102 @@
 const mongoose = require('mongoose');
 
-const transactionSchema = new mongoose.Schema({
-    user: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
-        required: true
-    },
-    seller: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Seller',
-        required: true
-    },
-    order: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Order',
-        required: true
-    },
-    type: {
-        type: String,
-        enum: ['payment', 'refund'],
-        required: true
-    },
-    amount: {
-        type: Number,
-        required: true
-    },
-    status: {
-        type: String,
-        enum: ['pending', 'completed', 'failed'],
-        default: 'pending'
-    },
-    paymentMethod: {
-        type: String,
-        enum: ['credit card', 'debit card', 'paypal'],
-        required: true
-    },
-    paymentDetails: {
-        type: Object,
-        required: true
-    },
-    refundReason: {
-        type: String,
-        required: function () {
-            return this.type === 'refund';
+const transactionSchema = new mongoose.Schema(
+    {
+        type: {
+            type: String,
+            required: true
+        },
+        amount: {
+            type: Number,
+            required: true
+        },
+        status: {
+            type: String,
+            required: true,
+            enum: ['Pending', 'Completed', 'Failed']
+        },
+        paymentMethod: {
+            type: String,
+            required: true
+        },
+        paymentDetails: {
+            type: String,
+            required: true
+        },
+        refundReason: {
+            type: String
+        },
+        version: {
+            type: Number,
+            default: 1
+        },
+        previous: {
+            type: mongoose.Schema.Types.Mixed
         }
     },
-    createdAt: {
-        type: Date,
-        default: Date.now
-    },
-    updatedAt: {
-        type: Date,
-        default: Date.now
+    {
+        timestamps: { createdAt: true, updatedAt: false }
     }
-}, { timestamps: true });
+);
 
 transactionSchema.pre('save', function (next) {
-    this.updatedAt = Date.now();
+    if (this.isNew) {
+        // Set the createdAt field to the current date
+        this.createdAt = new Date();
+    } else {
+        // Increment the version number and store a copy of the previous version
+        this.version++;
+        this.previous = this.toObject();
+        delete this.previous._id;
+        delete this.previous.createdAt;
+        delete this.previous.updatedAt;
+    }
     next();
 });
 
-transactionSchema.path('user').validate(function (value, respond) {
-    if (value === this.seller) {
-        return respond(false);
-    }
-    return respond(true);
-}, 'User and seller cannot be the same.');
+transactionSchema.methods.rollback = async function () {
+    // Restore the previous version of the transaction and save it
+    if (this.previous) {
+        // First, create a new transaction using the previous version data
+        const prevVersion = new this.constructor(this.previous);
 
-transactionSchema.path('order').validate(function (value, respond) {
-    if (value.user !== this.user) {
-        return respond(false);
+        // Then, delete the current transaction and replace it with the previous version
+        await this.delete();
+        return prevVersion.save();
+    } else {
+        throw new Error('Cannot rollback: no previous version found');
     }
-    return respond(true);
-}, 'Order does not belong to user.');
+};
 
-transactionSchema.path('paymentMethod').validate(function (value, respond) {
-    const validMethods = ['credit card', 'debit card', 'paypal'];
-    if (validMethods.indexOf(value) === -1) {
-        return respond(false);
+transactionSchema.methods.rollforward = async function () {
+    // Find the next version of the transaction and restore it
+    const nextVersion = await this.constructor.findOne({
+        _id: this._id,
+        version: this.version + 1
+    });
+
+    if (nextVersion) {
+        // First, delete the current transaction and replace it with the next version
+        await this.delete();
+        return nextVersion.save();
+    } else {
+        throw new Error('Cannot rollforward: no next version found');
     }
-    return respond(true);
-}, 'Invalid payment method.');
+};
+
+transactionSchema.methods.updateStatus = function (newStatus) {
+    if (this.status === newStatus) {
+        throw new Error('The new status is the same as the current status.');
+    }
+
+    const allowedStatuses = ['Pending', 'Completed', 'Failed'];
+
+    if (!allowedStatuses.includes(newStatus)) {
+        throw new Error(`The status ${newStatus} is not allowed.`);
+    }
+
+    this.status = newStatus;
+    return this.save();
+}
 
 module.exports = mongoose.model('Transaction', transactionSchema);

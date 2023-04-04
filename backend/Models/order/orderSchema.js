@@ -15,11 +15,6 @@ const orderSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
-    paymentMethod: {
-        type: String,
-        enum: ['Credit Card', 'Debit Card', 'Paypal', 'Bitcoin'],
-        required: true,
-    },
     orderStatus: {
         type: String,
         enum: ['Placed', 'Confirmed', 'Shipped', 'Delivered'],
@@ -46,7 +41,20 @@ const orderSchema = new mongoose.Schema({
             required: true,
         }
     ],
-});
+    transaction: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Transaction',
+        required: true,
+    },
+    createdAt: {
+        type: Date,
+        default: Date.now
+    },
+    updatedAt: {
+        type: Date,
+        default: Date.now
+    }
+}, { timestamps: true });
 
 orderSchema.pre('save', function (next) {
     if (!this.estimatedDeliveryDate) {

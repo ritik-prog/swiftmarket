@@ -27,6 +27,6 @@ router.get('/:id', ticketAuthorize, async (req, res) => {
 router.post('/', ticketAuthorize, ticketController.createTicket);
 
 // ADD message to ticket
-router.post('/:id/message', ticketController.addMessage);
+router.post('/:id/message', ticketAuthorize, ticketController.addMessage);
 
 module.exports = router;

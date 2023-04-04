@@ -3,7 +3,7 @@ const Ticket = require('../models/Ticket');
 // get all tickets
 const getAllTickets = async (req, res) => {
     try {
-        const tickets = await Ticket.find({ agent_id: null })
+        const tickets = await Ticket.find({ agent_id: null, status: 'Open' })
             .populate({
                 path: 'messages.user_id',
                 select: 'username'
