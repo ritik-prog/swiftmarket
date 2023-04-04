@@ -83,3 +83,36 @@ exports.getProductById = async (req, res, next) => {
         return handleError(res, err);
     }
 };
+
+// Search products
+exports.searchProducts = async (req, res) => {
+    const { searchQuery } = req.query;
+
+    try {
+        const products = await Product.find({
+            $or: [
+                { productName: { $regex: searchQuery, $options: 'i' } },
+                { 'seller.businessName': { $regex: searchQuery, $options: 'i' } },
+                { tags: { $regex: searchQuery, $options: 'i' } },
+                { productDescription: { $regex: searchQuery, $options: 'i' } },
+                { category: { $regex: searchQuery, $options: 'i' } },
+            ],
+            isAvailable: true,
+        })
+            .populate('seller', 'businessName businessEmail businessNumber')
+            .exec();
+
+        res.status(200).json({
+            status: 'success',
+            results: products.length,
+            data: {
+                products,
+            },
+        });
+    } catch (err) {
+        res.status(400).json({
+            status: 'fail',
+            message: err.message,
+        });
+    }
+};

@@ -115,7 +115,8 @@ const updateProduct = async (req, res, next) => {
             username: product.fullName,
             productName: product.productName,
             adminUsername: req.user.name,
-            updateReason: req.body.updateReason
+            updateReason: req.body.updateReason,
+            subject: 'Product Updated - SwiftMarket'
         };
 
         await sendEmail(product.businessEmail, data, './violationOfTerms/productUpdated.hbs');
@@ -152,7 +153,8 @@ const deleteProduct = async (req, res, next) => {
             adminUsername: req.user.name,
             deletionDate: new Date().toLocaleString('en-US', { timeZone: 'Asia/Kolkata' }),
             timeZone: 'IST',
-            violationReason: req.body.violationReason
+            violationReason: req.body.violationReason,
+            subject: 'Product Deleted - SwiftMarket'
         };
 
         await sendEmail(product.businessEmail, data, './violationOfTerms/productDeleted.hbs');

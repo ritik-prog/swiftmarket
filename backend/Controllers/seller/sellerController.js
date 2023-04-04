@@ -113,7 +113,8 @@ const verifySeller = async (req, res) => {
                 const data = {
                     username: seller.fullName,
                     verificationCode: seller.verificationCode,
-                    verificationLink: 'https://example.com/verify'
+                    verificationLink: 'https://example.com/verify',
+                    subject: 'Verify seller account - SwiftMarket'
                 };
 
                 await sendEmail(seller.email, data, './verfication/verficationCode.hbs');
@@ -251,7 +252,8 @@ const deleteSellerById = async (req, res) => {
         await Seller.findByIdAndDelete(req.body._id);
 
         const data = {
-            username: seller.fullName
+            username: seller.fullName,
+            subject: 'Seller account deleted - SwiftMarket'
         };
 
         await sendEmail(seller.businessEmail, data, './userActions/sellerAccountDeleted.hbs');
@@ -387,7 +389,8 @@ const deleteProductForSeller = async (req, res) => {
 
         const data = {
             username: product.businessUsername,
-            productName: product.productName
+            productName: product.productName,
+            subject: 'Product Deleted - SwiftMarket'
         };
 
         await sendEmail(product.businessEmail, data, './userActions/deletedProduct.hbs');

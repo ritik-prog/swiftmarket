@@ -169,17 +169,15 @@ sellerSchema.post('findOneAndUpdate', function (error, doc, next) {
 });
 
 sellerSchema.pre('remove', async function (next) {
-    const products = await mongoose.model('Product').find({ seller: this._id });
-    if (products.length) {
-        await mongoose.model('Product').deleteMany({ seller: this._id });
-    }
+    const productIds = this.productListings.map((listing) => listing._id);
+    await mongoose.model('Product').deleteMany({ _id: { $in: productIds } });
     next();
 });
 
 sellerSchema.pre(/^find/, function (next) {
     this.populate({
         path: 'user',
-        select: 'fullName email phoneNumber'
+        select: 'fullName email phoneNumber',
     });
     next();
 });

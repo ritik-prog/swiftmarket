@@ -26,12 +26,14 @@ const productSchema = new mongoose.Schema(
         price: {
             type: Number,
             required: true,
-            min: 0
+            min: 0,
+            max: 10000
         },
         quantity: {
             type: Number,
             required: true,
-            min: 0
+            min: 10,
+            max: 10000
         },
         category: {
             type: String,
@@ -44,6 +46,23 @@ const productSchema = new mongoose.Schema(
         thumbnailUrl: {
             type: String,
             required: true
+        },
+        tags:{
+            type: [String],
+            required: true,
+            tags: {
+                type: [{
+                    type: String,
+                    required: true,
+                }],
+                validate: {
+                    validator: function (v) {
+                        return v.length >= 1 && v.length <= 5;
+                    },
+                    message: 'Tags must have at least 1 and at most 5 values'
+                },
+                required: true,
+            },
         },
         ratings: [
             {

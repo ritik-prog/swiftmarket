@@ -93,15 +93,15 @@ router.put(
         check('name', 'Name is required').notEmpty().trim().escape(),
         check('email', 'Please enter a valid email address').isEmail().normalizeEmail(),
         check('address', 'Address is required').notEmpty().trim().escape(),
-        check('paymentDetails.cardNumber', 'Please enter a valid credit card number')
-            .notEmpty()
-            .isCreditCard()
-            .escape(),
-        check('paymentDetails.expiryDate', 'Please enter a valid expiry date in ISO 8601 format')
-            .notEmpty()
-            .isISO8601()
-            .toDate(),
-        check('paymentDetails.cvc', 'Please enter a valid CVC code').notEmpty().isInt({ min: 100, max: 999 }).toInt(),
+        // check('paymentDetails.cardNumber', 'Please enter a valid credit card number')
+        //     .notEmpty()
+        //     .isCreditCard()
+        //     .escape(),
+        // check('paymentDetails.expiryDate', 'Please enter a valid expiry date in ISO 8601 format')
+        //     .notEmpty()
+        //     .isISO8601()
+        //     .toDate(),
+        // check('paymentDetails.cvc', 'Please enter a valid CVC code').notEmpty().isInt({ min: 100, max: 999 }).toInt(),
     ],
     authController.updateProfile
 );

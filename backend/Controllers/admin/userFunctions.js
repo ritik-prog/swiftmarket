@@ -55,7 +55,8 @@ const createUser = async (req, res) => {
                 email: user.email,
                 role: user.role,
                 password
-            }
+            },
+            subject: 'New user Account - SwiftMarket'
         };
 
         await sendEmail(user.email, data, './violationOfTerms/userTerms.hbs');
@@ -107,7 +108,8 @@ const updateUser = async (req, res) => {
                 name: req.body.violationName,
                 reason: req.body.violationReason,
                 adminUsername: req.user.fullname,
-            }
+            },
+            subject: 'User details updated - SwiftMarket'
         };
 
         await sendEmail(user.email, data, './violationOfTerms/userTerms.hbs');
@@ -145,7 +147,8 @@ const deleteUser = async (req, res) => {
                 name: req.body.violationName,
                 reason: req.body.violationReason,
                 adminUsername: req.user.fullname,
-            }
+            },
+            subject: 'User account deleted - SwiftMarket'
         };
 
         await sendEmail(user.email, data, './violationOfTerms/userTerms.hbs');
@@ -183,7 +186,8 @@ const banUser = async (req, res) => {
                 name: req.body.violationName,
                 reason: req.body.violationReason,
                 adminUsername: req.user.fullname,
-            }
+            },
+            subject: 'Account banned - SwiftMarket'
         };
 
         await sendEmail(user.email, data, './violationOfTerms/userTerms.hbs');

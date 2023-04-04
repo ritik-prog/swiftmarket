@@ -12,7 +12,7 @@ const connectDB = async () => {
 
         // Enable mongoose debugging
         if (process.env.NODE_ENV === 'development') {
-            mongoose.set('debug', false);
+            mongoose.set('debug', true);
         }
     } catch (error) {
         console.error(`MongoDB connection failed: ${error.message}`);

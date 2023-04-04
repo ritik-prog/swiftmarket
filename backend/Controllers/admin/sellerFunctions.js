@@ -75,6 +75,7 @@ const acceptSeller = async (req, res, next) => {
             success: true,
             message: 'Seller account created successfully',
             data: savedSeller,
+            subject: 'New Seller Account - SwiftMarket'
         });
     } catch (error) {
         return handleError(res, err);
@@ -165,7 +166,8 @@ const createSeller = async (req, res) => {
             newSeller: {
                 businessUsername: seller.businessUsername,
                 email: seller.businessEmail
-            }
+            },
+            subject: 'New Seller Account - SwiftMarket'
         };
 
         await sendEmail(seller.businessEmail, data, './violationOfTerms/sellerTerms.hbs');
@@ -215,7 +217,8 @@ const updateSeller = async (req, res) => {
                 name: req.body.violationName,
                 reason: req.body.violationReason,
                 adminUsername: req.user.fullname,
-            }
+            },
+            subject: 'Seller Updated - SwiftMarket'
         };
 
         await sendEmail(seller.businessEmail, data, './violationOfTerms/sellerTerms.hbs');
@@ -249,7 +252,8 @@ const deleteSeller = async (req, res) => {
                 name: req.body.violationName,
                 reason: req.body.violationReason,
                 adminUsername: req.user.fullname,
-            }
+            },
+            subject: 'Seller Account Deleted - SwiftMarket'
         };
 
         await sendEmail(seller.businessEmail, data, './violationOfTerms/sellerTerms.hbs');

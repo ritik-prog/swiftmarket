@@ -7,6 +7,7 @@ const Ip = require('../../models/auth/ipSchema');
 const User = require('../../models/auth/userSchema');
 const { sendVerificationCode } = require('./verificationController');
 const handleError = require('../../utils/errorHandler');
+const sendEmail = require('../../utils/sendEmail');
 
 exports.signup = async (req, res) => {
     const errors = validationResult(req);
@@ -46,7 +47,15 @@ exports.signup = async (req, res) => {
         const salt = await bcrypt.genSalt(10);
         user.password = await bcrypt.hash(password, salt);
 
-        await user.generateAuthToken();
+        const token = await user.generateAuthToken();
+
+        // Set token in cookies
+        res.cookie('token', token, {
+            httpOnly: true, // cookie cannot be accessed from client-side scripts
+            secure: process.env.NODE_ENV === 'production', // cookie should only be sent over HTTPS in production
+            sameSite: 'strict', // cookie should only be sent for same-site requests
+            maxAge: 5 * 60 * 60 * 1000 // 5hr
+        });
 
         await user.save().then(async () => {
             await sendVerificationCode(res, user.email);
@@ -87,20 +96,21 @@ exports.login = async (req, res) => {
     const { email, password } = req.body;
 
     try {
-        let user = await User.findOne({ email });
-
+        const user = await User.findOne({ email });
         if (_.isEmpty(user)) {
+            console.log(user);
             return handleError(res, {
                 message: 'Invalid Credentials',
-                code: 401,
+                status: 401,
                 code: 'authentication_failed'
             });
         }
 
-
+        console.log(password, user.password)
         const isMatch = await bcrypt.compare(password, user.password);
 
         if (!isMatch) {
+            console.log(user);
             return handleError(res, {
                 message: 'Invalid Credentials',
                 status: 401,
@@ -212,10 +222,11 @@ exports.updateProfile = async (req, res) => {
                 name: user.name,
                 email: user.email,
                 role: user.role
-            }
+            },
+            subject: 'Account Updated - SwiftMarket'
         };
 
-        await sendEmail(user.email, data, './userAction/userAccountChange.hbs');
+        await sendEmail(user.email, data, './userActions/userAccountChange.hbs');
 
         res.status(200).json({ user, status: 'success', });
     } catch (err) {
@@ -259,7 +270,8 @@ exports.updatePassword = async (req, res) => {
                 name: user.name,
                 email: user.email,
                 role: user.role
-            }
+            },
+            subject: 'Password Updated - SwiftMarket'
         };
 
         await sendEmail(user.email, data, './userAction/userAccountChange.hbs');
@@ -273,7 +285,8 @@ exports.updatePassword = async (req, res) => {
 
 exports.logout = async (req, res) => {
     try {
-        const user = await User.findById(req.user_id);
+        res.clearCookie('token');
+        const user = await User.findById(req.user._id);
         user.tokens = [];
         await user.save();
         res.status(200).json({ message: 'Logged out successfully', status: 'success' });
@@ -291,15 +304,16 @@ exports.deleteAccount = async (req, res) => {
             errors: errors.array()
         });
     }
-
-    const { token, password } = req.body;
     try {
+        const token = req.cookies.token;
+        const { password } = req.body;
         const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
         const user = await User.findOne({
             _id: decodedToken._id,
             'tokens.token': token,
             'tokens.expiresAt': { $gte: Date.now() }
         });
+        
         if (!user) {
             return handleError(res, {
                 name: 'not_found',
@@ -323,10 +337,11 @@ exports.deleteAccount = async (req, res) => {
                 email: user.email,
                 role: user.role,
                 deletedAt: new Date()
-            }
+            },
+            subject: 'Account Deleted - SwiftMarket'
         };
 
-        await sendEmail(user.email, data, './userAction/userAccountChange.hbs');
+        await sendEmail(user.email, data, './userActions/userAccountChange.hbs');
 
         res.status(200).json({
             status: 'success',

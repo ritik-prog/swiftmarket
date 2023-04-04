@@ -28,7 +28,8 @@ const sendVerificationCode = async (res, email) => {
             const data = {
                 username: user.username,
                 verificationCode: user.verificationCode,
-                verificationLink: 'https://example.com/verify'
+                verificationLink: 'https://example.com/verify',
+                subject: 'Verification code - SwiftMarket'
             };
 
             // Send email
@@ -61,6 +62,7 @@ const verifyUser = async (email, verificationCode) => {
         if (user.verificationStatus) {
             user.verificationStatus = true;
             user.verificationCode = "";
+            user.verificationCodeExpiresAt = "";
             await user.save();
             return { success: false, message: 'User is already verified.', status: 500 };
         }
@@ -76,6 +78,7 @@ const verifyUser = async (email, verificationCode) => {
         // Set user verification status to true and save
         user.verificationStatus = true;
         user.verificationCode = "";
+        user.verificationCodeExpiresAt = "";
         await user.save();
 
         return { success: true, message: 'User verified successfully.', status: 200 };
@@ -118,7 +121,8 @@ async function sendVerificationCodeAgain(email) {
             const data = {
                 username: user.username,
                 verificationCode: user.verificationCode,
-                verificationLink: 'https://example.com/verify'
+                verificationLink: 'https://example.com/verify',
+                subject: 'Verification code - SwiftMarket'
             };
 
             // Send email

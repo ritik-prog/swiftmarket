@@ -1,0 +1,6 @@
+Customer service and support:
+POST /api/support/ticket
+GET /api/support/ticket
+GET /api/support/ticket/:id
+POST /api/support/message
+GET /api/support/message/:id

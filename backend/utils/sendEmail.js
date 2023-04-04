@@ -38,7 +38,7 @@ async function sendEmail(email, data, templateName) {
     const mailOptions = {
         from: process.env.EMAIL_ADDRESS,
         to: email,
-        subject: 'Verification Code',
+        subject: data.subject,
         html: html
     };
 

@@ -15,4 +15,7 @@ router.get('/:username/product/:id', getSellerProduct);
 // GET a product by ID
 router.get('/:id', getProductById);
 
+// Search products
+router.get('/search', searchProducts);
+
 module.exports = router;

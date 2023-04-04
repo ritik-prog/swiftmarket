@@ -127,10 +127,20 @@ const userSchema = new mongoose.Schema({
 // if user is being banned, remove all existing tokens
 userSchema.pre('save', async function (next) {
     const user = this;
-    if (user.isModified('BanStatus.isBanned') && user.BanStatus.isBanned) {
+    if (user.isModified('BanStatus.isBanned') && user.banStatus.isBanned) {
         user.tokens = [];
     }
     next();
+});
+
+userSchema.pre(['find', 'findOne', 'findOneAndUpdate', 'findOneAndDelete', 'update'], function (next) {
+    if (this._conditions.hasOwnProperty('email') || this._conditions.hasOwnProperty('_id')) { // check if query has email condition (for login)
+        this.select('-tokens');
+        next();
+    } else {
+        this.select('-password -tokens');
+        next();
+    }
 });
 
 // role is set to seller if user is a seller

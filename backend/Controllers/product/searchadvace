@@ -1,0 +1,49 @@
+// Controller method for searching products
+exports.searchProducts = async (req, res, next) => {
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
+
+    const searchQuery = {
+      $text: { $search: req.query.q }
+    };
+
+    // Add filters based on query parameters
+    if (req.query.category) {
+      searchQuery.category = req.query.category;
+    }
+    if (req.query.minPrice) {
+      searchQuery.price = { $gte: parseInt(req.query.minPrice) };
+    }
+    if (req.query.maxPrice) {
+      if (!searchQuery.price) searchQuery.price = {};
+      searchQuery.price.$lte = parseInt(req.query.maxPrice);
+    }
+
+    const products = await Product.find(searchQuery)
+      .skip(skip)
+      .limit(limit)
+      .populate({
+        path: 'seller',
+        select: 'businessName businessEmail businessNumber'
+      })
+      .select('-reviews');
+
+    const totalProducts = await Product.countDocuments(searchQuery);
+
+    const totalPages = Math.ceil(totalProducts / limit);
+
+    res.status(200).json({
+      status: 'success',
+      results: products.length,
+      page,
+      totalPages,
+      data: {
+        products
+      }
+    });
+  } catch (err) {
+    next(err);
+  }
+};

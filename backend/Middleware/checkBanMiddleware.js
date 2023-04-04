@@ -6,13 +6,6 @@ const Unauthorized = require('./../errors/Unauthorized');
 
 const checkBanMiddleware = async (req, res, next) => {
     try {
-        // const token = req.cookies.token;
-
-        // // Check if not token
-        // if (!token) {
-        //     return res.status(403).json({ status: 'error', message: 'Unauthorized: No token provided' });
-        // }
-
         const user = await User.findOne({ email: req.body.email });
         if (user && user.banStatus.isBanned) {
             if (user.banStatus.banExpiresAt) {
