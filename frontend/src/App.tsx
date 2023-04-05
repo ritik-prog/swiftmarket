@@ -36,13 +36,7 @@ function App() {
   return (
     <BrowserRouter>
       <div className="relative">
-        <NavBar />
-        <Home />
-        <Portfolio />
-        <SellerBanner />
-        <Services />
-        <Faq />
-        <Footer />
+        <SignUp />
         <button
           className="z-20 fixed bottom-4 right-4 p-2 rounded-md focus:outline-none"
           onClick={handleThemeSwitch}

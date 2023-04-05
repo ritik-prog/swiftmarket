@@ -2,7 +2,7 @@ import React from "react";
 
 export const SignUp = () => {
   return (
-    <section>
+    <section className="bg-white dark:bg-gray-900">
       <div className="grid grid-cols-1 lg:grid-cols-2">
         <div className="relative flex items-end px-4 pb-10 pt-60 sm:pb-16 md:justify-center lg:pb-24 sm:px-6 lg:px-8">
           <div className="absolute inset-0">
@@ -106,10 +106,10 @@ export const SignUp = () => {
         </div>
         <div className="flex items-center justify-center px-4 py-10 sm:px-6 lg:px-8 sm:py-16 lg:py-24">
           <div className="xl:w-full xl:max-w-sm 2xl:max-w-md xl:mx-auto">
-            <h2 className="text-3xl font-bold leading-tight text-black dark:text-black sm:text-4xl">
+            <h2 className="text-3xl font-bold leading-tight text-black dark:text-white sm:text-4xl">
               Sign Up
             </h2>
-            <p className="mt-2 text-base text-black-600 dark:text-black-300">
+            <p className="mt-2 text-base text-black dark:text-white">
               Already have an account?{" "}
               <a
                 href="#"
@@ -125,14 +125,14 @@ export const SignUp = () => {
                 <div>
                   <label
                     htmlFor="name"
-                    className="text-base font-medium text-black-900 dark:text-black-200"
+                    className="text-base font-medium text-black dark:text-white"
                   >
                     {" "}
                     Full Name{" "}
                   </label>
                   <div className="mt-2.5">
                     <input
-                      className="flex h-10 w-full rounded-md border border-gray-300 bg-transparent py-2 px-3 text-sm placeholder:text-black-400 focus:outline-none focus:ring-1 focus:ring-gray-400 focus:ring-offset-1 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-700 dark:text-black-50 dark:focus:ring-gray-400 dark:focus:ring-offset-gray-900"
+                      className="flex h-10 w-full rounded-md border border-gray-300 bg-transparent py-2 px-3 text-sm placeholder:text-black-400 focus:outline-none focus:ring-1 focus:ring-gray-400 focus:ring-offset-1 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-700 dark:text-white dark:focus:ring-gray-400 dark:focus:ring-offset-gray-900"
                       type="text"
                       placeholder="Enter You Full Name"
                       id="name"
@@ -143,14 +143,14 @@ export const SignUp = () => {
                 <div>
                   <label
                     htmlFor="email"
-                    className="text-base font-medium text-black-900 dark:text-black-200"
+                    className="text-base font-medium text-black-900 dark:text-white"
                   >
                     {" "}
                     Email address{" "}
                   </label>
                   <div className="mt-2.5">
                     <input
-                      className="flex h-10 w-full rounded-md border border-gray-300 bg-transparent py-2 px-3 text-sm placeholder:text-black-400 focus:outline-none focus:ring-1 focus:ring-gray-400 focus:ring-offset-1 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-700 dark:text-black-50 dark:focus:ring-gray-400 dark:focus:ring-offset-gray-900"
+                      className="flex h-10 w-full rounded-md border border-gray-300 bg-transparent py-2 px-3 text-sm placeholder:text-black-400 focus:outline-none focus:ring-1 focus:ring-gray-400 focus:ring-offset-1 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-700 dark:text-white dark:focus:ring-gray-400 dark:focus:ring-offset-gray-900"
                       type="email"
                       placeholder="Enter Your Email"
                       id="email"
@@ -161,14 +161,14 @@ export const SignUp = () => {
                 <div>
                   <label
                     htmlFor="password"
-                    className="text-base font-medium text-black-900 dark:text-black-200"
+                    className="text-base font-medium text-black-900 dark:text-white"
                   >
                     {" "}
                     Password{" "}
                   </label>
                   <div className="mt-2.5">
                     <input
-                      className="flex h-10 w-full rounded-md border border-gray-300 bg-transparent py-2 px-3 text-sm placeholder:text-black-400 focus:outline-none focus:ring-1 focus:ring-gray-400 focus:ring-offset-1 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-700 dark:text-black-50 dark:focus:ring-gray-400 dark:focus:ring-offset-gray-900"
+                      className="flex h-10 w-full rounded-md border border-gray-300 bg-transparent py-2 px-3 text-sm placeholder:text-black-400 focus:outline-none focus:ring-1 focus:ring-gray-400 focus:ring-offset-1 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-700 dark:text-white-50 dark:focus:ring-gray-400 dark:focus:ring-offset-gray-900"
                       type="email"
                       placeholder="Enter Your Password"
                       id="password"
@@ -201,7 +201,7 @@ export const SignUp = () => {
             <div className="mt-3 space-y-3">
               <button
                 type="button"
-                className="relative inline-flex items-center justify-center w-full px-4 py-4 text-base font-semibold text-black-700 dark:text-black-400 transition-all duration-200 bg-white border border-gray-500 rounded-md hover:bg-gray-100 focus:bg-gray-100 hover:text-black focus:text-black focus:outline-none"
+                className="relative inline-flex items-center justify-center w-full px-4 py-4 text-base font-semibold text-black-700 dark:text-white-400 transition-all duration-200 bg-white border border-gray-500 rounded-md hover:bg-gray-100 focus:bg-gray-100 hover:text-black focus:text-black focus:outline-none"
               >
                 <div className="absolute inset-y-0 left-0 p-4">
                   <svg
@@ -218,7 +218,7 @@ export const SignUp = () => {
 
               <button
                 type="button"
-                className="relative inline-flex items-center justify-center w-full px-4 py-4 text-base font-semibold text-black-700 dark:text-black-400 transition-all duration-200 bg-white border border-gray-500 rounded-md hover:bg-gray-100 focus:bg-gray-100 hover:text-black focus:text-black focus:outline-none"
+                className="relative inline-flex items-center justify-center w-full px-4 py-4 text-base font-semibold text-black-700 dark:text-white-400 transition-all duration-200 bg-white border border-gray-500 rounded-md hover:bg-gray-100 focus:bg-gray-100 hover:text-black focus:text-black focus:outline-none"
               >
                 <div className="absolute inset-y-0 left-0 p-4">
                   <svg
@@ -233,13 +233,13 @@ export const SignUp = () => {
                 Sign up with Facebook
               </button>
               <p>
-                <span className="text-black-500 dark:text-black-400 text-sm">
+                <span className="text-black-500 dark:text-white text-sm">
                   Read our{" "}
-                  <span className="capitalize text-indigo-600">
+                  <span className="capitalize text-indigo-600 dark:text-indigo-300 cursor-pointer">
                     privacy policy
                   </span>{" "}
                   and{" "}
-                  <span className="capitalize text-indigo-600">
+                  <span className="capitalize text-indigo-600 dark:text-indigo-300 cursor-pointer">
                     terms of service
                   </span>{" "}
                   to learn more

@@ -46,7 +46,11 @@ const productSchema = new mongoose.Schema(
             type: String,
             required: true
         },
-        tags:{
+        purchaseCount: {
+            type: Number,
+            default: 0
+        },
+        tags: {
             type: [String],
             required: true,
             tags: {
@@ -84,6 +88,12 @@ const productSchema = new mongoose.Schema(
                 }
             }
         ],
+        ratingsAvg: {
+            type: Number,
+            min: 1,
+            max: 5,
+            default: 0
+        },
         featured: {
             type: Boolean,
             default: false
@@ -139,6 +149,22 @@ productSchema.pre(/^find/, function (next) {
         path: 'seller',
         select: 'businessName businessEmail businessNumber'
     });
+    next();
+});
+
+// rating average
+productSchema.pre('save', function (next) {
+    const ratings = this.ratings;
+    let sum = 0, count = 0;
+    for (let i = 0; i < ratings.length; i++) {
+        sum += ratings[i].rating;
+        count++;
+    }
+    if (count > 0) {
+        this.ratingsAvg = sum / count;
+    } else {
+        this.ratingsAvg = 0;
+    }
     next();
 });
 
