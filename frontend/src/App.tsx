@@ -7,11 +7,12 @@ import { Table } from "./components/common/Table";
 import Verification from "./pages/auth/Verification";
 import Error404 from "./pages/error/Error404";
 import Home from "./pages/home/Home";
-import NavBar from "./components/ui/NavBar";
+import NavBar from "./components/common/NavBar";
 import Services from "./components/ui/Services";
 import Faq from "./components/ui/Faq";
 import Portfolio from "./components/ui/ProductBanner";
-import Footer from "./components/ui/Footer";
+import Footer from "./components/common/Footer";
+import SellerBanner from "./components/ui/SellerBanner";
 
 function App() {
   const [theme, setTheme] = useState("");
@@ -38,6 +39,7 @@ function App() {
         <NavBar />
         <Home />
         <Portfolio />
+        <SellerBanner />
         <Services />
         <Faq />
         <Footer />
