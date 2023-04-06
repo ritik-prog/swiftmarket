@@ -41,7 +41,7 @@ const NavBar = () => {
           <li>
             <a
               className="text-sm text-black-300 hover:text-gray-600 dark:text-gray-300"
-              href="#"
+              href="/"
             >
               Home
             </a>
@@ -63,8 +63,8 @@ const NavBar = () => {
             </svg>
           </li>
           <li>
-            <a className="text-sm text-indigo-600 font-bold" href="#">
-              About Us
+            <a className="text-sm text-indigo-600 font-bold" href="/#product">
+              Products
             </a>
           </li>
           <li className="text-gray-300">
@@ -86,7 +86,7 @@ const NavBar = () => {
           <li>
             <a
               className="text-sm text-black-300 hover:text-gray-600 dark:text-gray-300"
-              href="#"
+              href="#services"
             >
               Services
             </a>
@@ -112,7 +112,7 @@ const NavBar = () => {
               className="text-sm text-black-300 hover:text-gray-600 dark:text-gray-300"
               href="#"
             >
-              Pricing
+              Shop Now
             </a>
           </li>
           <li className="text-gray-300">
@@ -134,14 +134,14 @@ const NavBar = () => {
           <li>
             <a
               className="text-sm text-black-500 hover:text-gray-600 dark:text-gray-300"
-              href="#"
+              href="/applyforseller"
             >
-              Contact
+              Start Selling
             </a>
           </li>
         </ul>
         <div className="space-x-2 hidden lg:block">
-          <button className="rounded-md border border-indigo-600 px-3.5 py-1.5 text-base font-semibold leading-7 text-indigo-600 hover:bg-indigo-500 dark:border-indigo-400 dark:text-indigo-400 dark:hover:bg-indigo-500">
+          <button className="rounded-md border border-indigo-600 px-3.5 py-1.5 text-base font-semibold leading-7 text-indigo-700 hover:bg-indigo-300 dark:border-indigo-400 dark:text-white dark:hover:bg-indigo-500">
             Login
           </button>
           <button className="rounded-md bg-indigo-600 px-3.5 py-1.5 text-base font-semibold leading-7 text-white hover:bg-indigo-500 dark:bg-indigo-400 dark:hover:bg-indigo-500">

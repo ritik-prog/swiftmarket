@@ -116,3 +116,59 @@ exports.searchProducts = async (req, res) => {
         });
     }
 };
+
+// Predict the top 10 most popular products in a category
+exports.getTop10ProductsInCategory = async (req, res) => {
+    async (req, res) => {
+        try {
+            const { category, numProducts = 10 } = req.body;
+
+            const products = await Product.aggregate([
+                // Match products that belong to the requested category
+                { $match: { category } },
+
+                // Calculate popularity score for each product
+                {
+                    $addFields: {
+                        popularityScore: {
+                            $add: [
+                                { $cond: [{ $eq: ['$featured', true] }, 2, 0] },
+                                { $size: '$likes' },
+                                '$views',
+                                {
+                                    $multiply: [
+                                        {
+                                            $divide: [
+                                                {
+                                                    $reduce: {
+                                                        input: '$ratings.rating',
+                                                        initialValue: 0,
+                                                        in: { $add: ['$$value', '$$this'] },
+                                                    },
+                                                },
+                                                { $size: '$ratings' },
+                                            ],
+                                        },
+                                        10,
+                                    ],
+                                },
+                                '$purchaseCount',
+                            ],
+                        },
+                    },
+                },
+
+                // Sort products by popularity score in descending order
+                { $sort: { popularityScore: -1 } },
+
+                // Limit the number of products to be returned
+                { $limit: numProducts },
+            ]);
+
+            res.json(products);
+        } catch (error) {
+            console.error(error);
+            res.status(500).json({ error: error.message });
+        }
+    }
+};

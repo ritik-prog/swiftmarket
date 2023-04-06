@@ -30,7 +30,22 @@ const PORT = process.env.PORT || 5500;
 app.use(express.json());
 app.use(cookieParser());
 app.use(mongoSanitize());
-app.use(helmet()); // adds security-related headers to HTTP response
+app.use(helmet.contentSecurityPolicy({
+    directives: {
+        defaultSrc: ["'self'"],
+        scriptSrc: ["'self'"],
+        styleSrc: ["'self'"],
+        fontSrc: ["'self'"],
+        imgSrc: ["'self'"],
+        connectSrc: ["'self'"],
+        objectSrc: ["'none'"],
+        mediaSrc: ["'none'"],
+        frameSrc: ["'none'"],
+        childSrc: ["'none'"],
+        baseUri: ["'self'"]
+    }
+}));// adds security-related headers to HTTP response
+
 app.use(morgan('combined')); // logs incoming HTTP requests
 app.use(cors());
 // parse application/x-www-form-urlencoded

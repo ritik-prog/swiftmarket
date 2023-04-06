@@ -21,12 +21,18 @@ function Verification() {
       ) {
         return true;
       } else if (
-        (event.key >= "0" && event.key <= "9") || // numeric keys
-        (event.key >= "A" && event.key <= "Z") // letter keys
+        event.key >= "0" &&
+        event.key <= "9" // numeric keys
       ) {
         input.value = event.key;
         if (index !== inputs.length - 1) inputs[index + 1].focus();
         event.preventDefault();
+      } else if (
+        (event.key >= "A" && event.key <= "Z") ||
+        (event.key >= "a" && event.key <= "z")
+      ) {
+        input.value = "";
+        return false;
       }
     }
   };
@@ -36,7 +42,7 @@ function Verification() {
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
     const input = inputRefs.current[index];
-    if (!/^[0-9a-zA-Z]+$/.test(event.target.value)) {
+    if (!/^[0-9]+$/.test(event.target.value)) {
       input.value = "";
     }
   };

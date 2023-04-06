@@ -1,6 +1,5 @@
 const express = require('express');
-const authenticateMiddleware = require('../../middleware/authenticateMiddleware');
-const { getSellerProduct, getAllProductsOfSellerByUsername, getProductById } = require('../../controllers/product/productController');
+const { getSellerProduct, getAllProductsOfSellerByUsername, getProductById, getTop10ProductsInCategory } = require('../../controllers/product/productController');
 
 const router = express.Router();
 
@@ -14,6 +13,9 @@ router.get('/:username/product/:id', getSellerProduct);
 
 // GET a product by ID
 router.get('/:id', getProductById);
+
+// Predict the top 10 most popular products in a category
+router.post('/category/popularity', getTop10ProductsInCategory);
 
 // Search products
 // router.get('/search', searchProducts);
