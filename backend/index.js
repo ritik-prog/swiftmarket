@@ -19,6 +19,7 @@ const superAdminRouter = require('./Routes/superadmin/superAdminRouter');
 const rateLimiterMiddleware = require('./Middleware/rateLimitermiddleware.js');
 
 const connectDB = require('./utils/connectDB');
+const recommendProducts = require('./tensarflow');
 
 dotenv.config(); // load environment variables from .env file
 connectDB(); // connect to MongoDB database
@@ -30,21 +31,7 @@ const PORT = process.env.PORT || 5500;
 app.use(express.json());
 app.use(cookieParser());
 app.use(mongoSanitize());
-app.use(helmet.contentSecurityPolicy({
-    directives: {
-        defaultSrc: ["'self'"],
-        scriptSrc: ["'self'"],
-        styleSrc: ["'self'"],
-        fontSrc: ["'self'"],
-        imgSrc: ["'self'"],
-        connectSrc: ["'self'"],
-        objectSrc: ["'none'"],
-        mediaSrc: ["'none'"],
-        frameSrc: ["'none'"],
-        childSrc: ["'none'"],
-        baseUri: ["'self'"]
-    }
-}));// adds security-related headers to HTTP response
+app.use(helmet());// adds security-related headers to HTTP response
 
 app.use(morgan('combined')); // logs incoming HTTP requests
 app.use(cors());
@@ -97,7 +84,8 @@ if (process.env.NODE_ENV === 'production') {
         console.log(`Server listening on port ${PORT}`);
     });
 } else {
-    app.listen(PORT, () => {
-        console.log(`Server listening on port ${PORT}`);
-    });
+    recommendProducts();
+    // app.listen(PORT, () => {
+    //     console.log(`Server listening on port ${PORT}`);
+    // });
 }

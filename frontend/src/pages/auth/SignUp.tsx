@@ -1,6 +1,6 @@
 import React from "react";
 
-export const SignUp = () => {
+const SignUp = () => {
   return (
     <section className="bg-white dark:bg-gray-900">
       <div className="grid grid-cols-1 lg:grid-cols-2">
@@ -253,4 +253,4 @@ export const SignUp = () => {
   );
 };
 
-SignUp.displayName = "SignUp";
+export default SignUp;

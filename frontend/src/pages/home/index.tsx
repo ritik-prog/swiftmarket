@@ -1,23 +1,25 @@
-import React, { useState } from "react";
-import NavBar from "../../components/common/NavBar";
-import ProductBanner from "../../components/home-ui/ProductBanner";
-import SellerBanner from "../../components/home-ui/SellerBanner";
-import Services from "../../components/home-ui/Services";
-import Faq from "../../components/home-ui/Faq";
-import Footer from "../../components/common/Footer";
+import React from "react";
 import Hero from "../../components/home-ui/Hero";
+import "./style.css";
+import Collection from "../../components/home-ui/Collection";
+import MainCategory from "../../components/home-ui/category/MainCategory";
+import CustomersPurchased from "../../components/home-ui/CustomersPurchased";
+import BrowseCategory from "../../components/home-ui/category/BrowseCategory";
+import CustomerService from "../../components/home-ui/CustomerService";
+import Trending from "../../components/home-ui/Trending";
 
-function Home() {
-  const [isOpen, setIsOpen] = useState(true);
-
+const Home = () => {
   return (
-    <>
+    <div className="container my-5 m-auto">
       <Hero />
-      <ProductBanner />
-      <SellerBanner />
-      <Services />
-      <Faq />
-    </>
+      <BrowseCategory />
+      <Collection />
+      <MainCategory />
+      <Trending />
+      <CustomersPurchased />
+      <CustomerService />
+    </div>
   );
-}
+};
+
 export default Home;

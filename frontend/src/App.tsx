@@ -1,11 +1,9 @@
 import React, { useEffect } from "react";
 import { BrowserRouter } from "react-router-dom";
-import NavBar from "./components/common/NavBar";
-import Footer from "./components/common/Footer";
-import ApplyAsSeller from "./pages/seller/ApplyAsSeller";
-import ModeSwitch from "./utils/ModeSwitch";
 import { useSelector } from "react-redux";
 import { RootState } from "./redux/rootReducer";
+import AppRoutes from "./routes";
+import ModeSwitch from "./utils/ModeSwitch";
 
 function App() {
   const theme = useSelector((state: RootState) => state.theme.theme);
@@ -18,12 +16,8 @@ function App() {
   }, [theme]);
   return (
     <BrowserRouter>
-      <div className="relative">
-        <NavBar />
-        <ApplyAsSeller />
-        <Footer />
-        <ModeSwitch theme={theme} />
-      </div>
+      <AppRoutes />
+      <ModeSwitch />
     </BrowserRouter>
   );
 }

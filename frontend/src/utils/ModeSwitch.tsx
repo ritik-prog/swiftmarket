@@ -1,12 +1,11 @@
 import React from "react";
 import { store } from "../redux/store";
 import { setTheme } from "../redux/theme";
+import { useSelector } from "react-redux";
+import { RootState } from "../redux/rootReducer";
 
-type ModeSwitchProps = {
-  theme: string;
-};
-
-const ModeSwitch = ({ theme }: ModeSwitchProps) => {
+const ModeSwitch = () => {
+  const theme = useSelector((state: RootState) => state.theme.theme);
   const handleThemeSwitch = () => {
     store.dispatch(setTheme(theme === "dark" ? "light" : "dark"));
   };

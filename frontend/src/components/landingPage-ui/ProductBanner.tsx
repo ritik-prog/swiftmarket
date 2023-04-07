@@ -7,11 +7,8 @@ const ProductBanner = () => {
     "text-body-color hover:bg-blue-500 hover:text-white dark:text-white";
 
   return (
-    <section
-      className="pt-20 lg:pt-[120px] bg-white dark:bg-gray-900"
-      id="product"
-    >
-      <div className="container mx-auto">
+    <section className="pt-20 lg:pt-[120px] bg-white dark:bg-gray-900">
+      <div className="container mx-auto" id="product">
         <div className="-mx-4 flex flex-wrap">
           <div className="w-full px-4 dark:text-white">
             <div className="mx-auto mb-[60px] max-w-[510px] text-center">

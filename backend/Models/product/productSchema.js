@@ -51,21 +51,17 @@ const productSchema = new mongoose.Schema(
             default: 0
         },
         tags: {
-            type: [String],
-            required: true,
-            tags: {
-                type: [{
-                    type: String,
-                    required: true,
-                }],
-                validate: {
-                    validator: function (v) {
-                        return v.length >= 1 && v.length <= 5;
-                    },
-                    message: 'Tags must have at least 1 and at most 5 values'
+            type: [{
+                type: String,
+                required: true
+            }],
+            validate: {
+                validator: function (v) {
+                    return v.length >= 1 && v.length <= 5;
                 },
-                required: true,
+                message: 'Tags must have at least 1 and at most 5 values'
             },
+            required: true
         },
         ratings: [
             {
@@ -130,6 +126,7 @@ const productSchema = new mongoose.Schema(
             type: Boolean,
             default: true
         },
+        keywords: { type: [String], default: [] },
     },
     {
         toJSON: { virtuals: true },
@@ -165,6 +162,27 @@ productSchema.pre('save', function (next) {
     } else {
         this.ratingsAvg = 0;
     }
+    next();
+});
+
+productSchema.pre('save', function (next) {
+    const tokenizer = new natural.WordTokenizer();
+    const stemmer = natural.PorterStemmer;
+    const stopwords = natural.stopwords;
+
+    const keywords = [
+        ...tokenizer.tokenize(this.productName),
+        ...tokenizer.tokenize(this.businessName),
+        ...tokenizer.tokenize(this.productDescription),
+        ...tokenizer.tokenize(this.category),
+        ...tokenizer.tokenize(this.tags),
+    ]
+        .map((word) => stemmer.stem(word.toLowerCase()))
+        .filter((word) => !stopwords.includes(word))
+        .filter(Boolean);
+
+    this.keywords = keywords;
+
     next();
 });
 

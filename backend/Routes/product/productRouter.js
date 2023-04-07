@@ -1,5 +1,5 @@
 const express = require('express');
-const { getSellerProduct, getAllProductsOfSellerByUsername, getProductById, getTop10ProductsInCategory } = require('../../controllers/product/productController');
+const { getSellerProduct, getAllProductsOfSellerByUsername, getProductById, getTopProductsInCategory, searchProductsByFilters } = require('../../controllers/product/productController');
 
 const router = express.Router();
 
@@ -15,9 +15,8 @@ router.get('/:username/product/:id', getSellerProduct);
 router.get('/:id', getProductById);
 
 // Predict the top 10 most popular products in a category
-router.post('/category/popularity', getTop10ProductsInCategory);
+router.post('/category/popularity', getTopProductsInCategory);
 
-// Search products
-// router.get('/search', searchProducts);
+router.post('/search', searchProductsByFilters);
 
 module.exports = router;
