@@ -29,6 +29,12 @@ const sellerSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    businessUsername: {
+        type: String,
+        required: true,
+        unique: true,
+        index: true
+    },
     businessRegistrationNumber: {
         type: String,
         required: true,
@@ -55,16 +61,13 @@ const sellerSchema = new mongoose.Schema({
     },
     paymentPreferences: {
         type: String,
-        required: true
     },
     blockchainWalletAddress: {
         type: String,
-        required: true,
         unique: true
     },
     paypalAccountEmailAddress: {
         type: String,
-        required: true,
         unique: true
     },
     productCategories: {
@@ -168,7 +171,7 @@ sellerSchema.post('findOneAndUpdate', function (error, doc, next) {
     }
 });
 
-sellerSchema.pre('remove', async function (next) {
+sellerSchema.pre('findOneAndDelete', async function (next) {
     const productIds = this.productListings.map((listing) => listing._id);
     await mongoose.model('Product').deleteMany({ _id: { $in: productIds } });
     next();

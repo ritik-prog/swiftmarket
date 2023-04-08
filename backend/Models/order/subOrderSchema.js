@@ -15,7 +15,7 @@ const subOrderSchema = new mongoose.Schema({
     ],
     orderStatus: {
         type: String,
-        enum: ['Placed', 'Confirmed', 'Shipped', 'Delivered'],
+        enum: ['Placed', 'Confirmed', 'Shipped', 'Delivered', 'Payment Failed'],
         required: true,
         default: 'Placed',
     },

@@ -1,3 +1,5 @@
+import { IoIosStar, IoIosStarHalf } from "react-icons/io";
+
 /*
   This example requires some changes to your config:
   
@@ -82,9 +84,18 @@ export default function CustomersPurchased() {
                   </h3>
                   <p className="mt-1 text-sm text-gray-500">{product.color}</p>
                 </div>
-                <p className="text-sm font-medium text-gray-900">
-                  {product.price}
-                </p>
+                <div>
+                  <p className="text-sm font-medium text-gray-900 text-end">
+                    {product.price}
+                  </p>
+                  <div className="flex items-center mt-1">
+                    <IoIosStar className="w-4 h-4 text-yellow-500" />
+                    <IoIosStar className="w-4 h-4 text-yellow-500" />
+                    <IoIosStar className="w-4 h-4 text-yellow-500" />
+                    <IoIosStarHalf className="w-4 h-4 text-yellow-500" />
+                    <span className="text-sm text-gray-500 ml-1">(25)</span>
+                  </div>
+                </div>
               </div>
             </div>
           ))}

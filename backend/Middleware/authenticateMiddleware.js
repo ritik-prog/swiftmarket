@@ -1,5 +1,6 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/auth/userSchema');
+const Seller = require('../models/seller/sellerSchema');
 
 const authenticateMiddleware = async (req, res, next) => {
     try {
@@ -25,10 +26,21 @@ const authenticateMiddleware = async (req, res, next) => {
 
         // Set user in the request
         req.user = user;
+        // Check if user is a seller
+        if (user.role === 'seller') {
+            const seller = await Seller.findById(user.seller._id);
+
+            if (!seller) {
+                throw new Error();
+            }
+
+            // Set seller in the request
+            req.seller = seller;
+        }
 
         next();
     } catch (err) {
-        return res.status(415).json({ status: 'error', message: 'Unauthorized: Invalid token' });
+        return res.status(415).json({ status: 'error', message: 'Unauthorized' });
     }
 };
 

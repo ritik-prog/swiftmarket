@@ -15,24 +15,10 @@ const orderSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
-    orderStatus: {
-        type: String,
-        enum: ['Placed', 'Confirmed', 'Shipped', 'Delivered'],
-        required: true,
-        default: 'Placed',
-    },
     customer: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
         required: true,
-    },
-    estimatedDeliveryDate: {
-        type: Date,
-        required: false
-    },
-    notes: {
-        type: String,
-        required: false
     },
     subOrders: [
         {

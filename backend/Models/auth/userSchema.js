@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const handleError = require('../../utils/errorHandler');
 
 const userSchema = new mongoose.Schema({
     username: {
@@ -13,7 +14,6 @@ const userSchema = new mongoose.Schema({
     },
     name: {
         type: String,
-        required: true,
         trim: true,
         minlength: 2,
         maxlength: 50,
@@ -47,6 +47,14 @@ const userSchema = new mongoose.Schema({
         enum: ['user', 'seller', 'tickethandler', 'admin', 'superadmin', 'root'],
         default: 'user',
     },
+    cart: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Product'
+    }],
+    wishlist: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Product'
+    }],
     orders: [
         {
             type: mongoose.Schema.Types.ObjectId,
@@ -183,11 +191,10 @@ userSchema.statics.findByCredentials = async (email, password) => {
 
     if (!isMatch) {
         console.log(user);
-        return handleError(res, {
-            message: 'Invalid Credentials',
-            status: 401,
-            code: 'authentication_failed'
-        });
+        return {
+            token: '',
+            user: ''
+        };
     }
 
     const token = await user.generateAuthToken();

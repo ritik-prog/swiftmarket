@@ -3,6 +3,7 @@ const errorCode = require("../data/errorCode");
 
 
 function handleError(res, err) {
+    console.log(err);
 
     if (err.name === 'CustomValidationError') {
         return res.status(400).json({
@@ -15,13 +16,6 @@ function handleError(res, err) {
         return res.status(400).json({
             error: errorCode.MISSING_FIELDS.code,
             message: err.message
-        });
-    }
-
-    if (err.name === 'CastError' && err.kind === 'ObjectId') {
-        return res.status(404).json({
-            error: errorCode.USER_NOT_FOUND.code,
-            message: 'User not found'
         });
     }
 
@@ -80,8 +74,22 @@ function handleError(res, err) {
             message: 'User not found'
         });
     }
-    
-    console.log(err);
+
+    if (err.name === 'CastError' && err.kind === 'ObjectId') {
+        return res.status(404).json({
+            error: errorCode.USER_NOT_FOUND.code,
+            message: 'User not found'
+        });
+    }
+
+    if (err.code === 11000) {
+        return res.status(409).json({
+            error: errorCode.ALREADY_EXISTS.code,
+            message: errorCode.ALREADY_EXISTS.message
+        });
+    }
+
+
     return res.status(500).json({
         error: errorCode.SERVER_ERROR.code,
         message: errorCode.SERVER_ERROR.message

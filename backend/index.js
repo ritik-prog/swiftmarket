@@ -19,7 +19,7 @@ const superAdminRouter = require('./Routes/superadmin/superAdminRouter');
 const rateLimiterMiddleware = require('./Middleware/rateLimitermiddleware.js');
 
 const connectDB = require('./utils/connectDB');
-const recommendProducts = require('./tensarflow');
+const ipBannedMiddleware = require('./middleware/checkIpBanned');
 
 dotenv.config(); // load environment variables from .env file
 connectDB(); // connect to MongoDB database
@@ -34,7 +34,13 @@ app.use(mongoSanitize());
 app.use(helmet());// adds security-related headers to HTTP response
 
 app.use(morgan('combined')); // logs incoming HTTP requests
-app.use(cors());
+const corsConfig = {
+    origin: true,
+    credentials: true,
+};
+
+app.use(cors(corsConfig));
+app.options('*', cors(corsConfig))
 // parse application/x-www-form-urlencoded
 app.use(bodyParser.urlencoded({ extended: false }));
 // parse application/json
@@ -44,6 +50,7 @@ app.use((req, res, next) => {
     next();
 });
 app.use(rateLimiterMiddleware);
+app.use(ipBannedMiddleware)
 
 // Set up CSRF protection
 let csrfProtection;
@@ -84,8 +91,7 @@ if (process.env.NODE_ENV === 'production') {
         console.log(`Server listening on port ${PORT}`);
     });
 } else {
-    recommendProducts();
-    // app.listen(PORT, () => {
-    //     console.log(`Server listening on port ${PORT}`);
-    // });
+    app.listen(PORT, () => {
+        console.log(`Server listening on port ${PORT}`);
+    });
 }

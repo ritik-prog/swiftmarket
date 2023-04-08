@@ -23,6 +23,12 @@ const applySellerSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
+    businessUsername: {
+        type: String,
+        required: true,
+        unique: true,
+        index: true,
+    },
     businessRegistrationNumber: {
         type: String,
         required: true,

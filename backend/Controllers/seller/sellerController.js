@@ -67,11 +67,11 @@ const applyForSellerAccount = async (req, res, next) => {
 
         res.status(200).json({
             status: 'success',
-            message: 'Seller account created successfully',
+            message: 'successfully applied for seller account',
             data: savedSeller,
         });
     } catch (error) {
-        return handleError(res, err);
+        return handleError(res, error);
     }
 };
 
@@ -86,12 +86,12 @@ const verifySeller = async (req, res) => {
             errors: errors.array()
         });
     }
-
-    const { email, code, paymentPreferences, blockchainWalletAddress, paypalAccountEmailAddress } = req.body;
+    console.log(req.user)
+    const { code, paymentPreferences, blockchainWalletAddress, paypalAccountEmailAddress } = req.body;
 
     try {
         // Find the seller by the verification code
-        const seller = await Seller.findOne({ email: email });
+        const seller = req.seller;
 
         if (!seller) {
             return handleError(res, {
@@ -144,17 +144,9 @@ const verifySeller = async (req, res) => {
 };
 
 // Get a seller by ID
-const getSellerById = async (req, res) => {
+const getSellerProfile = async (req, res) => {
     try {
-        const seller = await Seller.findById(req.body._id);
-        if (!seller) {
-            return handleError(res, {
-                name: 'not_found',
-                status: 'error',
-                message: 'Seller not found',
-            });
-        }
-        res.status(200).json({ status: 'success', data: seller });
+        res.status(200).json({ status: 'success', data: req.seller });
     } catch (err) {
         return handleError(res, err);
     }
@@ -240,7 +232,7 @@ const updateSellerById = async (req, res) => {
 // Delete a seller by ID
 const deleteSellerById = async (req, res) => {
     try {
-        const seller = await Seller.findById(req.body._id);
+        const seller = req.user
         if (!seller) {
             return handleError(res, {
                 name: 'not_found',
@@ -249,7 +241,7 @@ const deleteSellerById = async (req, res) => {
             });
         }
 
-        await Seller.findByIdAndDelete(req.body._id);
+        await Seller.findByIdAndDelete(req.user.seller);
 
         const data = {
             username: seller.fullName,
@@ -276,7 +268,8 @@ const createProductForSeller = async (req, res, next) => {
             });
         }
 
-        const seller = await Seller.findOne({ _id: req.user._id });
+        const seller = req.seller;
+
         if (!seller) {
             return handleError(res, {
                 name: 'not_found',
@@ -287,6 +280,7 @@ const createProductForSeller = async (req, res, next) => {
 
         const product = new Product({
             seller: seller._id,
+            businessName: seller.businessName,
             productName: req.body.productName,
             productDescription: req.body.productDescription,
             price: req.body.price,
@@ -294,6 +288,7 @@ const createProductForSeller = async (req, res, next) => {
             category: req.body.category,
             imagesUrl: req.body.imagesUrl,
             thumbnailUrl: req.body.thumbnailUrl,
+            tags: req.body.tags,
             featured: req.body.featured || false,
             updatedBy: {
                 role: req.user.role,
@@ -303,7 +298,7 @@ const createProductForSeller = async (req, res, next) => {
         await product.save();
 
         // Update seller's products array
-        seller.products.push(product._id);
+        seller.productListings.push(product._id);
         await seller.save();
 
         res.status(200).json({
@@ -404,4 +399,4 @@ const deleteProductForSeller = async (req, res) => {
     }
 };
 
-module.exports = { getSellerById, updateSellerById, deleteSellerById, deleteProductForSeller, updateProductForSeller, createProductForSeller, applyForSellerAccount, verifySeller };
+module.exports = { getSellerProfile, updateSellerById, deleteSellerById, deleteProductForSeller, updateProductForSeller, createProductForSeller, applyForSellerAccount, verifySeller };

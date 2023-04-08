@@ -1,26 +1,31 @@
 const mongoose = require('mongoose');
+const natural = require('natural');
 
 const productSchema = new mongoose.Schema(
     {
         seller: {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'Seller',
-            required: true
+            required: true,
+            index: 'text'
         },
         productName: {
             type: String,
             required: true,
-            trim: true
+            trim: true,
+            index: 'text',
         },
-        businessUsername: {
+        businessName: {
             type: String,
             required: true,
             trim: true,
-            unique: true
+            unique: true,
+            index: 'text',
         },
         productDescription: {
             type: String,
-            required: true
+            required: true,
+            index: 'text',
         },
         price: {
             type: Number,
@@ -36,7 +41,8 @@ const productSchema = new mongoose.Schema(
         },
         category: {
             type: String,
-            required: true
+            required: true,
+            index: 'text',
         },
         imagesUrl: [{
             type: String,
@@ -61,7 +67,8 @@ const productSchema = new mongoose.Schema(
                 },
                 message: 'Tags must have at least 1 and at most 5 values'
             },
-            required: true
+            required: true,
+            // index: 'text',
         },
         ratings: [
             {
@@ -71,8 +78,7 @@ const productSchema = new mongoose.Schema(
                 },
                 rating: {
                     type: Number,
-                    min: 1,
-                    max: 5
+                    default: 0,
                 },
                 review: {
                     type: String,
@@ -81,13 +87,11 @@ const productSchema = new mongoose.Schema(
                 date: {
                     type: Date,
                     default: Date.now
-                }
+                },
             }
         ],
         ratingsAvg: {
             type: Number,
-            min: 1,
-            max: 5,
             default: 0
         },
         featured: {
@@ -126,7 +130,7 @@ const productSchema = new mongoose.Schema(
             type: Boolean,
             default: true
         },
-        keywords: { type: [String], default: [] },
+        keywords: { type: [String], default: [], index: 'text' },
     },
     {
         toJSON: { virtuals: true },
@@ -146,6 +150,13 @@ productSchema.pre(/^find/, function (next) {
         path: 'seller',
         select: 'businessName businessEmail businessNumber'
     });
+    next();
+});
+
+productSchema.pre('save', function (next) {
+    if (this.quantity === 0) {
+        this.isAvailable = false;
+    }
     next();
 });
 
@@ -175,7 +186,7 @@ productSchema.pre('save', function (next) {
         ...tokenizer.tokenize(this.businessName),
         ...tokenizer.tokenize(this.productDescription),
         ...tokenizer.tokenize(this.category),
-        ...tokenizer.tokenize(this.tags),
+        ...tokenizer.tokenize(...this.tags),
     ]
         .map((word) => stemmer.stem(word.toLowerCase()))
         .filter((word) => !stopwords.includes(word))
@@ -186,6 +197,14 @@ productSchema.pre('save', function (next) {
     next();
 });
 
+
+productSchema.pre(['findOneAndDelete', 'remove'], function (next) {
+    const productId = this._id;
+
+    mongoose.model('Seller').deleteMany({ productListings: productId }, next);
+});
+
 const Product = mongoose.model('Product', productSchema);
+
 
 module.exports = Product;

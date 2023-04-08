@@ -77,43 +77,4 @@ router.get('/', authenticate, async (req, res) => {
     }
 });
 
-// Update a specific order by ID
-router.patch('/updateorder/:id', authenticate, async (req, res) => {
-    try {
-        const order = await Order.findOne({ _id: req.params.id, customer: req.user._id });
-        if (!order) {
-            return res.status(404).send({ error: 'Order not found' });
-        }
-        if (req.body.orderStatus) {
-            order.orderStatus = req.body.orderStatus;
-        }
-        if (req.body.estimatedDeliveryDate) {
-            order.estimatedDeliveryDate = req.body.estimatedDeliveryDate;
-        }
-        if (req.body.subOrders) {
-            order.subOrders = req.body.subOrders;
-        }
-        if (req.body.notes) {
-            order.notes = req.body.notes;
-        }
-        const updatedOrder = await order.save();
-        res.send(updatedOrder);
-    } catch (error) {
-        res.status(400).send({ error: error.message });
-    }
-});
-
-// Delete a specific order by ID
-router.delete('/deleteorder/:id', authenticate, async (req, res) => {
-    try {
-        const order = await Order.findOneAndDelete({ _id: req.params.id, customer: req.user._id });
-        if (!order) {
-            return res.status(404).send({ error: 'Order not found' });
-        }
-        res.send(order);
-    } catch (error) {
-        res.status(500).send({ error: error.message });
-    }
-});
-
 module.exports = router;

@@ -1,184 +1,124 @@
-// search products from keyword
-exports.searchProductsKeywords = async (req, res, next) => {
-    try {
-        const query = req.query.q;
-        if (!query) {
-            return res.status(400).json({ message: 'Query parameter is missing' });
+
+        var filterParams = {};
+
+        if (req.query.category) {
+            filterParams.category = ""
+            filterParams.category = req.query.category;
         }
 
-        // Tokenize the query using the natural library
-        const tokenizer = new natural.WordTokenizer();
-        const tokens = tokenizer.tokenize(query.toLowerCase());
+        // Check for price range filter
+        if (req.query.minPrice || req.query.maxPrice) {
+            filterParams.price = {};
+            if (req.query.minPrice) {
+                filterParams.price.$gte = parseFloat(req.query.minPrice);
+            }
+            if (req.query.maxPrice) {
+                filterParams.price.$lte = parseFloat(req.query.maxPrice);
+            }
+        }
 
-        // Build the query object
-        const queryObject = {
-            $and: [
-                { isAvailable: true },
-                {
-                    $or: [
-                        { productName: { $regex: query, $options: 'i' } },
-                        { businessUsername: { $regex: query, $options: 'i' } },
-                        { tags: { $in: tokens } },
-                        { $text: { $search: query } },
-                        {
-                            $expr: {
-                                $gt: [{ $size: { $setIntersection: ['$keywords', tokens] } }, 0]
+        // Check for quantity filter
+        if (req.query.minQuantity || req.query.maxQuantity) {
+            filterParams.quantity = {};
+            if (req.query.minQuantity) {
+                filterParams.quantity.$gte = parseInt(req.query.minQuantity);
+            }
+            if (req.query.maxQuantity) {
+                filterParams.quantity.$lte = parseInt(req.query.maxQuantity);
+            }
+        }
+
+        // Check for purchase count filter
+        if (req.query.minPurchaseCount || req.query.maxPurchaseCount) {
+            filterParams.purchaseCount = {};
+            if (req.query.minPurchaseCount) {
+                filterParams.purchaseCount.$gte = parseInt(req.query.minPurchaseCount);
+            }
+            if (req.query.maxPurchaseCount) {
+                filterParams.purchaseCount.$lte = parseInt(req.query.maxPurchaseCount);
+            }
+        }
+
+        // Check for ratings filter
+        if (req.query.minRatings || req.query.maxRatings) {
+            filterParams.ratings = {};
+            if (req.query.minRatings) {
+                filterParams.ratings.$gte = parseFloat(req.query.minRatings);
+            }
+            if (req.query.maxRatings) {
+                filterParams.ratings.$lte = parseFloat(req.query.maxRatings);
+            }
+        }
+
+        // Check for average ratings filter
+        if (req.query.minRatingsAvg || req.query.maxRatingsAvg) {
+            filterParams.ratingsAvg = {};
+            if (req.query.minRatingsAvg) {
+                filterParams.ratingsAvg.$gte = parseFloat(req.query.minRatingsAvg);
+            }
+            if (req.query.maxRatingsAvg) {
+                filterParams.ratingsAvg.$lte = parseFloat(req.query.maxRatingsAvg);
+            }
+        }
+
+        // Check for featured filter
+        if (req.query.featured) {
+            filterParams.featured = req.query.featured === 'true';
+        }
+
+        // Check for views filter
+        if (req.query.minViews || req.query.maxViews) {
+            filterParams.views = {};
+            if (req.query.minViews) {
+                filterParams.views.$gte = parseInt(req.query.minViews);
+            }
+            if (req.query.maxViews) {
+                filterParams.views.$lte = parseInt(req.query.maxViews);
+            }
+        }
+
+        // Check for likes filter
+        if (req.query.minLikes || req.query.maxLikes) {
+            filterParams.likes = {};
+            if (req.query.minLikes) {
+                filterParams.likes.$gte = parseInt(req.query.minLikes);
+            }
+            if (req.query.maxLikes) {
+                filterParams.likes.$lte = parseInt(req.query.maxLikes);
+            }
+        }
+
+        // Check for availability filter
+        if (req.query.isAvailable) {
+            filterParams.isAvailable = req.query.isAvailable === 'true';
+        }
+
+        // // Add search query filter
+        if (req.query.search) {
+            const query = req.query.search;
+            const tokens = query.split(' ');
+            const queryObject = {
+                $and: [
+                    { isAvailable: true },
+                    {
+                        $or: [
+                            { productName: { $regex: query, $options: 'i' } },
+                            {
+                                businessUsername: { $regex: query, $options: 'i' }
+                            },
+                            {
+                                category: { $regex: query, $options: 'i' }
+                            },
+                            { tags: { $in: tokens } },
+                            { $text: { $search: query } },
+                            {
+                                $expr: {
+                                    $gt: [{ $size: { $setIntersection: ['$keywords', tokens] } }, 0]
+                                }
                             }
-                        }
-                    ]
-                }
-            ]
-        };
-
-        // Execute the search query
-        const products = await Product.find(queryObject)
-            .select('-reviews -updatedAt -updatedBy -isAvailable -__v')
-            .populate({
-                path: 'seller',
-                select: 'businessName businessEmail businessNumber'
-            })
-            .sort({ createdAt: -1 });
-
-        return res.status(200).json(products);
-    } catch (error) {
-        console.error(error);
-        return res.status(500).json({ message: 'Internal server error' });
-    }
-};
-
-// search products by query
-router.get('/products', async (req, res) => {
-    try {
-        const {
-            category,
-            minPrice,
-            maxPrice,
-            minQuantity,
-            maxQuantity,
-            minPurchaseCount,
-            maxPurchaseCount,
-            minRatings,
-            maxRatings,
-            minRatingsAvg,
-            maxRatingsAvg,
-            featured,
-            minViews,
-            maxViews,
-            isAvailable,
-            likes
-        } = req.query;
-
-        let filter = {};
-
-        if (category) {
-            filter.category = category;
+                        ]
+                    },
+                ]
+            };
+            filterParams = { ...filterParams, ...queryObject };
         }
-
-        if (minPrice && maxPrice) {
-            filter.price = { $gte: minPrice, $lte: maxPrice };
-        } else if (minPrice) {
-            filter.price = { $gte: minPrice };
-        } else if (maxPrice) {
-            filter.price = { $lte: maxPrice };
-        }
-
-        if (minQuantity && maxQuantity) {
-            filter.quantity = { $gte: minQuantity, $lte: maxQuantity };
-        } else if (minQuantity) {
-            filter.quantity = { $gte: minQuantity };
-        } else if (maxQuantity) {
-            filter.quantity = { $lte: maxQuantity };
-        }
-
-        if (minPurchaseCount && maxPurchaseCount) {
-            filter.purchaseCount = { $gte: minPurchaseCount, $lte: maxPurchaseCount };
-        } else if (minPurchaseCount) {
-            filter.purchaseCount = { $gte: minPurchaseCount };
-        } else if (maxPurchaseCount) {
-            filter.purchaseCount = { $lte: maxPurchaseCount };
-        }
-
-        if (minRatings && maxRatings) {
-            filter.ratings = { $elemMatch: { rating: { $gte: minRatings, $lte: maxRatings } } };
-        } else if (minRatings) {
-            filter.ratings = { $elemMatch: { rating: { $gte: minRatings } } };
-        } else if (maxRatings) {
-            filter.ratings = { $elemMatch: { rating: { $lte: maxRatings } } };
-        }
-
-        if (minRatingsAvg && maxRatingsAvg) {
-            filter.ratingsAvg = { $gte: minRatingsAvg, $lte: maxRatingsAvg };
-        } else if (minRatingsAvg) {
-            filter.ratingsAvg = { $gte: minRatingsAvg };
-        } else if (maxRatingsAvg) {
-            filter.ratingsAvg = { $lte: maxRatingsAvg };
-        }
-
-        if (featured) {
-            filter.featured = featured;
-        }
-
-        if (minViews && maxViews) {
-            filter.views = { $gte: minViews, $lte: maxViews };
-        } else if (minViews) {
-            filter.views = { $gte: minViews };
-        } else if (maxViews) {
-            filter.views = { $lte: maxViews };
-        }
-
-        if (likes) {
-            filter.likes = { $in: likes };
-        }
-
-        if (isAvailable !== undefined) {
-            filter.isAvailable = isAvailable;
-        }
-
-        const products = await Product.find(filter);
-
-        res.status(200).json({
-            status: 'success',
-            data: products
-        });
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({
-            status: 'error',
-            message: err.message
-        });
-    }
-});
-
-
-// Search products
-exports.searchProducts = async (req, res) => {
-    const { searchQuery } = req.query;
-
-    try {
-        const products = await Product.find({
-            $or: [
-                { productName: { $regex: searchQuery, $options: 'i' } },
-                { 'seller.businessName': { $regex: searchQuery, $options: 'i' } },
-                { tags: { $regex: searchQuery, $options: 'i' } },
-                { productDescription: { $regex: searchQuery, $options: 'i' } },
-                { category: { $regex: searchQuery, $options: 'i' } },
-            ],
-            isAvailable: true,
-        })
-            .populate('seller', 'businessName businessEmail businessNumber')
-            .exec();
-
-        res.status(200).json({
-            status: 'success',
-            results: products.length,
-            data: {
-                products,
-            },
-        });
-    } catch (err) {
-        res.status(400).json({
-            status: 'fail',
-            message: err.message,
-        });
-    }
-};

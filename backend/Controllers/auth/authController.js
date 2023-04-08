@@ -19,10 +19,10 @@ exports.signup = async (req, res) => {
     }
 
     const ip = req.ip;
-    const { name, email, password, username } = req.body;
+    const { email, password, username } = req.body;
 
     try {
-        let user = await User.findOne({ email });
+        let user = await User.findOne({ $or: [{ email }, { username }] });
 
         if (user) {
             return handleError(res, {
@@ -33,7 +33,6 @@ exports.signup = async (req, res) => {
         }
 
         user = new User({
-            name,
             email,
             password,
             username
@@ -43,14 +42,6 @@ exports.signup = async (req, res) => {
         user.password = await bcrypt.hash(password, salt);
 
         const token = await user.generateAuthToken();
-
-        // Set token in cookies
-        res.cookie('token', token, {
-            httpOnly: true, // cookie cannot be accessed from client-side scripts
-            secure: process.env.NODE_ENV === 'production', // cookie should only be sent over HTTPS in production
-            sameSite: 'strict', // cookie should only be sent for same-site requests
-            maxAge: 5 * 60 * 60 * 1000 // 5hr
-        });
 
         await user.save().then(async () => {
             await sendVerificationCode(res, user.email);

@@ -1,6 +1,40 @@
-import React from "react";
+import React, { useState } from "react";
+import { useFormik } from "formik";
+import { signUpSchema } from "../../schemas";
+import { errorClass, noErrorClass } from "../../utils/StyleClasses";
+import { signUpApi } from "../../api/auth";
+import { useNavigate } from "react-router-dom";
+
+const initialValues = {
+  username: "",
+  email: "",
+  password: "",
+};
 
 const SignUp = () => {
+  const [showPassword, setShowPassword] = useState(false);
+  const navigate = useNavigate();
+
+  const { values, errors, touched, handleBlur, handleChange, handleSubmit } =
+    useFormik({
+      initialValues,
+      validationSchema: signUpSchema,
+      onSubmit: async (values, action) => {
+        try {
+          const response = await signUpApi(
+            values.email,
+            values.password,
+            values.username
+          );
+          console.log(response);
+          navigate("/login");
+          action.resetForm();
+        } catch (err) {
+          console.log(err);
+        }
+      },
+    });
+
   return (
     <section className="bg-white dark:bg-gray-900">
       <div className="grid grid-cols-1 lg:grid-cols-2">
@@ -17,7 +51,7 @@ const SignUp = () => {
           <div className="relative">
             <div className="w-full max-w-xl xl:w-full xl:mx-auto xl:pr-24 xl:max-w-xl">
               <h3 className="text-4xl font-bold text-white">
-                Now you dont have to rely on your designer to create a new page
+                Now you don't have to rely on your designer to create a new page
               </h3>
               <ul className="grid grid-cols-1 mt-10 sm:grid-cols-2 gap-x-8 gap-y-4">
                 <li className="flex items-center space-x-3">
@@ -111,16 +145,18 @@ const SignUp = () => {
             </h2>
             <p className="mt-2 text-base text-black dark:text-white">
               Already have an account?{" "}
-              <a
-                href="#"
+              <span
                 title=""
-                className="font-medium text-indigo-600 transition-all duration-200 hover:text-indigo-700 hover:underline focus:text-indigo-700"
+                className="font-medium text-indigo-600 transition-all duration-200 hover:text-indigo-700 hover:underline focus:text-indigo-700 cursor-pointer"
+                onClick={() => {
+                  navigate("/signin");
+                }}
               >
                 Sign In
-              </a>
+              </span>
             </p>
 
-            <form action="#" method="POST" className="mt-8">
+            <form className="mt-8" onSubmit={handleSubmit}>
               <div className="space-y-5">
                 <div>
                   <label
@@ -128,14 +164,26 @@ const SignUp = () => {
                     className="text-base font-medium text-black dark:text-white"
                   >
                     {" "}
-                    Full Name{" "}
+                    Username{" "}
+                    {errors.username && touched.username ? (
+                      <span className="text-red-500 text-sm font-sm">
+                        ({errors.username})
+                      </span>
+                    ) : null}
                   </label>
                   <div className="mt-2.5">
                     <input
-                      className="flex h-10 w-full rounded-md border border-gray-300 bg-transparent py-2 px-3 text-sm placeholder:text-black-400 focus:outline-none focus:ring-1 focus:ring-gray-400 focus:ring-offset-1 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-700 dark:text-white dark:focus:ring-gray-400 dark:focus:ring-offset-gray-900"
+                      className={`flex h-10 w-full rounded-md border border-gray-300 bg-transparent py-2 px-3 text-sm placeholder:text-black-400 focus:outline-none focus:ring-1 focus:ring-gray-400 focus:ring-offset-1 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-700 dark:text-white dark:focus:ring-gray-400 dark:focus:ring-offset-gray-900 ${
+                        (values.username && errors.username) !== "" &&
+                        (errors.username ? errorClass : noErrorClass)
+                      }`}
                       type="text"
-                      placeholder="Enter You Full Name"
+                      placeholder="Enter You Username"
                       id="name"
+                      name="username"
+                      value={values.username}
+                      onChange={handleChange}
+                      onBlur={handleBlur}
                     ></input>
                   </div>
                 </div>
@@ -147,37 +195,86 @@ const SignUp = () => {
                   >
                     {" "}
                     Email address{" "}
+                    {errors.email && touched.email ? (
+                      <span className="text-red-500 text-sm font-sm">
+                        ({errors.email})
+                      </span>
+                    ) : null}
                   </label>
                   <div className="mt-2.5">
                     <input
-                      className="flex h-10 w-full rounded-md border border-gray-300 bg-transparent py-2 px-3 text-sm placeholder:text-black-400 focus:outline-none focus:ring-1 focus:ring-gray-400 focus:ring-offset-1 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-700 dark:text-white dark:focus:ring-gray-400 dark:focus:ring-offset-gray-900"
+                      className={`flex h-10 w-full rounded-md border border-gray-300 bg-transparent py-2 px-3 text-sm placeholder:text-black-400 focus:outline-none focus:ring-1 focus:ring-gray-400 focus:ring-offset-1 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-700 dark:text-white dark:focus:ring-gray-400 dark:focus:ring-offset-gray-900 ${
+                        (values.email && errors.email) !== "" &&
+                        (errors.email ? errorClass : noErrorClass)
+                      }`}
                       type="email"
                       placeholder="Enter Your Email"
                       id="email"
+                      name="email"
+                      value={values.email}
+                      onChange={handleChange}
+                      onBlur={handleBlur}
                     ></input>
                   </div>
                 </div>
 
                 <div>
-                  <label
-                    htmlFor="password"
-                    className="text-base font-medium text-black-900 dark:text-white"
-                  >
-                    {" "}
-                    Password{" "}
-                  </label>
-                  <div className="mt-2.5">
+                  <div className="flex items-center justify-between">
+                    <label
+                      htmlFor="password"
+                      className="block text-sm text-black dark:text-white"
+                    >
+                      Password{" "}
+                      {errors.password && touched.password ? (
+                        <span className="text-red-500 text-sm font-sm">
+                          ({errors.password})
+                        </span>
+                      ) : null}
+                    </label>
+                  </div>
+
+                  <div className="relative flex items-center mt-2">
+                    <button
+                      className={`absolute right-0 rtl:left-0 rtl:right-auto`}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        setShowPassword(!showPassword);
+                      }}
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 24 24"
+                        fill="currentColor"
+                        className="w-6 h-6 mx-4 text-gray-400 transition-colors duration-300 dark:text-gray-500 hover:text-gray-500 dark:hover:text-gray-400"
+                      >
+                        <path d="M12 15a3 3 0 100-6 3 3 0 000 6z" />
+                        <path
+                          fill-rule="evenodd"
+                          d="M1.323 11.447C2.811 6.976 7.028 3.75 12.001 3.75c4.97 0 9.185 3.223 10.675 7.69.12.362.12.752 0 1.113-1.487 4.471-5.705 7.697-10.677 7.697-4.97 0-9.186-3.223-10.675-7.69a1.762 1.762 0 010-1.113zM17.25 12a5.25 5.25 0 11-10.5 0 5.25 5.25 0 0110.5 0z"
+                          clip-rule="evenodd"
+                        />
+                      </svg>
+                    </button>
                     <input
-                      className="flex h-10 w-full rounded-md border border-gray-300 bg-transparent py-2 px-3 text-sm placeholder:text-black-400 focus:outline-none focus:ring-1 focus:ring-gray-400 focus:ring-offset-1 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-700 dark:text-white-50 dark:focus:ring-gray-400 dark:focus:ring-offset-gray-900"
-                      type="email"
-                      placeholder="Enter Your Password"
-                      id="password"
-                    ></input>
+                      type={showPassword ? "text" : "password"}
+                      placeholder="********"
+                      className={`flex h-10 w-full rounded-md border border-gray-300 bg-transparent py-2 px-3 text-sm placeholder:text-black-400 focus:outline-none focus:ring-1 focus:ring-gray-400 focus:ring-offset-1 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-700 dark:text-white dark:focus:ring-gray-400 dark:focus:ring-offset-gray-900 ${
+                        (values.password && errors.password) !== "" &&
+                        (errors.password ? errorClass : noErrorClass)
+                      }`}
+                      name="password"
+                      value={values.password}
+                      onChange={handleChange}
+                      onBlur={handleBlur}
+                    />
                   </div>
                 </div>
 
                 <div>
-                  <button className="w-full inline-flex items-center justify-center rounded-md bg-indigo-600 px-3.5 py-2.5 text-base font-semibold leading-7 text-white hover:bg-indigo-500">
+                  <button
+                    type="submit"
+                    className="w-full inline-flex items-center justify-center rounded-md bg-indigo-600 px-3.5 py-2.5 text-base font-semibold leading-7 text-white hover:bg-indigo-500"
+                  >
                     Get started
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -235,11 +332,17 @@ const SignUp = () => {
               <p>
                 <span className="text-black-500 dark:text-white text-sm">
                   Read our{" "}
-                  <span className="capitalize text-indigo-600 dark:text-indigo-300 cursor-pointer">
+                  <span
+                    className="capitalize text-indigo-600 dark:text-indigo-300 cursor-pointer"
+                    onClick={() => navigate("/privacypolicy")}
+                  >
                     privacy policy
                   </span>{" "}
                   and{" "}
-                  <span className="capitalize text-indigo-600 dark:text-indigo-300 cursor-pointer">
+                  <span
+                    className="capitalize text-indigo-600 dark:text-indigo-300 cursor-pointer"
+                    onClick={() => navigate("/termsandconditions")}
+                  >
                     terms of service
                   </span>{" "}
                   to learn more

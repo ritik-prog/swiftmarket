@@ -1,7 +1,18 @@
 import React, { useRef } from "react";
+import { useNavigate, Navigate } from "react-router-dom";
+import { CreateToast } from "../../utils/Toast";
+import { ResendVerificationMail, verifyApi } from "../../api/auth";
+import { RootState } from "../../redux/rootReducer";
+import { useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
+import { updateVerificationStatus } from "../../redux/user/userSlice";
 
 function Verification() {
   const inputRefs = useRef<HTMLInputElement[]>([]);
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+
+  const user = useSelector((state: RootState) => state.user);
 
   const handleKeyDown = (
     index: number,
@@ -50,7 +61,15 @@ function Verification() {
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const code = inputRefs.current.map((input) => input.value).join("");
-    // submit code to server for validation
+    verifyApi(code)
+      .then((res) => {
+        CreateToast("Emailverified", "Email verified!", "success");
+        dispatch(updateVerificationStatus({ verificationStatus: true }));
+        navigate("/shop");
+      })
+      .catch((err) => {
+        CreateToast("verifyInvalidcode", "Invalid code!", "error");
+      });
   };
 
   const renderInputs = () => {
@@ -74,38 +93,58 @@ function Verification() {
     return inputs;
   };
 
-  return (
-    <div className="relative flex min-h-screen flex-col justify-center overflow-hidden bg-gray-50 dark:bg-gray-900 py-12">
-      <div className="relative bg-white dark:bg-gray-800 px-6 pt-10 pb-9 shadow-xl mx-auto w-full max-w-lg rounded-2xl">
-        <div className="mx-auto flex w-full max-w-md flex-col space-y-16">
-          <div className="flex flex-col items-center justify-center text-center space-y-2">
-            <div className="font-semibold text-3xl dark:text-white">
-              <p>Email Verification</p>
-            </div>
-            <div className="flex flex-row text-sm font-medium text-gray-400 dark:text-gray-300">
-              <p>We have sent a code to your email ba**@dipainhouse.com</p>
-            </div>
-          </div>
+  const handleResendEmail = () => {
+    try {
+      ResendVerificationMail();
+      CreateToast("verifyResend", "Email sent!", "success");
+    } catch (error) {}
+  };
 
-          <div>
-            <form onSubmit={handleSubmit}>
-              <div
-                className="flex
-flex-row justify-center space-x-6"
-              >
-                {renderInputs()}
+  if (!user.isAuthenticated) {
+    return <Navigate to="/signin" />;
+  } else if (user.user.verificationStatus) {
+    return <Navigate to="/shop" />;
+  } else {
+    return (
+      <div className="relative flex min-h-screen flex-col justify-center overflow-hidden bg-gray-50 dark:bg-gray-900 py-12">
+        <div className="relative bg-white dark:bg-gray-800 px-6 pt-10 pb-9 shadow-xl mx-auto w-full max-w-lg rounded-2xl">
+          <div className="mx-auto flex w-full max-w-md flex-col space-y-16">
+            <div className="flex flex-col items-center justify-center text-center space-y-2">
+              <div className="font-semibold text-3xl dark:text-white">
+                <p>Email Verification</p>
               </div>
-              <div className="mt-12">
-                <button className="w-full py-3 text-white bg-blue-700 rounded-xl hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-700 focus:ring-opacity-50">
-                  Verify
-                </button>
+              <div className="flex flex-row text-sm font-medium text-gray-400 dark:text-gray-300">
+                <p>We have sent a code to your email ba**@dipainhouse.com</p>
               </div>
-            </form>
+            </div>
+
+            <div>
+              <form onSubmit={handleSubmit}>
+                <div className="flex flex-row justify-center space-x-6">
+                  {renderInputs()}
+                </div>
+                <div className="mt-12">
+                  <button
+                    className="w-full py-3 text-white bg-blue-700 rounded-xl hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-700 focus:ring-opacity-50"
+                    onClick={(e) => handleSubmit}
+                  >
+                    Verify
+                  </button>
+                </div>
+              </form>
+            </div>
+            <button
+              className="text-blue-500 hover:underline"
+              style={{ marginTop: "5px" }}
+              onClick={() => handleResendEmail()}
+            >
+              Resend email
+            </button>
           </div>
         </div>
       </div>
-    </div>
-  );
+    );
+  }
 }
 
 export default Verification;

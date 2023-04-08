@@ -12,8 +12,8 @@ const Home = () => {
   return (
     <div className="container my-5 m-auto">
       <Hero />
-      <BrowseCategory />
       <Collection />
+      <BrowseCategory />
       <MainCategory />
       <Trending />
       <CustomersPurchased />

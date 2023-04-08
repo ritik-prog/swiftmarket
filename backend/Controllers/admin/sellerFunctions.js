@@ -5,6 +5,7 @@ const Seller = require('../../models/seller/sellerSchema');
 const applySeller = require('../../models/seller/applySellerSchema');
 const sendEmail = require('../../utils/sendEmail');
 const handleError = require('../../utils/errorHandler');
+const generateCode = require('../../utils/generateCode');
 
 // Get applied sellers
 const getAllApplySellers = async (req, res, next) => {
@@ -36,18 +37,18 @@ const acceptSeller = async (req, res, next) => {
         }
 
         // Create a new seller instance with required fields
-        const newSeller = new sellerModel({
-            businessUsername: applySeller.businessUsername,
-            businessNumber: applySeller.businessNumber,
-            businessEmail: applySeller.businessEmail,
-            businessName: applySeller.businessName,
-            businessRegistrationNumber: applySeller.businessRegistrationNumber,
-            businessType: applySeller.businessType,
-            businessAddress: applySeller.businessAddress,
-            businessWebsite: applySeller.businessWebsite,
-            taxIDNumber: applySeller.taxIDNumber,
-            productCategories: applySeller.productCategories,
-            user: applySeller.user._id,
+        const newSeller = new Seller({
+            businessUsername: newSellerApplication.businessUsername,
+            businessNumber: newSellerApplication.businessNumber,
+            businessEmail: newSellerApplication.businessEmail,
+            businessName: newSellerApplication.businessName,
+            businessRegistrationNumber: newSellerApplication.businessRegistrationNumber,
+            businessType: newSellerApplication.businessType,
+            businessAddress: newSellerApplication.businessAddress,
+            businessWebsite: newSellerApplication.businessWebsite,
+            taxIDNumber: newSellerApplication.taxIDNumber,
+            productCategories: newSellerApplication.productCategories,
+            user: newSellerApplication.user._id,
         });
 
         // Save the new seller instance to the database
@@ -56,7 +57,13 @@ const acceptSeller = async (req, res, next) => {
         // Remove the seller application from the applySellerSchema
         await newSellerApplication.remove();
 
-        const verificationCode = generateVerificationCode();
+        // Update user in the application
+        const user = await User.findById(newSeller.user._id);
+        user.seller = newSeller._id;
+        user.role = "seller";
+        await user.save();
+
+        const verificationCode = generateCode();
         const codeExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000); // 1 day from now
 
         newSeller.verificationCode = verificationCode;
@@ -64,12 +71,13 @@ const acceptSeller = async (req, res, next) => {
         await newSeller.save();
 
         const data = {
-            username: newSeller.fullName,
+            subject: 'New Seller Account - SwiftMarket',
+            username: newSeller.businessName,
             verificationCode: newSeller.verificationCode,
             verificationLink: 'https://example.com/verify'
         };
 
-        await sendEmail(newSeller.email, data, './verfication/verifySeller.hbs');
+        await sendEmail(newSeller.businessEmail, data, './verification/verifySeller.hbs');
 
         res.status(201).json({
             success: true,
@@ -78,7 +86,7 @@ const acceptSeller = async (req, res, next) => {
             subject: 'New Seller Account - SwiftMarket'
         });
     } catch (error) {
-        return handleError(res, err);
+        return handleError(res, error);
     }
 };
 

@@ -2,9 +2,9 @@ import React from "react";
 
 const Privacy = () => {
   return (
-    <section className="px-4 py-24 mx-auto max-w-7xl">
+    <section className="px-4 py-24 mx-auto max-w-7xl dark:bg-gray-900 dark:text-gray-100">
       <div className="mb-24 text-left md:text-center">
-        <h1 className="mb-4 text-4xl font-bold leading-tight text-gray-900 md:text-5xl">
+        <h1 className="mb-4 text-4xl font-bold leading-tight md:text-5xl">
           Privacy Policy
         </h1>
         <p className="mb-5 text-base text-gray-500 md:text-lg">

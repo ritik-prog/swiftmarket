@@ -1,8 +1,10 @@
 import React, { useRef } from "react";
+import instance from "../../utils/Axios";
+import { useNavigate } from "react-router-dom";
 
-function Verification() {
+function MFA() {
   const inputRefs = useRef<HTMLInputElement[]>([]);
-
+  const navigate = useNavigate();
   const handleKeyDown = (
     index: number,
     event: React.KeyboardEvent<HTMLInputElement>
@@ -80,7 +82,7 @@ function Verification() {
         <div className="mx-auto flex w-full max-w-md flex-col space-y-16">
           <div className="flex flex-col items-center justify-center text-center space-y-2">
             <div className="font-semibold text-3xl dark:text-white">
-              <p>Two factor authentication</p>
+              <p>Two factor Authentication</p>
             </div>
             <div className="flex flex-row text-sm font-medium text-gray-400 dark:text-gray-300">
               <p>We have sent a code to your email ba**@dipainhouse.com</p>
@@ -108,4 +110,4 @@ flex-row justify-center space-x-6"
   );
 }
 
-export default Verification;
+export default MFA;

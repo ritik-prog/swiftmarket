@@ -1,14 +1,23 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { store } from "../redux/store";
-import { setTheme } from "../redux/theme";
+import { setTheme } from "../redux/theme/themeSlice";
 import { useSelector } from "react-redux";
 import { RootState } from "../redux/rootReducer";
+import { useDispatch } from "react-redux";
 
 const ModeSwitch = () => {
   const theme = useSelector((state: RootState) => state.theme.theme);
   const handleThemeSwitch = () => {
     store.dispatch(setTheme(theme === "dark" ? "light" : "dark"));
   };
+  useEffect(() => {
+    if (theme === "dark") {
+      document.documentElement.classList.add("dark");
+    } else {
+      document.documentElement.classList.remove("dark");
+    }
+  }, [theme]);
+
   return (
     <button
       className="z-20 fixed bottom-4 right-4 p-2 rounded-md focus:outline-none"

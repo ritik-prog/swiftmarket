@@ -17,10 +17,9 @@ router.post(
     [
         signupRateLimiter,
         checkBanMiddleware,
-        check('name', 'Name is required').not().isEmpty(),
+        check('username', 'Username is required').not().isEmpty().isLength({ min: 4, max: 15 }),
         check('email', 'Please include a valid email').isEmail(),
         check('password', 'Please enter a password with 6 or more characters').isLength({ min: 6 }),
-        check('username', 'Username is required').not().isEmpty()
     ],
     authController.signup
 );
@@ -35,6 +34,9 @@ router.post(
     ],
     authController.login
 );
+
+// check if user is logged in
+router.get('/check', [checkBanMiddleware, authenticateMiddleware], (req, res) => res.status(200).json({ status: 'success', message: 'User is logged in' }));
 
 // Email Verification
 router.post('/sendVerificationCodeAgain',
@@ -91,15 +93,6 @@ router.put(
         check('name', 'Name is required').notEmpty().trim().escape(),
         check('email', 'Please enter a valid email address').isEmail().normalizeEmail(),
         check('address', 'Address is required').notEmpty().trim().escape(),
-        // check('paymentDetails.cardNumber', 'Please enter a valid credit card number')
-        //     .notEmpty()
-        //     .isCreditCard()
-        //     .escape(),
-        // check('paymentDetails.expiryDate', 'Please enter a valid expiry date in ISO 8601 format')
-        //     .notEmpty()
-        //     .isISO8601()
-        //     .toDate(),
-        // check('paymentDetails.cvc', 'Please enter a valid CVC code').notEmpty().isInt({ min: 100, max: 999 }).toInt(),
     ],
     authController.updateProfile
 );
