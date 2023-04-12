@@ -60,12 +60,12 @@ const WishlistComponent = () => {
     (state: { wishlist: WishlistState }) => state.wishlist
   );
 
-  const handleAddToWishlist = (product: wishlistItem) => {
-    dispatch(addItem({ product }));
-  };
+  // const handleAddToWishlist = (product: wishlistItem) => {
+  //   dispatch(addItem({ product }));
+  // };
 
-  const handleRemoveFromCart = (product: wishlistItem) => {
-    dispatch(removeItem(product));
+  const handleRemoveFromCart = (_id: wishlistItem) => {
+    dispatch(removeItem({ _id: _id }));
   };
 
   return (
@@ -88,7 +88,7 @@ const WishlistComponent = () => {
         </div>
       </div>
       <div className="mt-10 lg:mt-12 grid grid-cols-1 lg:grid-cols-3 gap-x-8 gap-y-10 lg:gap-y-0">
-        {wishlistItems.items.length == 0 ? (
+        {wishlistItems.items.length != 0 ? (
           wishlistItems.items.map((product) => (
             <ProductCard
               key={product._id}
@@ -96,6 +96,9 @@ const WishlistComponent = () => {
               image={product.thumbnailUrl}
               description={product.productDescription}
               price={product.discountedPrice}
+              _id={product._id}
+              navigate={navigate}
+              handleRemoveFromCart={handleRemoveFromCart}
             />
           ))
         ) : (
@@ -121,7 +124,15 @@ const WishlistComponent = () => {
 
 export default WishlistComponent;
 
-function ProductCard({ name, image, description, price }: any) {
+function ProductCard({
+  name,
+  image,
+  description,
+  price,
+  handleRemoveFromCart,
+  _id,
+  navigate,
+}: any) {
   const [isOpen, setIsOpen] = useState(false);
 
   const handleToggle = () => {
@@ -130,13 +141,29 @@ function ProductCard({ name, image, description, price }: any) {
 
   return (
     <div className="flex flex-col">
-      <div className="relative">
-        <img className="hidden lg:block" src={image.lg} alt="bag" />
-        <img className="hidden sm:block lg:hidden" src={image.sm} alt="bag" />
-        <img className="sm:hidden" src={image.sm} alt="bag" />
+      <div className="relative cursor-pointer">
+        <img
+          onClick={() => navigate(`/product?query=${_id}`)}
+          className="hidden lg:block"
+          src={image}
+          alt="bag"
+        />
+        <img
+          onClick={() => navigate(`/product?query=${_id}`)}
+          className="hidden sm:block lg:hidden"
+          src={image}
+          alt="bag"
+        />
+        <img
+          onClick={() => navigate(`/product?query=${_id}`)}
+          className="sm:hidden"
+          src={image}
+          alt="bag"
+        />
         <button
           aria-label="close"
           className="top-4 right-4 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-800 absolute p-1.5 bg-gray-800 dark:bg-white dark:text-gray-800 text-white hover:text-gray-400"
+          onClick={() => handleRemoveFromCart(_id)}
         >
           <svg
             className="fil-current"
@@ -213,10 +240,6 @@ function ProductCard({ name, image, description, price }: any) {
         </div>
       </div>
       <div className={`mt-6 ${isOpen ? "" : "hidden"}`}>
-        <div className="flex justify-between items-center mt-2">
-          <p className="text-gray-600 dark:text-gray-400">Price:</p>
-          <p className="font-medium text-gray-800 dark:text-white">{price}</p>
-        </div>
         <div className="flex justify-between items-center">
           <p
             className="text-gray-600 dark:text-gray-400"
@@ -229,6 +252,11 @@ function ProductCard({ name, image, description, price }: any) {
           >
             {description}
           </p>
+        </div>
+
+        <div className="flex justify-between items-center mt-2">
+          <p className="text-gray-600 dark:text-gray-400">Price:</p>
+          <p className="font-medium text-gray-800 dark:text-white">{price}</p>
         </div>
       </div>
     </div>

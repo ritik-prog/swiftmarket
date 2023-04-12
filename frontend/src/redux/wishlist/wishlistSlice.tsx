@@ -24,7 +24,12 @@ const wishlistSlice = createSlice({
   initialState,
   reducers: {
     addItem: (state, action) => {
-      state.items.push(action.payload);
+      const itemIndex = state.items.findIndex(
+        (item) => item._id === action.payload._id
+      );
+      if (itemIndex === -1) {
+        state.items.push(action.payload);
+      }
     },
     removeItem: (state, action) => {
       const index = state.items.findIndex(

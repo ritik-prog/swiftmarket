@@ -6,6 +6,7 @@ import {
   removeItem,
   updateQuantity,
 } from "../../../redux/cart/cartSlice";
+import { addItem as addWishListItem } from "../../../redux/wishlist/wishlistSlice";
 import { useNavigate } from "react-router-dom";
 
 interface CartItem {
@@ -24,6 +25,14 @@ interface CartState {
   totalDiscount: number;
   totalPrice: number;
   totalQuantity: number;
+}
+
+interface wishlistItem {
+  _id: string;
+  productName: string;
+  productDescription: string;
+  discountedPrice: number;
+  thumbnailUrl: string;
 }
 
 export const ShoppingCart = () => {
@@ -51,6 +60,18 @@ export const ShoppingCart = () => {
     );
   };
 
+  const handleSaveForLater = async (product: CartItem) => {
+    const wishlistItem = {
+      _id: product._id,
+      productName: product.productName,
+      discountedPrice: product.discountedPrice,
+      productDescription: product.productDescription,
+      thumbnailUrl: product.thumbnailUrl,
+    };
+    dispatch(addWishListItem(wishlistItem));
+    dispatch(removeItem(product));
+  };
+
   const handleRemoveFromCart = (product: CartItem) => {
     dispatch(removeItem(product));
   };
@@ -74,7 +95,7 @@ export const ShoppingCart = () => {
               role="list"
               className="divide-y divide-gray-200 border-t border-b border-gray-200"
             >
-              {cartItems.items.length == 0 ? (
+              {cartItems.items.length !== 0 ? (
                 cartItems.items.map((product, productIdx) => (
                   <div key={product._id} className="px-4">
                     <li className="flex py-6 sm:py-6 ">
@@ -149,7 +170,10 @@ export const ShoppingCart = () => {
                         </button>
                       </div>
                       <div className="ml-4 flex flex-1 sm:ml-6 dark:text-white">
-                        <button className="font-medium mr-4 ">
+                        <button
+                          className="font-medium mr-4"
+                          onClick={() => handleSaveForLater(product)}
+                        >
                           SAVE FOR LATTER
                         </button>
                         <button
@@ -163,7 +187,7 @@ export const ShoppingCart = () => {
                   </div>
                 ))
               ) : (
-                <div className="col-span-3 flex flex-col">
+                <div className="col-span-3 flex flex-col px-4 py-6 sm:py-6">
                   <p className="text-xl font-semibold mb-4">No items found</p>
                   <p className="text-gray-500 mb-4">
                     Add items to your Cart and shop later!

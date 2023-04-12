@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 
 const Sidebar = () => {
   const navigate = useNavigate();
+  //  const history = useHistory();
   const [type, setType] = useState("wishlist");
   const [openSidebar, setOpenSidebar] = useState(true);
   const handletype = (type: string) => {
@@ -45,7 +46,7 @@ const Sidebar = () => {
           id="default-sidebar"
           aria-label="Sidebar"
         >
-          <span className="cursor-pointer" onClick={() => navigate("/shop")}>
+          <span className="cursor-pointer" onClick={() => navigate(-1)}>
             <svg
               xmlns="http://www.w3.org/2000/svg"
               fill="none"

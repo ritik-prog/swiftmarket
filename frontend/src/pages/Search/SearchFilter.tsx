@@ -1,10 +1,12 @@
 import React, { useEffect, useRef, useState } from "react";
+import { useDispatch } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import { FaHeart, FaShoppingCart } from "react-icons/fa";
 import { IoIosStar, IoIosStarHalf } from "react-icons/io";
 import { searchProducts } from "../../api/product";
-import { useNavigate } from "react-router-dom";
-import { addItem } from "../../redux/cart/cartSlice";
-import { useDispatch } from "react-redux";
+import { addItem as addItemToCart } from "../../redux/cart/cartSlice";
+import { addItem } from "../../redux/wishlist/wishlistSlice";
+import { CreateToast } from "../../utils/Toast";
 
 interface CartItem {
   _id: string;
@@ -67,18 +69,20 @@ const SearchFilter = () => {
       thumbnailUrl: product.thumbnailUrl,
       quantity: 1,
     };
-    dispatch(addItem(cartItem));
+    dispatch(addItemToCart(cartItem));
+    CreateToast("addedToCart", "Product successfully added to cart", "success");
   };
 
   const handleAddToWishlist = (product: wishlistItem) => {
     const wishlistItem = {
       _id: product._id,
       productName: product.productName,
-      price: product.discountedPrice,
+      discountedPrice: product.discountedPrice,
       productDescription: product.productDescription,
       thumbnailUrl: product.thumbnailUrl,
     };
     dispatch(addItem(wishlistItem));
+    navigate("/profile");
   };
 
   return (
