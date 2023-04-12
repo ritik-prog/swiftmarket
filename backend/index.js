@@ -16,10 +16,11 @@ const adminRouter = require('./Routes/admin/adminRouter');
 const productRouter = require('./Routes/product/productRouter');
 const superAdminRouter = require('./Routes/superadmin/superAdminRouter');
 
-const rateLimiterMiddleware = require('./Middleware/rateLimitermiddleware.js');
+const rateLimiterMiddleware = require('./middleware/rateLimitermiddleware.js');
 
 const connectDB = require('./utils/connectDB');
 const ipBannedMiddleware = require('./middleware/checkIpBanned');
+const assignUniqueIdentity = require('./middleware/assignUniqueID');
 
 dotenv.config(); // load environment variables from .env file
 connectDB(); // connect to MongoDB database
@@ -50,7 +51,8 @@ app.use((req, res, next) => {
     next();
 });
 app.use(rateLimiterMiddleware);
-app.use(ipBannedMiddleware)
+app.use(ipBannedMiddleware);
+app.use(assignUniqueIdentity);
 
 // Set up CSRF protection
 let csrfProtection;

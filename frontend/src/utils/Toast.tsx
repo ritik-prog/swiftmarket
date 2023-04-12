@@ -8,7 +8,7 @@ export function CreateToast(
   if (type === "success") {
     toast.success(message, {
       toastId: toastId,
-      position: "bottom-left",
+      position: "bottom-right",
       autoClose: 3000,
       hideProgressBar: false,
       closeOnClick: true,

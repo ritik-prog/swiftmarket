@@ -25,15 +25,19 @@ const sellerSchema = new mongoose.Schema({
             message: 'Invalid phone number'
         }
     },
+    businessProfilePicture: {
+        type: String,
+    },
     businessName: {
         type: String,
-        required: true
+        required: true,
+        index: 'text'
     },
     businessUsername: {
         type: String,
         required: true,
         unique: true,
-        index: true
+        index: 'text'
     },
     businessRegistrationNumber: {
         type: String,
@@ -78,14 +82,14 @@ const sellerSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Product'
     }],
-    salesHistory: [{
+    orders: [{
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Sale'
+        ref: 'Order'
     }],
-    ratingsAndReviews: [{
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Review'
-    }],
+    ratingAvg: {
+        type: Number,
+        default: 0
+    },
     user: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User'
@@ -153,6 +157,21 @@ sellerSchema.post('save', function (error, doc, next) {
         const duplicateKey = Object.keys(error.keyValue)[0];
         next(new Error(`Duplicate key error: ${duplicateKey} already exists`));
     } else {
+        next(error);
+    }
+});
+
+sellerSchema.pre('save', async function (next) {
+    try {
+        const productIds = this.productListings.map((listing) => listing._id);
+        const Product = mongoose.model('Product');
+        const products = await Product.find({ _id: { $in: productIds } });
+        const ratings = products.map((product) => product.ratingsAvg);
+        const sumRatings = ratings.reduce((acc, curr) => acc + curr, 0);
+        const avgRating = sumRatings / ratings.length;
+        this.ratingAvg = avgRating;
+        next();
+    } catch (error) {
         next(error);
     }
 });

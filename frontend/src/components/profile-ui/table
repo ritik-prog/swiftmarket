@@ -1,8 +1,4 @@
-import React from "react";
-
-const Payments = () => {
-  return (
-    <div className="mt-10">
+<div className="mt-10">
       <section className="container px-4 mx-auto">
         <div className="flex flex-col">
           <div className="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
@@ -524,7 +520,3 @@ const Payments = () => {
         </div>
       </section>
     </div>
-  );
-};
-
-export default Payments;

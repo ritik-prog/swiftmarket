@@ -234,7 +234,7 @@ const SignUp = () => {
                   </div>
 
                   <div className="relative flex items-center mt-2">
-                    <button
+                    <div
                       className={`absolute right-0 rtl:left-0 rtl:right-auto`}
                       onClick={(e) => {
                         e.preventDefault();
@@ -254,7 +254,7 @@ const SignUp = () => {
                           clip-rule="evenodd"
                         />
                       </svg>
-                    </button>
+                    </div>
                     <input
                       type={showPassword ? "text" : "password"}
                       placeholder="********"

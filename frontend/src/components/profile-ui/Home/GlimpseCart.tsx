@@ -4,7 +4,7 @@ const GlimpseCart = () => {
   return (
     <div className="px-4 md:px-6 2xl:px-20 2xl:container 2xl:mx-auto mt-10">
       <div
-        className="w-screen max-w-sm border border-gray-600 bg-gray-100 p-4 pt-4 sm:p-6 lg:p-8"
+        className="lg:w-screen max-w-sm border border-gray-600 bg-gray-100 p-4 pt-4 sm:p-6 lg:p-8"
         aria-modal="true"
         role="dialog"
       >

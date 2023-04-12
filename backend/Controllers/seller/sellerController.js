@@ -290,6 +290,8 @@ const createProductForSeller = async (req, res, next) => {
             thumbnailUrl: req.body.thumbnailUrl,
             tags: req.body.tags,
             featured: req.body.featured || false,
+            discountedPrice: req.body.discountedPrice,
+            faqs: req.body.faqs,
             updatedBy: {
                 role: req.user.role,
                 userId: req.user._id

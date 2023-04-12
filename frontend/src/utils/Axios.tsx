@@ -4,6 +4,8 @@ import { useDispatch } from "react-redux";
 import { logoutSuccess } from "../redux/user/userSlice";
 import { store } from "../redux/store";
 import { CreateToast } from "./Toast";
+import requestIp from "request-ip";
+import { request } from "http";
 
 // Create an axios instance with default configuration
 const instance = axios.create({
@@ -15,16 +17,19 @@ const instance = axios.create({
 });
 
 // Add a request interceptor to handle HTTP requests before they are sent
-// instance.interceptors.request.use(
-//   (req) => {
-//     // Do something before sending the request
-//     return req;
-//   },
-//   (error) => {
-//     // Do something with the request error
-//     return Promise.reject(error);
-//   }
-// );
+instance.interceptors.request.use(
+  (config) => {
+    const { headers } = config;
+    const clientIp = requestIp.getClientIp(config);
+    console.log(clientIp);
+    headers["X-Forwarded-For"] = clientIp;
+    config.headers = headers;
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
 
 // // Add a response interceptor to handle HTTP responses before they are returned to the application
 instance.interceptors.response.use(

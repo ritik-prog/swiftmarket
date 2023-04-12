@@ -12,6 +12,7 @@ const initialState = {
   ban: {
     message: "",
     status: false,
+    banExpiresAt: Date.now() - 100000,
   },
 };
 
@@ -37,6 +38,7 @@ const authSlice = createSlice({
         state.ban = {
           status: true,
           message: action.payload.message,
+          banExpiresAt: action.payload.banExpiresAt,
         };
       }
       state.user = initialState.user;

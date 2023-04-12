@@ -5,57 +5,66 @@ const moment = require('moment');
 const MIN_BAN_TIME = 10 * 60 * 1000; // 10 minutes
 const MAX_BAN_TIME = 30 * 60 * 1000; // 30 minutes
 
-const rateLimiterMiddleware = rateLimit({
+const rateLimitermiddleware = rateLimit({
     windowMs: 60 * 1000, // 1 minute
-    max: 30, // limit each IP to 30 requests per minute
+    max: 1000, // limit each IP to 30 requests per minute
     async keyGenerator(req, res) {
         // Use the client IP address as the key
         const clientIp = req.ip;
+        const ip = await Ip.findOne({ address: clientIp });
         try {
-            const ip = await Ip.findOne({ address: clientIp });
-
+            if (!ip) {
+                await Ip.create({ address: clientIp });
+                next();
+            }
+            if (ip.banExpiresAt < Date.now()) {
+                req.ipBanned = { ip: clientIp, banned: false, banDuration: Date.now() };
+                await Ip.remove({ address: clientIp });
+                return;
+            }
             if (ip && ip.isWhitelisted) {
                 req.ipBanned = { ip: clientIp, banned: false };
             } else if (ip && ip.isBanned && ip.banExpiresAt > Date.now()) {
                 const time = moment(ip.banExpiresAt).fromNow().replace(/^in\s+/, '');
                 req.ipBanned = { ip: clientIp, banned: true, banDuration: time };
             }
-
+            req.ipBanned = { ip: clientIp, banned: ip.isBanned, banDuration: ip.banExpiresAt };
         } catch (err) {
             throw new Error(`Error checking IP address: ${err.message}`);
         }
-        req.ipBanned = { ip: clientIp, banned: false };
     },
     async handler(req, res, next) {
         // Ban the client for a random time between 10-30 minutes
         try {
+            const remainingRequests = res.get('X-RateLimit-Remaining');
             if (req.ipBanned != undefined) {
                 if (req.ipBanned.banned) {
                     const statusCode = 419;
-                    const message = `Too many requests. Please try again later. IP address is banned for ${req.ipBanned.banDuration}`;
+                    const time = moment(req.ipBanned.banDuration).fromNow().replace(/^in\s+/, '');
+                    const message = `Too many requests. Please try again later. IP address is banned for ${time}`;
+                    res.status(statusCode).json({ status: 'error', code: statusCode, message });
+                    return;
+                } else if (!req.ipBanned.banned && remainingRequests == 0) {
+                    const clientIp = req.ip;
+                    const banExpiresAt = Date.now() + Math.floor(Math.random() * (MAX_BAN_TIME - MIN_BAN_TIME + 1) + MIN_BAN_TIME);
+                    const updatedIp = await Ip.updateOne(
+                        { address: clientIp },
+                        { isBanned: true, banExpiresAt },
+                        { upsert: true, new: true }
+                    );
+
+                    const time = moment(banExpiresAt).fromNow().replace(/^in\s+/, '');
+                    const statusCode = 419;
+                    const message = `Too many requests. Please try again later. IP address is banned for ${time}`;
                     res.status(statusCode).json({ status: 'error', code: statusCode, message });
                     return;
                 }
             }
-
-            const clientIp = req.ip;
-            const banExpiresAt = Date.now() + Math.floor(Math.random() * (MAX_BAN_TIME - MIN_BAN_TIME + 1) + MIN_BAN_TIME);
-            const updatedIp = await Ip.updateOne(
-                { address: clientIp },
-                { isBanned: true, banExpiresAt },
-                { upsert: true, new: true }
-            );
-
-            const time = moment(banExpiresAt).fromNow().replace(/^in\s+/, '');
-            const statusCode = 419;
-            const message = `Too many requests. Please try again later. IP address is banned for ${time}`;
-            res.status(statusCode).json({ status: 'error', code: statusCode, message });
-            return;
         } catch (err) {
-            throw new Error(`Error banning IP address: ${err.message}`);
+            // throw new Error(`Error banning IP address: ${err.message}`);
         }
     },
 });
 
 
-module.exports = rateLimiterMiddleware;
+module.exports = rateLimitermiddleware;

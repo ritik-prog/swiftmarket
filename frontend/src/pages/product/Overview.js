@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import ShoppingBagIcon from "@heroicons/react/24/outline/ShoppingBagIcon";
 import HeartIcon from "@heroicons/react/24/outline/HeartIcon";
 import TagIcon from "@heroicons/react/24/outline/TagIcon";
@@ -7,23 +7,65 @@ import PlusIcon from "@heroicons/react/24/outline/PlusIcon";
 import MinusIcon from "@heroicons/react/24/outline/MinusIcon";
 import ChevronLeftIcon from "@heroicons/react/24/outline/ChevronLeftIcon";
 import ChevronRightIcon from "@heroicons/react/24/outline/ChevronRightIcon";
+import { searchProduct } from "../../api/product";
+import Reviews from "./Reviews";
+import FAQ from "./FAQ";
+import Recommendations from "./Recommendations";
+import { CreateToast } from "../../utils/Toast";
+import SellerCard from "./SellerCard";
 
 const Overview = () => {
+    const [query, setQuery] = useState('');
+    const [product, setProduct] = useState('');
+    const [sellers, setSellers] = useState('');
+
+    async function getProduct(query) {
+        const response = await searchProduct(query);
+        setProduct(response);
+    }
+
+    useEffect(() => {
+        async function getSellers() {
+            const res = await fetch('https://geolocation-db.com/json/')
+            console.log(res.body);
+        }
+        const url = new URL(window.location.href);
+        const query = url.searchParams.get("query");
+        setQuery(query);
+        getProduct(query);
+        getSellers();
+    }, []);
+
+    const [currentImage, setCurrentImage] = useState(0);
+
+    const handleLeftClick = () => {
+        setCurrentImage(currentImage === 0 ? product.data?.imagesUrl.length - 1 : currentImage - 1);
+    };
+
+    const handleRightClick = () => {
+        setCurrentImage(currentImage === product.data?.imagesUrl.length - 1 ? 0 : currentImage + 1);
+    };
+
+    const copyToClipboard = () => {
+        navigator.clipboard.writeText(window.location.href);
+        CreateToast('clipboard', 'Link copied to clipboard!', 'success');
+    };
+
     return (
         <div
             dir="ltr"
             className="dark:bg-gray-900 md:w-[600px] lg:w-[940px] xl:w-[1180px] 2xl:w-[1360px] mx-auto p-1 lg:p-0 xl:p-3 bg-brand-light rounded-md"
         >
-            <div className="overflow-hidden">
-                <div className="px-4 pt-4 md:px-6 lg:p-8 2xl:p-10 mb-9 lg:mb-2 md:pt-7 2xl:pt-10">
+            {product ? <div className="overflow-hidden">
+                <div className="px-4 pt-4 md:px-6 lg:p-8 2xl:p-10 mb-4 lg:mb-0 md:pt-7 2xl:pt-10">
                     <div className="items-start justify-between lg:flex">
                         <div className="items-center justify-center mb-6 overflow-hidden xl:flex md:mb-8 lg:mb-0">
                             <div className="w-full xl:flex xl:flex-row-reverse">
                                 <div className="shrink-0 w-full xl:ltr:ml-5 xl:rtl:mr-5 mb-2.5 md:mb-3 border border-border-base overflow-hidden rounded-md relative xl:w-[480px] 2xl:w-[650px]">
                                     <div className="flex items-center justify-center">
                                         <img
-                                            alt="Product gallery 1"
-                                            src="https://dev-ui-image-assets.s3.ap-south-1.amazonaws.com/products/p-14-1.png"
+                                            alt={`Product gallery ${currentImage}`}
+                                            src={product.data?.imagesUrl[currentImage]}
                                             width={650}
                                             height={590}
                                             decoding="async"
@@ -32,30 +74,35 @@ const Overview = () => {
                                         />
                                     </div>
                                     <div className="flex items-center justify-between w-full absolute top-2/4 z-10 px-2.5">
-                                        <div className="flex items-center justify-center text-base transition duration-300 transform -translate-y-1/2 rounded-full cursor-pointer w-7 h-7 md:w-8 md:h-8 lg:w-9 lg:h-9 xl:w-10 xl:h-10 lg:text-lg xl:text-xl bg-brand-light hover:bg-brand hover:text-brand-light focus:outline-none shadow-navigation swiper-button-disabled">
+                                        <div
+                                            onClick={handleLeftClick}
+                                            className="flex items-center justify-center text-base transition duration-300 transform -translate-y-1/2 rounded-full cursor-pointer w-7 h-7 md:w-8 md:h-8 lg:w-9 lg:h-9 xl:w-10 xl:h-10 lg:text-lg xl:text-xl bg-brand-light hover:bg-brand hover:text-brand-light focus:outline-none shadow-navigation swiper-button-disabled"
+                                        >
                                             <ChevronLeftIcon className="h-5 w-5" />
                                         </div>
-                                        <div className="flex items-center justify-center text-base transition duration-300 transform -translate-y-1/2 rounded-full cursor-pointer w-7 h-7 md:w-8 md:h-8 lg:w-9 lg:h-9 xl:w-10 xl:h-10 lg:text-lg xl:text-xl bg-brand-light hover:bg-brand hover:text-brand-light focus:outline-none shadow-navigation">
+                                        <div
+                                            onClick={handleRightClick}
+                                            className="flex items-center justify-center text-base transition duration-300 transform -translate-y-1/2 rounded-full cursor-pointer w-7 h-7 md:w-8 md:h-8 lg:w-9 lg:h-9 xl:w-10 xl:h-10 lg:text-lg xl:text-xl bg-brand-light hover:bg-brand hover:text-brand-light focus:outline-none shadow-navigation"
+                                        >
                                             <ChevronRightIcon className="h-5 w-5" />
                                         </div>
                                     </div>
                                 </div>
                                 <div className="flex xl:flex-col gap-2">
-                                    {[
-                                        "https://dev-ui-image-assets.s3.ap-south-1.amazonaws.com/products/p-14-1.png",
-                                        "https://dev-ui-image-assets.s3.ap-south-1.amazonaws.com/products/p-14-2.png",
-                                        "https://dev-ui-image-assets.s3.ap-south-1.amazonaws.com/products/p-14-3.png",
-                                    ].map((image, index) => (
+                                    {product.data?.imagesUrl.map((image, index) => (
                                         <div
                                             key={image}
-                                            className="flex items-center justify-center overflow-hidden transition border rounded cursor-pointer border-border-base hover:opacity-75 "
+                                            className={`flex items-center justify-center overflow-hidden transition border rounded cursor-pointer border-border-base ${currentImage === index && "border-brand-light shadow-navigation"}`}
+                                            onClick={() => setCurrentImage(index)}
                                         >
                                             <img
-                                                alt={`Product ${index}`}
+                                                alt={`Product gallery thumbnail ${index}`}
                                                 src={image}
+                                                width={96}
+                                                height={96}
                                                 decoding="async"
-                                                loading="lazy"
-                                                className="object-cover "
+                                                data-nimg={1}
+                                                className="rounded-lg object-cover"
                                             />
                                         </div>
                                     ))}
@@ -66,30 +113,23 @@ const Overview = () => {
                             <div className="pb-5">
                                 <div className="mb-2 md:mb-2.5 block -mt-1.5" role="button">
                                     <h2 className="text-lg font-medium transition-colors duration-300 text-brand-dark md:text-xl xl:text-2xl hover:text-brand">
-                                        Great Value Tortilla Chips, Cantina Style
+                                        {product.data?.productName}
                                     </h2>
                                 </div>
                                 <div className="flex items-center mt-5">
-                                    <div className="text-brand-dark font-bold text-base md:text-xl xl:text-[22px]">
-                                        $5.00 - $15.00
+                                    <div className="mt-1 flex items-end">
+                                        <p className="text-xs line-through font-medium text-gray-500 dark:text-gray-100">
+                                            ₹{product.data.price}
+                                        </p>
+                                        <p className="text-md font-medium text-gray-900 dark:text-white">
+                                            &nbsp;&nbsp;₹{product.data.discountedPrice}
+                                        </p>
+                                        &nbsp;&nbsp;
+                                        <p className="text-sm font-medium text-green-500">
+                                            ₹{product.data.price - product.data.discountedPrice}
+                                        </p>
                                     </div>
                                 </div>
-                            </div>
-                            <div className="mb-2 pt-0.5">
-                                <h4 className="mb-3 font-normal capitalize text-15px text-brand-dark text-opacity-70">
-                                    available in:
-                                </h4>
-                                <ul className="flex flex-wrap ltr:-mr-2 rtl:-ml-2">
-                                    <li className="cursor-pointer rounded border h-9 md:h-10 p-1 mb-2 md:mb-3 ltr:mr-2 rtl:ml-2 flex justify-center items-center font-medium text-sm md:text-15px text-brand-dark transition duration-200 ease-in-out hover:hover:border-brand px-3">
-                                        small
-                                    </li>
-                                    <li className="cursor-pointer rounded border h-9 md:h-10 p-1 mb-2 md:mb-3 ltr:mr-2 rtl:ml-2 flex justify-center items-center font-medium text-sm md:text-15px text-brand-dark transition duration-200 ease-in-out hover:hover:border-brand px-3">
-                                        medium
-                                    </li>
-                                    <li className="cursor-pointer rounded border h-9 md:h-10 p-1 mb-2 md:mb-3 ltr:mr-2 rtl:ml-2 flex justify-center items-center font-medium text-sm md:text-15px text-brand-dark transition duration-200 ease-in-out hover:hover:border-brand px-3">
-                                        large
-                                    </li>
-                                </ul>
                             </div>
                             <div className="pb-2" />
                             <div className="pt-1.5 lg:pt-3 xl:pt-4 space-y-2.5 md:space-y-3.5">
@@ -127,6 +167,7 @@ const Overview = () => {
                                         <button
                                             data-variant="border"
                                             className="text-[13px] md:text-sm lg:text-15px leading-4 inline-flex items-center cursor-pointer transition ease-in-out duration-300 font-body font-semibold text-center justify-center  rounded placeholder-white focus-visible:outline-none focus:outline-none h-12 md:h-14 bg-brand-light text-brand-dark border border-border-four tracking-widest px-5 md:px-6 lg:px-8 py-4 md:py-3.5 lg:py-4 w-full hover:false"
+                                            onClick={copyToClipboard}
                                         >
                                             <ShareIcon className="text-2xl md:text-[26px] ltr:mr-2 rtl:ml-2 transition-all h-5 w-5" />
                                             Share
@@ -138,7 +179,7 @@ const Overview = () => {
                                 <li className="relative inline-flex items-center justify-center text-sm md:text-15px text-brand-dark text-opacity-80 ltr:mr-2 rtl:ml-2 top-1">
                                     <TagIcon className="ltr:mr-2 rtl:ml-2 h-5 w-5" /> Tags:
                                 </li>
-                                {["Fast Food", "Organic Potato", "Flavoured", "Dry Food"].map(
+                                {product.data.tags.map(
                                     (tag) => (
                                         <li className="inline-block p-[3px]" key={tag}>
                                             <div
@@ -151,24 +192,74 @@ const Overview = () => {
                                     )
                                 )}
                             </ul>
-                            <div className="pt-6 xl:pt-8">
-                                <h3 className="text-15px sm:text-base font-semibold mb-3 lg:mb-3.5">
-                                    Product Details:
-                                </h3>
-                                <p className=" text-sm leading-7 lg:leading-[1.85em]">
-                                    A chip (often just chip, or crisp in British and Irish
-                                    English) may be a thin slice of potato that has been either
-                                    deep fried or baked until crunchy. theyre commonly served as a
-                                    snack, side dish, or appetizer. the...
-                                    <span role="button" className="ltr:ml-0.5 rtl:mr-0.5">
-                                        Read More
-                                    </span>
-                                </p>
-                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
+                {/* product details */}
+                <div className="pt-1 xl:pt-1">
+                    <h3 className="text-15px sm:text-base font-semibold mb-3 lg:mb-3.5">
+                        Product Details:
+                    </h3>
+                    <p className=" text-sm leading-7 lg:leading-[1.85em]">
+                        {product.data.productDescription}
+                    </p>
+                </div>
+                {/* Seller card */}
+                <SellerCard />
+                {/* product reviews and rating */}
+                <div className="mt-10">
+                    <div className="flex items-center mb-3">
+                        <svg aria-hidden="true" className="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><title>First star</title><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                        <svg aria-hidden="true" className="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><title>Second star</title><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                        <svg aria-hidden="true" className="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><title>Third star</title><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                        <svg aria-hidden="true" className="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><title>Fourth star</title><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                        <svg aria-hidden="true" className="w-5 h-5 text-gray-300 dark:text-gray-500" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><title>Fifth star</title><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                        <p className="ml-2 text-sm font-medium text-gray-900 dark:text-white">4.95 out of 5</p>
+                    </div>
+                    <p className="text-sm font-medium text-gray-500 dark:text-gray-400">1,745 global ratings</p>
+                    <div className="flex items-center mt-4">
+                        <span className="text-sm font-medium text-blue-600 dark:text-blue-500">5 star</span>
+                        <div className="w-2/4 h-5 mx-4 bg-gray-200 rounded dark:bg-gray-700">
+                            <div className="h-5 bg-yellow-400 rounded" style={{ width: "70%" }}></div>
+                        </div>
+                        <span className="text-sm font-medium text-blue-600 dark:text-blue-500">70%</span>
+                    </div>
+                    <div className="flex items-center mt-4">
+                        <span className="text-sm font-medium text-blue-600 dark:text-blue-500">4 star</span>
+                        <div className="w-2/4 h-5 mx-4 bg-gray-200 rounded dark:bg-gray-700">
+                            <div className="h-5 bg-yellow-400 rounded" style={{ width: "17%" }}></div>
+                        </div>
+                        <span className="text-sm font-medium text-blue-600 dark:text-blue-500">17%</span>
+                    </div>
+                    <div className="flex items-center mt-4">
+                        <span className="text-sm font-medium text-blue-600 dark:text-blue-500">3 star</span>
+                        <div className="w-2/4 h-5 mx-4 bg-gray-200 rounded dark:bg-gray-700">
+                            <div className="h-5 bg-yellow-400 rounded" style={{ width: "8%" }}></div>
+                        </div>
+                        <span className="text-sm font-medium text-blue-600 dark:text-blue-500">8%</span>
+                    </div>
+                    <div className="flex items-center mt-4">
+                        <span className="text-sm font-medium text-blue-600 dark:text-blue-500">2 star</span>
+                        <div className="w-2/4 h-5 mx-4 bg-gray-200 rounded dark:bg-gray-700">
+                            <div className="h-5 bg-yellow-400 rounded" style={{ width: "4%" }}></div>
+                        </div>
+                        <span className="text-sm font-medium text-blue-600 dark:text-blue-500">4%</span>
+                    </div>
+                    <div className="flex items-center mt-4">
+                        <span className="text-sm font-medium text-blue-600 dark:text-blue-500">1 star</span>
+                        <div className="w-2/4 h-5 mx-4 bg-gray-200 rounded dark:bg-gray-700">
+                            <div className="h-5 bg-yellow-400 rounded" style={{ width: "1%" }}></div>
+                        </div>
+                        <span className="text-sm font-medium text-blue-600 dark:text-blue-500">1%</span>
+                    </div>
+                </div>
+                {/* Reviews */}
+                <Reviews />
+                {/* FAQ */}
+                <FAQ faqs={product.data.faqs} />
+                {/* Recommended products */}
+                <Recommendations />
+            </div> : <div>loading</div>}
         </div>
     );
 };

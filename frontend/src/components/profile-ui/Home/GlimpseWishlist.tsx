@@ -3,14 +3,14 @@ import GlimpseCart from "./GlimpseCart";
 
 const GlimpseWishlist = () => {
   return (
-    <div className="flex">
+    <div className="flex flex-col lg:flex-row">
       <GlimpseCart />
       <div className="px-4 md:px-6 2xl:px-20 2xl:container 2xl:mx-auto mt-10">
         <div className="flex flex-col justify-start items-start bg-gray-50 px-4 py-4 md:py-6 md:p-6 xl:p-8 w-full">
           <h1 className="text-3xl lg:text-4xl font-semibold leading-7 lg:leading-9  text-gray-800">
             Wishlist
           </h1>
-          <div className="mt-4 md:mt-6 flex  flex-col md:flex-row justify-start items-start md:items-center md:space-x-6 xl:space-x-8 w-full ">
+          <div className="mt-4 md:mt-6 flex flex-col md:flex-row justify-start items-start md:items-center md:space-x-6 xl:space-x-8 w-full">
             <div className="pb-4 md:pb-8 w-full md:w-40">
               <img
                 className="w-full hidden md:block"

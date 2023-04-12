@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, FormEventHandler } from "react";
 import { useSelector } from "react-redux";
 import { RootState } from "../../redux/rootReducer";
 import { useNavigate } from "react-router-dom";
@@ -8,6 +8,20 @@ const NavBar = () => {
   const isAuthenticated = useSelector(
     (state: RootState) => state.user.isAuthenticated
   );
+
+  const [searchQuery, setSearchQuery] = useState("");
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(e.target.value);
+  };
+
+  const handleSearch: FormEventHandler<HTMLFormElement> = (e) => {
+    // e.preventDefault();
+    console.log(searchQuery);
+    navigate(`/search?query=${searchQuery}`);
+  };
+
   return (
     <div className="container m-auto">
       <nav className="relative px-4 py-4 flex justify-between items-center bg-white dark:bg-gray-900">
@@ -108,7 +122,7 @@ const NavBar = () => {
               <button
                 className="hidden mx-4 text-gray-600 transition-colors duration-300 transform lg:block dark:text-gray-200 hover:text-gray-700 dark:hover:text-gray-400 focus:text-gray-700 dark:focus:text-gray-400 focus:outline-none"
                 aria-label="show notifications"
-                onClick={(e) => e.preventDefault()}
+                onClick={(e) => navigate("/cart")}
               >
                 <span className="relative text-gray-700 transition-colors duration-300 transform dark:text-gray-200 hover:text-gray-600 dark:hover:text-gray-300">
                   <svg
@@ -185,11 +199,16 @@ const NavBar = () => {
                   ></path>
                 </svg>
               </span>
-              <input
-                type="text"
-                className="w-[100%] py-2 pl-10 pr-4 text-sm bg-gray-100 dark:bg-gray-800 rounded-md focus:outline-none focus:bg-white focus:text-gray-900 text-gray-700 dark:text-white"
-                placeholder="Search"
-              />
+              <form onSubmit={handleSearch}>
+                <input
+                  id="query"
+                  name="query"
+                  type="search"
+                  className="w-[100%] py-2 pl-10 pr-4 text-sm bg-gray-100 dark:bg-gray-800 rounded-md focus:outline-none focus:bg-white focus:text-gray-900 text-gray-700 dark:text-white"
+                  placeholder="Search"
+                  onChange={handleInputChange}
+                />
+              </form>
             </div>
           </li>
         </ul>

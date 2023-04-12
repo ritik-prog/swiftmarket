@@ -19,7 +19,6 @@ const productSchema = new mongoose.Schema(
             type: String,
             required: true,
             trim: true,
-            unique: true,
             index: 'text',
         },
         productDescription: {
@@ -31,7 +30,13 @@ const productSchema = new mongoose.Schema(
             type: Number,
             required: true,
             min: 0,
-            max: 10000
+            max: 500000
+        },
+        discountedPrice: {
+            type: Number,
+            required: true,
+            min: 0,
+            max: 500000
         },
         quantity: {
             type: Number,
@@ -68,7 +73,7 @@ const productSchema = new mongoose.Schema(
                 message: 'Tags must have at least 1 and at most 5 values'
             },
             required: true,
-            // index: 'text',
+            index: 'text',
         },
         ratings: [
             {
@@ -79,6 +84,8 @@ const productSchema = new mongoose.Schema(
                 rating: {
                     type: Number,
                     default: 0,
+                    min: 0,
+                    max: 5
                 },
                 review: {
                     type: String,
@@ -94,6 +101,24 @@ const productSchema = new mongoose.Schema(
             type: Number,
             default: 0
         },
+        faqs: [
+            {
+                question: {
+                    type: String,
+                    required: true,
+                    trim: true,
+                    min: 0,
+                    max: 4
+                },
+                answer: {
+                    type: String,
+                    required: true,
+                    trim: true,
+                    min: 0,
+                    max: 4
+                },
+            },
+        ],
         featured: {
             type: Boolean,
             default: false
@@ -108,6 +133,10 @@ const productSchema = new mongoose.Schema(
                 ref: 'User'
             }
         ],
+        popularityScore: {
+            type: Number,
+            default: 0
+        },
         createdAt: {
             type: Date,
             default: Date.now
@@ -173,8 +202,37 @@ productSchema.pre('save', function (next) {
     } else {
         this.ratingsAvg = 0;
     }
+
+    // calculate popularity score
+    const ratingWeight = 0.6;
+    const likesWeight = 0.2;
+    const viewsWeight = 0.2;
+    const maxRating = 5; // maximum rating value
+    const maxLikes = 100; // maximum likes value
+    const maxViews = 1000; // maximum views value
+    const decayConstant = 0.01; // decay constant for time decay
+    const timeElapsed = Date.now() - this.createdAt.getTime(); // time elapsed since product was created
+
+    // calculate normalized scores
+    const normalizedRating = this.ratingsAvg / maxRating;
+    const normalizedLikes = this.likes.length / maxLikes;
+    const normalizedViews = this.views / maxViews;
+
+    // apply time decay
+    const decayFactor = Math.exp(-decayConstant * timeElapsed / (1000 * 60 * 60 * 24)); // time in days
+    const decayedLikes = normalizedLikes * decayFactor;
+    const decayedViews = normalizedViews * decayFactor;
+
+    // calculate weighted score
+    const popularityScore = ratingWeight * normalizedRating +
+        likesWeight * decayedLikes +
+        viewsWeight * decayedViews;
+
+    this.popularityScore = popularityScore;
+
     next();
 });
+
 
 productSchema.pre('save', function (next) {
     const tokenizer = new natural.WordTokenizer();

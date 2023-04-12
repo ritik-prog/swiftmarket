@@ -96,7 +96,7 @@ router.delete(
 );
 
 // Create a product of a seller
-router.put(
+router.post(
     "/createproduct",
     [
         authenticateMiddleware,

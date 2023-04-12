@@ -4,7 +4,7 @@ import { useSelector } from "react-redux";
 import { RootState } from "../redux/rootReducer";
 import ModeSwitch from "../utils/ModeSwitch";
 import instance from "../utils/Axios";
-import { logoutSuccess } from "../redux/user/userSlice";
+import { logoutSuccess, banRemoved } from "../redux/user/userSlice";
 import { useDispatch } from "react-redux";
 import IpBanned from "../pages/error/IpBanned";
 import HomeLayout from "./Homelayout";
@@ -38,7 +38,7 @@ const MainLayout = ({ children }: Props) => {
       const response: any = await instance.get<any>("/auth/check");
       return response;
     }
-    // if (isAuthenticated) {
+
     try {
       const response: any = checkAuth();
       if (response.data.status !== "success") {
@@ -47,10 +47,9 @@ const MainLayout = ({ children }: Props) => {
     } catch (err) {
       // dispatch(logoutSuccess());
     }
-    // }
   }, []);
 
-  if (ban?.status) {
+  if (ban?.status && ban?.banExpiresAt < Date.now()) {
     return <IpBanned />;
   }
 
@@ -58,7 +57,7 @@ const MainLayout = ({ children }: Props) => {
     <>
       <div className="flex flex-col min-h-screen bg-white dark:bg-gray-900">
         <HomeLayout>
-          <Outlet />/
+          <Outlet />
         </HomeLayout>
         <ModeSwitch />
       </div>

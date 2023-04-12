@@ -74,7 +74,11 @@ const HandleError = async (
       console.log("User not authorized error occurred.");
       break;
     case 417:
-      store.dispatch(banImposed({ message: message.message }));
+      store.dispatch(
+        banImposed({
+          message: message.message,
+        })
+      );
       console.log(
         `Banned error occurred. Time until unban: ${error.response.data} hours.`
       );
