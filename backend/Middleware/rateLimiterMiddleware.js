@@ -15,7 +15,7 @@ const rateLimitermiddleware = rateLimit({
         try {
             if (!ip) {
                 await Ip.create({ address: clientIp });
-                next();
+                return;
             }
             if (ip.banExpiresAt < Date.now()) {
                 req.ipBanned = { ip: clientIp, banned: false, banDuration: Date.now() };

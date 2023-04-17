@@ -87,7 +87,7 @@ const verifySeller = async (req, res) => {
         });
     }
     console.log(req.user)
-    const { code, paymentPreferences, blockchainWalletAddress, paypalAccountEmailAddress } = req.body;
+    const { code, paymentPreferences, blockchainWalletAddress, paypalAccountEmailAddress, businessLogo } = req.body;
 
     try {
         // Find the seller by the verification code
@@ -125,6 +125,7 @@ const verifySeller = async (req, res) => {
                     seller.paymentPreferences = paymentPreferences;
                     seller.blockchainWalletAddress = blockchainWalletAddress;
                     seller.paypalAccountEmailAddress = paypalAccountEmailAddress;
+                    seller.businessLogo = businessLogo;
                     seller.verificationStatus = true;
                     seller.verificationCode = null;
                     seller.verificationCodeExpiresAt = null;

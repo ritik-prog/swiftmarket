@@ -95,6 +95,9 @@ const HandleError = async (
       CreateToast("Signupratelimit", "Signup rate limit exceeded", "error");
       console.log("Signup rate limit exceeded error occurred.");
       break;
+    case 421:
+      CreateToast("orderfailed", "Can't place order as of now...", "error");
+      break;
     case 500:
       CreateToast("Servererror", "Server error", "error");
       console.log("Server error occurred.");

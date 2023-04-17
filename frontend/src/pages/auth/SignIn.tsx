@@ -10,6 +10,7 @@ import { useFormik } from "formik";
 import { loginSchema } from "../../schemas";
 import { signInpApi } from "../../api/auth";
 import { errorClass, noErrorClass } from "../../utils/StyleClasses";
+import { CreateToast } from "../../utils/Toast";
 
 const initialValues = {
   email: "",
@@ -58,6 +59,7 @@ const Login = () => {
           if (!response.data.user.verificationStatus) {
             navigate("/verification");
           } else {
+            CreateToast("login", "Logged in successfully", "success");
             navigate("/");
           }
         } catch {}

@@ -200,7 +200,7 @@ userSchema.statics.findByCredentials = async (email, password) => {
     const token = await user.generateAuthToken();
 
     return { token, user };
-};
+}; 
 
 // Pre-hook to update seller and product ban status when user is banned
 userSchema.pre(["findOneAndUpdate", "updateMany", "update"], async function (next) {

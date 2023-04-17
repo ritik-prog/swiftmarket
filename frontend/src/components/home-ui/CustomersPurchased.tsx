@@ -25,7 +25,7 @@ export default function CustomersPurchased() {
     }
   }, []);
 
-  return (
+  return products.length !== 0 ? (
     <div className="bg-white">
       <div className="mx-auto max-w-2xl px-4 py-16 sm:px-6 sm:py-24 lg:max-w-7xl lg:px-8">
         <h2 className="text-2xl font-bold tracking-tight text-gray-900">
@@ -63,19 +63,29 @@ export default function CustomersPurchased() {
                       <span className="text-sm text-gray-500 ml-1">(25)</span>
                     </div>
                   </div>
-                  <div>
-                    <p className="text-xs line-through font-medium text-gray-500 dark:text-gray-100">
-                      ₹{product.price}
-                    </p>
-                    <p className="text-md font-medium text-gray-900 dark:text-white">
-                      &nbsp;&nbsp;₹{product.discountedPrice}
-                    </p>
-                  </div>
+                  {product?.discountedPrice ? (
+                    <div>
+                      <p className="text-xs line-through font-medium text-gray-500 dark:text-gray-100">
+                        ₹{product.price}
+                      </p>
+                      <p className="text-md font-medium text-gray-900 dark:text-white">
+                        &nbsp;&nbsp;₹{product.discountedPrice}
+                      </p>
+                    </div>
+                  ) : (
+                    <div>
+                      <p className="text-xs font-medium text-gray-500 dark:text-gray-100">
+                        ₹{product.price}
+                      </p>
+                    </div>
+                  )}
                 </div>
               </div>
             ))}
         </div>
       </div>
     </div>
+  ) : (
+    <div className="mb-16"></div>
   );
 }

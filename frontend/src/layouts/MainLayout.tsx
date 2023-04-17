@@ -8,6 +8,7 @@ import { logoutSuccess, banRemoved } from "../redux/user/userSlice";
 import { useDispatch } from "react-redux";
 import IpBanned from "../pages/error/IpBanned";
 import HomeLayout from "./Homelayout";
+import FloatingButton from "../components/common/FloatingButton";
 
 interface Props {
   children: React.ReactNode;
@@ -19,19 +20,8 @@ interface AuthenticationResponse {
 }
 
 const MainLayout = ({ children }: Props) => {
-  const theme = useSelector((state: RootState) => state.theme.theme);
   const ban = useSelector((state: RootState) => state.user.ban);
-  const isAuthenticated = useSelector(
-    (state: RootState) => state.user.isAuthenticated
-  );
   const dispatch = useDispatch();
-  useEffect(() => {
-    if (theme === "dark") {
-      document.documentElement.classList.add("dark");
-    } else {
-      document.documentElement.classList.remove("dark");
-    }
-  }, [theme]);
 
   useEffect(() => {
     async function checkAuth() {
@@ -59,7 +49,7 @@ const MainLayout = ({ children }: Props) => {
         <HomeLayout>
           <Outlet />
         </HomeLayout>
-        <ModeSwitch />
+        <FloatingButton />
       </div>
     </>
   );

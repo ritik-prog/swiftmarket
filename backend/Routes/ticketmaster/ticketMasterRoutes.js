@@ -29,7 +29,6 @@ router.get('/assigned', ticketAuthorize, async (req, res) => {
     }
 });
 
-
 // Route to reassign a ticket to another agent
 router.put('/:id/reassign', [authenticateMiddleware, authorizeMiddleware(['ticketmaster', 'admin', 'superadmin', 'root'])], ticketController.reassignTicket);
 

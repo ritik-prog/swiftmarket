@@ -13,15 +13,20 @@ const transactionSchema = new mongoose.Schema(
         status: {
             type: String,
             required: true,
-            enum: ['Pending', 'Completed', 'Failed']
+            enum: ['Pending', 'Completed', 'Failed', 'Refunded']
         },
         paymentMethod: {
             type: String,
             required: true
         },
         paymentDetails: {
-            type: String,
+            type: mongoose.Schema.Types.Mixed,
             required: true
+        },
+        cartId: {
+            type: String,
+            unique: true,
+            default: null
         },
         refundReason: {
             type: String

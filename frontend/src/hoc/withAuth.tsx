@@ -22,7 +22,7 @@ function withAuth(children: () => JSX.Element) {
     } else {
       CreateToast(
         "accessthispage",
-        "Please log in to access this page.",
+        "Oops! It looks like you're not logged in. Please log in to access this page.",
         "error"
       );
       // Redirect the user to the login page

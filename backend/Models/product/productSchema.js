@@ -15,12 +15,6 @@ const productSchema = new mongoose.Schema(
             trim: true,
             index: 'text',
         },
-        businessName: {
-            type: String,
-            required: true,
-            trim: true,
-            index: 'text',
-        },
         productDescription: {
             type: String,
             required: true,
@@ -34,7 +28,6 @@ const productSchema = new mongoose.Schema(
         },
         discountedPrice: {
             type: Number,
-            required: true,
             min: 0,
             max: 500000
         },
@@ -177,13 +170,13 @@ productSchema.virtual('reviews', {
 productSchema.pre(/^find/, function (next) {
     this.populate({
         path: 'seller',
-        select: 'businessName businessEmail businessNumber'
+        select: 'businessName businessEmail businessLogo businessUsername'
     });
     next();
 });
 
 productSchema.pre('save', function (next) {
-    if (this.quantity === 0) {
+    if (this.quantity === 0 || this.quantity < 0) {
         this.isAvailable = false;
     }
     next();

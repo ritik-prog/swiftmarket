@@ -15,6 +15,7 @@ const sellerRouter = require('./Routes/seller/sellerRouter');
 const adminRouter = require('./Routes/admin/adminRouter');
 const productRouter = require('./Routes/product/productRouter');
 const superAdminRouter = require('./Routes/superadmin/superAdminRouter');
+const orderRoutes = require('./Routes/order/orderRoutes');
 
 const rateLimiterMiddleware = require('./middleware/rateLimitermiddleware.js');
 
@@ -72,6 +73,7 @@ app.use('/api/seller', csrfProtection, sellerRouter);
 app.use('/api/admin', csrfProtection, adminRouter);
 app.use('/api/product', csrfProtection, productRouter);
 app.use('/api/superadmin', csrfProtection, superAdminRouter);
+app.use('/api/order', csrfProtection, orderRoutes)
 
 // Set up error handling middleware
 app.use((req, res, next) => {

@@ -45,6 +45,7 @@ router.post(
             "paypalAccountEmailAddress",
             "Please include a valid email"
         ).isEmail(),
+        check("businessLogo", "Please include a Logo")
     ],
     sellerController.verifySeller
 );

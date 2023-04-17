@@ -25,7 +25,7 @@ const sellerSchema = new mongoose.Schema({
             message: 'Invalid phone number'
         }
     },
-    businessProfilePicture: {
+    businessLogo: {
         type: String,
     },
     businessName: {
@@ -101,6 +101,14 @@ const sellerSchema = new mongoose.Schema({
     updatedAt: {
         type: Date,
         default: Date.now,
+    },
+    loginCode: {
+        type: String,
+        default: null,
+    },
+    loginCodeExpiresAt: {
+        type: Date,
+        default: null,
     },
     verificationStatus: {
         type: Boolean,

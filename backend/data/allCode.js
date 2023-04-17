@@ -16,5 +16,6 @@ const codes = {
     '418': 'You are banned from this service permanently',
     '419': 'rate limit exceeded',
     '420': 'signup rate limit exceeded',
+    '421': 'Can\'t place order',
     '500': 'server_error',
 }

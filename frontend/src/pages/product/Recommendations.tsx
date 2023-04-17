@@ -1,11 +1,25 @@
 import React, { useEffect, useRef, useState } from "react";
 import { getRecommendedProducts } from "../../api/product";
 import { useNavigate } from "react-router-dom";
+import { addItem } from "../../redux/cart/cartSlice";
+import { CreateToast } from "../../utils/Toast";
+import { useDispatch } from "react-redux";
+
+interface CartItem {
+  _id: string;
+  productName: string;
+  price: number;
+  discountedPrice: number;
+  productDescription: "";
+  thumbnailUrl: string;
+  quantity: number;
+}
 
 const Recommendations = () => {
   const [products, setProducts] = useState([]);
   const navigate = useNavigate();
   const isMountedRef = useRef(false);
+  const dispatch = useDispatch();
 
   async function getProducts() {
     const response = await getRecommendedProducts();
@@ -23,6 +37,22 @@ const Recommendations = () => {
       isMountedRef.current = true;
     }
   }, []);
+
+  const handleAddToCart = (product: CartItem) => {
+    console.log(product);
+    const cartItem = {
+      _id: product._id,
+      productName: product.productName,
+      price: product.price,
+      productDescription: product.productDescription,
+      discountedPrice: product.discountedPrice,
+      thumbnailUrl: product.thumbnailUrl,
+      quantity: 1,
+    };
+    dispatch(addItem(cartItem));
+    CreateToast("addedToCart", "Product successfully added to cart", "success");
+  };
+
   return (
     <div>
       <h2 className="w-full mb-16 text-6xl md:text-2xl xl:text-5xl text-center font-bold font-heading tracking-px-n leading-none">
@@ -36,10 +66,13 @@ const Recommendations = () => {
               className="flex max-w-md bg-white shadow-lg rounded-lg overflow-hidden"
             >
               <div
-                className="w-1/3 bg-cover"
+                className="w-1/3 bg-cover cursor-pointer"
                 style={{
                   backgroundImage: `url(${product.imagesUrl})`,
                 }}
+                onClick={() =>
+                  (window.location.href = `/product?query=${product._id}`)
+                }
               ></div>
               <div className="w-2/3 p-4">
                 <h1 className="text-gray-900 font-bold text-2xl">
@@ -109,8 +142,16 @@ const Recommendations = () => {
                   </svg>
                 </div>
                 <div className="flex item-center justify-between mt-3">
-                  <h1 className="text-gray-700 font-bold text-xl">$220</h1>
-                  <button className="px-3 py-2 bg-gray-800 text-white text-xs font-bold uppercase rounded">
+                  <h1 className="text-gray-700 font-bold text-xl">
+                    $
+                    {product.discountedPrice
+                      ? product.discountedPrice
+                      : product.price}
+                  </h1>
+                  <button
+                    className="px-3 py-2 bg-gray-800 text-white text-xs font-bold uppercase rounded"
+                    onClick={() => handleAddToCart(product)}
+                  >
                     Add to Card
                   </button>
                 </div>

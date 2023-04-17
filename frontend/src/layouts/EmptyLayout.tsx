@@ -7,25 +7,18 @@ import instance from "../utils/Axios";
 import { logoutSuccess } from "../redux/user/userSlice";
 import { useDispatch } from "react-redux";
 import IpBanned from "../pages/error/IpBanned";
+import FloatingButton from "../components/common/FloatingButton";
 
 interface Props {
   children: React.ReactNode;
 }
 
 const EmptyLayout = ({ children }: Props) => {
-  const theme = useSelector((state: RootState) => state.theme.theme);
   const ban = useSelector((state: RootState) => state.user.ban);
   const { isAuthenticated, user } = useSelector(
     (state: RootState) => state.user
   );
   const dispatch = useDispatch();
-  useEffect(() => {
-    if (theme === "dark") {
-      document.documentElement.classList.add("dark");
-    } else {
-      document.documentElement.classList.remove("dark");
-    }
-  }, [theme]);
 
   useEffect(() => {
     async function checkAuth() {
@@ -57,7 +50,6 @@ const EmptyLayout = ({ children }: Props) => {
     <>
       <div className="flex flex-col min-h-screen bg-white dark:bg-gray-900">
         <Outlet />
-        <ModeSwitch />
       </div>
     </>
   );

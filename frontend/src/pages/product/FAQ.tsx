@@ -6,7 +6,6 @@ interface FaqFormat {
 }
 
 const FAQ = (faqs: any) => {
-  console.log(faqs.faqs);
   return (
     <section className="relative pt-1 pb-16 bg-blueGray-50 overflow-hidden">
       <img

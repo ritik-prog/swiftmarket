@@ -9,28 +9,18 @@ import instance from "../utils/Axios";
 import { logoutSuccess } from "../redux/user/userSlice";
 import HomeLayout from "./Homelayout";
 import withAuth from "../hoc/withAuth";
+import FloatingButton from "../components/common/FloatingButton";
 
 const SecuredLayout = () => {
-  const theme = useSelector((state: RootState) => state.theme.theme);
+  // const theme = useSelector((state: RootState) => state.theme.theme);
   const ban = useSelector((state: RootState) => state.user.ban);
-  const isAuthenticated = useSelector(
-    (state: RootState) => state.user.isAuthenticated
-  );
   const dispatch = useDispatch();
-  useEffect(() => {
-    if (theme === "dark") {
-      document.documentElement.classList.add("dark");
-    } else {
-      document.documentElement.classList.remove("dark");
-    }
-  }, [theme]);
 
   useEffect(() => {
     async function checkAuth() {
       const response: any = await instance.get<any>("/auth/check");
       return response;
     }
-    // if (isAuthenticated) {
     try {
       const response: any = checkAuth();
       if (response.data.status !== "success") {
@@ -39,7 +29,6 @@ const SecuredLayout = () => {
     } catch (err) {
       // dispatch(logoutSuccess());
     }
-    // }
   }, []);
 
   if (ban?.status) {
@@ -52,7 +41,7 @@ const SecuredLayout = () => {
         <HomeLayout>
           <Outlet />
         </HomeLayout>
-        <ModeSwitch />
+        <FloatingButton />
       </div>
     </>
   );

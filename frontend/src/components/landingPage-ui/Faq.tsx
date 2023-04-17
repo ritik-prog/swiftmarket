@@ -18,8 +18,8 @@ function Faq() {
                 Any Questions? Look Here
               </h2>
               <p className="text-base text-body-color">
-                There are many variations of passages of Lorem Ipsum available
-                but the majority have suffered alteration in some form.
+                Find Quick Answers. Get started on SwiftMarket with our curated
+                list of commonly asked questions.
               </p>
             </div>
           </div>
@@ -48,17 +48,19 @@ function Faq() {
                 </div>
                 <div className="w-full">
                   <h4 className="text-lg font-semibold text-black">
-                    How long we deliver your first blog post?
+                    How does SwiftMarket differ from other bulk trading
+                    platforms?
                   </h4>
                 </div>
               </button>
               {openFaq1 && (
                 <div className="faq-content pl-[62px]">
                   <p className="py-3 text-base leading-relaxed text-body-color">
-                    It takes 2-3 weeks to get your first blog post ready. That
-                    includes the in-depth research & creation of your monthly
-                    content marketing strategy that we do before writing your
-                    first blog post, Ipsum available .
+                    SwiftMarket stands out from the competition with its no-fee
+                    transactions, secure blockchain-based platform, and global
+                    reach. Our platform allows buyers and sellers to trade
+                    securely and seamlessly without any added fees, making it an
+                    attractive option for businesses of all sizes.
                   </p>
                 </div>
               )}
@@ -84,17 +86,18 @@ function Faq() {
                 </div>
                 <div className="w-full">
                   <h4 className="text-lg font-semibold text-black">
-                    How long we deliver your first blog post?
+                    How can I buy and sell products on SwiftMarket?
                   </h4>
                 </div>
               </button>
               {openFaq2 && (
                 <div className="faq-content pl-[62px]">
                   <p className="py-3 text-base leading-relaxed text-body-color">
-                    It takes 2-3 weeks to get your first blog post ready. That
-                    includes the in-depth research & creation of your monthly
-                    content marketing strategy that we do before writing your
-                    first blog post, Ipsum available .
+                    To buy and sell products on SwiftMarket, simply sign up for
+                    an account and list your products or start browsing. Our
+                    platform offers secure and flexible payment options,
+                    including PayPal and blockchain-based transactions, to make
+                    the buying and selling process easy and efficient.
                   </p>
                 </div>
               )}
@@ -122,17 +125,18 @@ function Faq() {
                 </div>
                 <div className="w-full">
                   <h4 className="text-lg font-semibold text-black">
-                    How long we deliver your first blog post?
+                    Is it safe to trade on SwiftMarket?
                   </h4>
                 </div>
               </button>
               {openFaq3 && (
                 <div className="faq-content pl-[62px]">
                   <p className="py-3 text-base leading-relaxed text-body-color">
-                    It takes 2-3 weeks to get your first blog post ready. That
-                    includes the in-depth research & creation of your monthly
-                    content marketing strategy that we do before writing your
-                    first blog post, Ipsum available .
+                    Yes, SwiftMarket is a secure platform that uses blockchain
+                    technology to ensure all transactions are verified and
+                    secure. We also offer additional security features, such as
+                    two-factor authentication and encrypted messaging, to
+                    protect both buyers and sellers.
                   </p>
                 </div>
               )}
@@ -158,17 +162,17 @@ function Faq() {
                 </div>
                 <div className="w-full">
                   <h4 className="text-lg font-semibold text-black">
-                    How long we deliver your first blog post?
+                    How can I track my orders and sales on SwiftMarket?
                   </h4>
                 </div>
               </button>
               {openFaq4 && (
                 <div className="faq-content pl-[62px]">
                   <p className="py-3 text-base leading-relaxed text-body-color">
-                    It takes 2-3 weeks to get your first blog post ready. That
-                    includes the in-depth research & creation of your monthly
-                    content marketing strategy that we do before writing your
-                    first blog post, Ipsum available .
+                    SwiftMarket offers an intuitive dashboard that allows you to
+                    easily track your orders and sales in real-time. With our
+                    dashboard, you can manage your inventory, track shipments,
+                    and view your transaction history all in one place.
                   </p>
                 </div>
               )}
@@ -176,35 +180,6 @@ function Faq() {
           </div>
         </div>
       </div>
-      {/* <div className="absolute bottom-0 right-0 z-[-1]">
-        <svg
-          width="1440"
-          height="886"
-          viewBox="0 0 1440 886"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <path
-            opacity="0.5"
-            d="M193.307 -273.321L1480.87 1014.24L1121.85 1373.26C1121.85 1373.26 731.745 983.231 478.513 729.927C225.976 477.317 -165.714 85.6993 -165.714 85.6993L193.307 -273.321Z"
-            fill="url(#paint0_linear)"
-          />
-          <defs>
-            <linearGradient
-              id="paint0_linear"
-              x1="1308.65"
-              y1="1142.58"
-              x2="602.827"
-              y2="-418.681"
-              gradientUnits="userSpaceOnUse"
-            >
-              <stop stop-color="#3056D3" stop-opacity="0.36" />
-              <stop offset="1" stop-color="#F5F2FD" stop-opacity="0" />
-              <stop offset="1" stop-color="#F5F2FD" stop-opacity="0.096144" />
-            </linearGradient>
-          </defs>
-        </svg>
-      </div> */}
     </section>
   );
 }

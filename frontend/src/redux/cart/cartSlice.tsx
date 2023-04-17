@@ -70,6 +70,11 @@ const cartSlice = createSlice({
         state.totalQuantity -= removedItem.quantity;
         state.totalAmount = Math.round(state.totalPrice - state.totalDiscount);
       }
+      if (state.items.length === 0) {
+        state.totalPrice = 0;
+        state.totalDiscount = 0;
+        state.totalAmount = 0;
+      }
     },
     clearCart: (state) => {
       state.items = [];

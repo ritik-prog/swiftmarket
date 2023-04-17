@@ -4,64 +4,6 @@ import { useNavigate } from "react-router-dom";
 import { getRecommendedProducts } from "../../api/product";
 import { getTrandingProducts } from "../../api/product";
 
-/*
-  This example requires some changes to your config:
-  
-  ```
-  // tailwind.config.js
-  module.exports = {
-    // ...
-    plugins: [
-      // ...
-      require('@tailwindcss/aspect-ratio'),
-    ],
-  }
-  ```
-*/
-const products = [
-  {
-    id: 1,
-    name: "Basic Tee",
-    href: "#",
-    imageSrc:
-      "https://tailwindui.com/img/ecommerce-images/product-page-01-related-product-01.jpg",
-    imageAlt: "Front of men's Basic Tee in black.",
-    price: "$35",
-    color: "Black",
-  },
-  {
-    id: 1,
-    name: "Basic Tee",
-    href: "#",
-    imageSrc:
-      "https://tailwindui.com/img/ecommerce-images/product-page-01-related-product-01.jpg",
-    imageAlt: "Front of men's Basic Tee in black.",
-    price: "$35",
-    color: "Black",
-  },
-  {
-    id: 1,
-    name: "Basic Tee",
-    href: "#",
-    imageSrc:
-      "https://tailwindui.com/img/ecommerce-images/product-page-01-related-product-01.jpg",
-    imageAlt: "Front of men's Basic Tee in black.",
-    price: "$35",
-    color: "Black",
-  },
-  {
-    id: 1,
-    name: "Basic Tee",
-    href: "#",
-    imageSrc:
-      "https://tailwindui.com/img/ecommerce-images/product-page-01-related-product-01.jpg",
-    imageAlt: "Front of men's Basic Tee in black.",
-    price: "$35",
-    color: "Black",
-  },
-  // More products...
-];
-
 export default function Trending() {
   const [products, setProducts] = useState([]);
   const navigate = useNavigate();
@@ -122,14 +64,22 @@ export default function Trending() {
                       <span className="text-sm text-gray-500 ml-1">(25)</span>
                     </div>
                   </div>
-                  <div>
-                    <p className="text-xs line-through font-medium text-gray-500 dark:text-gray-100">
-                      ₹{product.price}
-                    </p>
-                    <p className="text-md font-medium text-gray-900 dark:text-white">
-                      &nbsp;&nbsp;₹{product.discountedPrice}
-                    </p>
-                  </div>
+                  {product?.discountedPrice ? (
+                    <div>
+                      <p className="text-xs line-through font-medium text-gray-500 dark:text-gray-100">
+                        ₹{product.price}
+                      </p>
+                      <p className="text-md font-medium text-gray-900 dark:text-white">
+                        &nbsp;&nbsp;₹{product.discountedPrice}
+                      </p>
+                    </div>
+                  ) : (
+                    <div>
+                      <p className="text-xs font-medium text-gray-500 dark:text-gray-100">
+                        ₹{product.price}
+                      </p>
+                    </div>
+                  )}
                 </div>
               </div>
             ))}

@@ -1,10 +1,20 @@
 const mongoose = require('mongoose');
+const { v4: uuidv4 } = require('uuid');
+const Product = require('../product/productSchema');
 
 const orderSchema = new mongoose.Schema({
     orderId: {
         type: String,
-        required: true,
         unique: true
+    },
+    cartId: {
+        type: String,
+        required: true,
+    },
+    seller: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Seller',
+        required: true,
     },
     orderDate: {
         type: Date,
@@ -20,14 +30,52 @@ const orderSchema = new mongoose.Schema({
         ref: 'User',
         required: true,
     },
-    subOrders: [
+    products: [
         {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'SubOrder',
-            required: true,
-        }
+            product: {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: 'Product',
+                required: true,
+            },
+            quantity: {
+                type: Number,
+                required: true,
+                default: 1,
+                min: 1,
+            },
+        },
     ],
-    transaction: {
+    orderStatus: {
+        type: String,
+        enum: ['Placed', 'Confirmed', 'Shipped', 'Delivered', 'Payment Failed', 'Cancelled'],
+        required: true,
+        default: 'Placed',
+    },
+    trackingDetails: {
+        carrierName: {
+            type: String,
+            required: false,
+        },
+        trackingNumber: {
+            type: String,
+            required: false,
+        },
+        trackingUrl: {
+            type: String,
+            required: false,
+        },
+        deliveryDate: {
+            type: Date,
+            required: false,
+            default: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+        },
+        deliveryStatus: {
+            type: String,
+            required: false,
+            enum: ['In Transit', 'Out for Delivery', 'Delivered', 'Exception'],
+        },
+    },
+    transactionId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Transaction',
         required: true,
@@ -39,31 +87,51 @@ const orderSchema = new mongoose.Schema({
     updatedAt: {
         type: Date,
         default: Date.now
-    }
+    },
 }, { timestamps: true });
 
+// Generate sellerID before saving to the database
 orderSchema.pre('save', function (next) {
-    if (!this.estimatedDeliveryDate) {
-        this.estimatedDeliveryDate = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+    if (!this.orderId) {
+        this.orderId = `order_${Date.now()}_${uuidv4()}`;
     }
     next();
 });
 
-orderSchema.statics.getOrderById = async function (id) {
-    const order = await this.findById(id)
-        .populate('customer', 'firstName lastName email')
-        .populate('subOrders.seller', 'businessName businessNumber businessEmail sellerID')
-        .populate('subOrders.products', 'productName productPrice productQuantity seller');
-    if (!order) {
-        throw new Error('Order not found');
+// Save order ID to seller's orders array
+orderSchema.pre('save', async function (next) {
+    try {
+        const Seller = mongoose.model('Seller');
+        const seller = await Seller.findOne({ sellerID: this.sellerID });
+        seller.orders.push(this._id);
+        await seller.save();
+        const data = {
+            sellerName: seller.businessName,
+            subject: 'New Order - SwiftMarket'
+        };
+        // Send email
+        sendEmail(seller.businessEmail, data, './order/informSeller.hbs');
+        next();
+    } catch (error) {
+        next(error);
     }
-    return order;
-};
+});
 
-orderSchema.methods.toJSON = function () {
-    const order = this.toObject();
-    delete order.__v;
-    return order;
-};
+// desrease quantity of product
+orderSchema.pre('save', async function (next) {
+    try {
+        const products = this.products;
+        for (let i = 0; i < products.length; i++) {
+            const product = await Product.findById(products[i].product);
+            if (product) {
+                product.quantity -= products[i].quantity;
+                await product.save();
+            }
+        }
+        next();
+    } catch (error) {
+        next(error);
+    }
+});
 
 module.exports = mongoose.model('Order', orderSchema);
