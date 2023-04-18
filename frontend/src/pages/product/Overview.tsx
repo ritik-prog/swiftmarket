@@ -34,6 +34,7 @@ interface wishlistItem {
   productDescription: string;
   discountedPrice: number;
   thumbnailUrl: string;
+  price: string;
 }
 
 const Overview = () => {
@@ -103,7 +104,8 @@ const Overview = () => {
     const wishlistItem = {
       _id: product._id,
       productName: product.productName,
-      discountedPrice: product.discountedPrice,
+      discountedPrice:
+        product.discountedPrice !== 0 ? product.discountedPrice : product.price,
       productDescription: product.productDescription,
       thumbnailUrl: product.thumbnailUrl,
     };
@@ -181,18 +183,26 @@ const Overview = () => {
                     </h2>
                   </div>
                   <div className="flex items-center mt-5">
-                    <div className="mt-1 flex items-end">
-                      <p className="text-xs line-through font-medium text-gray-500 dark:text-gray-100">
-                        ₹{product.data.price}
-                      </p>
-                      <p className="text-md font-medium text-gray-900 dark:text-white">
-                        &nbsp;&nbsp;₹{product.data.discountedPrice}
-                      </p>
-                      &nbsp;&nbsp;
-                      <p className="text-sm font-medium text-green-500">
-                        ₹{product.data.price - product.data.discountedPrice}
-                      </p>
-                    </div>
+                    {product.data.discountedPrice !== 0 ? (
+                      <div className="mt-1 flex items-end">
+                        <p className="text-xs line-through font-medium text-gray-500 dark:text-gray-100">
+                          ₹{product.data.price}
+                        </p>
+                        <p className="text-md font-medium text-gray-900 dark:text-white">
+                          &nbsp;&nbsp;₹{product.data.discountedPrice}
+                        </p>
+                        &nbsp;&nbsp;
+                        <p className="text-sm font-medium text-green-500">
+                          ₹{product.data.price - product.data.discountedPrice}
+                        </p>
+                      </div>
+                    ) : (
+                      <div className="mt-1 flex items-end">
+                        <p className="text-xs line-through font-medium text-gray-500 dark:text-gray-100">
+                          ₹{product.data.price}
+                        </p>
+                      </div>
+                    )}
                   </div>
                 </div>
                 <div className="pb-2" />

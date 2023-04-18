@@ -17,5 +17,6 @@ const codes = {
     '419': 'rate limit exceeded',
     '420': 'signup rate limit exceeded',
     '421': 'Can\'t place order',
+    '422': 'Ticket not found',
     '500': 'server_error',
 }

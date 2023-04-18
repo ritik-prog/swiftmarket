@@ -27,7 +27,7 @@ router.post(
             return res.status(400).json({ errors: errors.array() });
         }
 
-        const { shippingAddress, products, transactionId } = req.body;
+        const { shippingAddress, products, transactionId, number } = req.body;
 
         let session;
         try {
@@ -89,7 +89,6 @@ router.post(
                 foundTransaction.cartId = cartId;
                 foundTransaction.save();
 
-
                 // await session.commitTransaction();
                 // session.endSession();
 
@@ -98,6 +97,7 @@ router.post(
                     _id: req.user._id
                 });
                 user.address = shippingAddress;
+                user.number = number;
                 await user.save();
             } else {
                 res.status(421).json({ message: "Can't place order as of now...", status: 421 });

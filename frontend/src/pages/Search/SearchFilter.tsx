@@ -24,6 +24,7 @@ interface wishlistItem {
   productDescription: string;
   discountedPrice: number;
   thumbnailUrl: string;
+  price: string;
 }
 
 const SearchFilter = () => {
@@ -113,7 +114,8 @@ const SearchFilter = () => {
     const wishlistItem = {
       _id: product._id,
       productName: product.productName,
-      discountedPrice: product.discountedPrice,
+      discountedPrice:
+        product.discountedPrice !== 0 ? product.discountedPrice : product.price,
       productDescription: product.productDescription,
       thumbnailUrl: product.thumbnailUrl,
     };
@@ -182,7 +184,9 @@ const SearchFilter = () => {
       );
     } else if (priceSort === "High to low") {
       setProducts(
-        [...sortedProducts].sort((a: any, b: any) => b.price - a.price)
+        [...sortedProducts].sort(
+          (a: any, b: any) => b.discountedPrice - a.discountedPrice
+        )
       );
     }
   }, [popularitySort, priceSort, availabilitySort]);
@@ -448,7 +452,7 @@ const SearchFilter = () => {
                             {product.seller.businessName}
                           </span>
                         </span>
-                        {product?.discountedPrice ? (
+                        {product?.discountedPrice !== 0 ? (
                           <div className="mt-1 flex items-end">
                             <p className="text-xs line-through font-medium text-gray-500 dark:text-gray-100">
                               ₹{product.price}

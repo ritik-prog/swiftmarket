@@ -18,6 +18,11 @@ const userSchema = new mongoose.Schema({
         minlength: 2,
         maxlength: 50,
     },
+    number: {
+        type: String,
+        trim: true,
+        unique: true,
+    },
     email: {
         type: String,
         required: true,
@@ -200,7 +205,7 @@ userSchema.statics.findByCredentials = async (email, password) => {
     const token = await user.generateAuthToken();
 
     return { token, user };
-}; 
+};
 
 // Pre-hook to update seller and product ban status when user is banned
 userSchema.pre(["findOneAndUpdate", "updateMany", "update"], async function (next) {

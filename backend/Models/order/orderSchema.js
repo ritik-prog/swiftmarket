@@ -67,7 +67,6 @@ const orderSchema = new mongoose.Schema({
         deliveryDate: {
             type: Date,
             required: false,
-            default: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
         },
         deliveryStatus: {
             type: String,
@@ -79,6 +78,18 @@ const orderSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Transaction',
         required: true,
+    },
+    orderAmount: {
+        type: Number,
+        default: 0,
+    },
+    totalDiscount: {
+        type: Number,
+        default: 0,
+    },
+    orderTotal: {
+        type: Number,
+        default: 0,
     },
     createdAt: {
         type: Date,
@@ -121,12 +132,25 @@ orderSchema.pre('save', async function (next) {
 orderSchema.pre('save', async function (next) {
     try {
         const products = this.products;
+        let orderAmount = 0;
+        let totalDiscount = 0;
         for (let i = 0; i < products.length; i++) {
             const product = await Product.findById(products[i].product);
             if (product) {
                 product.quantity -= products[i].quantity;
                 await product.save();
+
+                const price = product.price;
+                const discountedPrice = product.discountedPrice || price;
+                const quantity = products[i].quantity;
+
+                orderAmount += price * quantity;
+                totalDiscount += (price - discountedPrice) * quantity;
             }
+
+            this.orderAmount = orderAmount;
+            this.totalDiscount = totalDiscount;
+            this.orderTotal = orderAmount - totalDiscount;
         }
         next();
     } catch (error) {

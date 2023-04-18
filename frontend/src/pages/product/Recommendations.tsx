@@ -144,7 +144,7 @@ const Recommendations = () => {
                 <div className="flex item-center justify-between mt-3">
                   <h1 className="text-gray-700 font-bold text-xl">
                     $
-                    {product.discountedPrice
+                    {product.discountedPrice !== 0
                       ? product.discountedPrice
                       : product.price}
                   </h1>

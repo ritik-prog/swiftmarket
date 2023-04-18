@@ -17,41 +17,6 @@ interface WishlistState {
 }
 
 const WishlistComponent = () => {
-  const products = [
-    {
-      name: "Product 1",
-      image: {
-        sm: "https://via.placeholder.com/150",
-        lg: "https://via.placeholder.com/400",
-      },
-      code: "001",
-      color: "Black",
-      size: "M",
-      price: "$50",
-    },
-    {
-      name: "Product 2",
-      image: {
-        sm: "https://via.placeholder.com/150",
-        lg: "https://via.placeholder.com/400",
-      },
-      code: "002",
-      color: "Blue",
-      size: "L",
-      price: "$75",
-    },
-    {
-      name: "Product 3",
-      image: {
-        sm: "https://via.placeholder.com/150",
-        lg: "https://via.placeholder.com/400",
-      },
-      code: "003",
-      color: "Red",
-      size: "S",
-      price: "$30",
-    },
-  ];
 
   const navigate = useNavigate();
 

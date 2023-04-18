@@ -84,7 +84,7 @@ function SellerPage() {
             </p>
             {product.isAvailable ? (
               <div className="flex justify-between items-center mt-4">
-                {product?.discountedPrice ? (
+                {product?.discountedPrice !== 0 ? (
                   <div className="mt-1 flex items-end">
                     <p className="text-xs line-through font-medium text-gray-500 dark:text-gray-100">
                       ₹{product.price}

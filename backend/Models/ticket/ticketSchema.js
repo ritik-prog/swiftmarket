@@ -16,7 +16,33 @@ const ticketSchema = new mongoose.Schema({
     },
     status: {
         type: String,
-        enum: ['Open', 'Pending', 'Closed'],
+        enum: [
+            'Open',
+            'Pending',
+            'Closed',
+            'In Progress',
+            'Resolved',
+            'Reopened',
+            'Waiting on Customer',
+            'Waiting on Agent',
+            'On Hold',
+            'Escalated',
+            'Cancelled',
+            'Deferred',
+            'Duplicate',
+            'Spam',
+            'Not Reproducible',
+            'More Information Needed',
+            'In Review',
+            'In Testing',
+            'Completed',
+            'Approved',
+            'Rejected',
+            'Waiting for Customer',
+            'Waiting for Third Party',
+            'Blocked',
+            'Transfer to Another Agent'
+        ],
         default: 'Open',
     },
     priority: {
@@ -37,12 +63,10 @@ const ticketSchema = new mongoose.Schema({
         {
             message: {
                 type: String,
-                required: true,
             },
             user_id: {
                 type: mongoose.Schema.Types.ObjectId,
                 ref: 'User',
-                required: true,
             }
         },
     ],

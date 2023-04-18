@@ -1,21 +1,35 @@
 const express = require('express');
 const router = express.Router();
 const Ticket = require('../models/ticket/ticketSchema');
-const ticketAuthorize = require('../middleware/ticketAuthorize');
+const authorizeMiddleware = require("../../middleware/authorizeMiddleware");
 const ticketController = require('../../controllers/ticket/ticketController');
 
 // GET tickets
-router.get('/', ticketAuthorize, (req, res) => {
-    res.json(req.tickets);
+router.get('/', authorizeMiddleware, async (req, res) => {
+    try {
+        const tickets = await Ticket.find({ customer_id: req.user._id })
+            .populate({
+                path: 'messages.user_id',
+                select: 'username',
+            })
+            .exec();
+
+        res.status(200).json({ tickets, status: 200 });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Server Error' });
+    }
 });
 
 // GET ticket by id
-router.get('/:id', ticketAuthorize, async (req, res) => {
+router.get('/:id', authorizeMiddleware, async (req, res) => {
     try {
-        const ticket = await Ticket.findById(req.params.id).populate({
-            path: 'messages.user_id',
-            select: 'username',
-        });
+        const { id } = req.params;
+        const ticket = await Ticket.findById({ _id: id, customer_id: req.user._id })
+            .populate({
+                path: 'messages.user_id',
+                select: 'username'
+            });
         res.json(ticket);
     } catch (error) {
         console.error(error.message);
@@ -24,9 +38,16 @@ router.get('/:id', ticketAuthorize, async (req, res) => {
 });
 
 // CREATE one ticket
-router.post('/', ticketAuthorize, ticketController.createTicket);
+router.post('/', [authorizeMiddleware, check('subject').not().isEmpty().withMessage('Subject is required'),
+    check('description')
+        .not()
+        .isEmpty()
+        .withMessage('Description is required'),
+    check('order').not().isEmpty().withMessage('Order is required')], ticketController.createTicket);
 
 // ADD message to ticket
-router.post('/:id/message', ticketAuthorize, ticketController.addMessage);
+router.post('/:id/message', [authorizeMiddleware, check('message')
+    .isLength({ min: 6 })
+    .withMessage('Message must be at least 6 characters long')], ticketController.addMessage);
 
 module.exports = router;

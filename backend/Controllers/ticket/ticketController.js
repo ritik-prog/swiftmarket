@@ -1,15 +1,17 @@
+const { validationResult } = require('express-validator');
 const Ticket = require('../models/ticket/ticketSchema');
 
 const createTicket = async (req, res) => {
     try {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return res.status(400).json({ errors: errors.array() });
+        }
         const ticket = new Ticket({
             subject: req.body.subject,
             description: req.body.description,
-            status: req.body.status,
-            priority: req.body.priority,
-            customer_id: req.body.customer_id,
-            agent_id: req.body.agent_id,
-            messages: req.body.messages,
+            order: req.body.order,
+            customer_id: req.user._id,
         });
 
         const newTicket = await ticket.save();
@@ -29,9 +31,9 @@ const addMessage = async (req, res) => {
     const { message } = req.body;
 
     try {
-        const ticket = await Ticket.findById(id);
+        const ticket = await Ticket.findById({ _id: id, customer_id: req.user._id });
         if (!ticket) {
-            return res.status(404).json({ message: 'Ticket not found' });
+            return res.status(422).json({ message: 'Ticket not found' });
         }
 
         ticket.messages.push({ message, user_id: req.user._id });
