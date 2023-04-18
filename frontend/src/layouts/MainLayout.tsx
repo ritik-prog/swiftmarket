@@ -2,7 +2,6 @@ import React, { useEffect } from "react";
 import { Outlet } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { RootState } from "../redux/rootReducer";
-import ModeSwitch from "../utils/ModeSwitch";
 import instance from "../utils/Axios";
 import { logoutSuccess, banRemoved } from "../redux/user/userSlice";
 import { useDispatch } from "react-redux";

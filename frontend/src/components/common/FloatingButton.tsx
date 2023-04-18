@@ -1,10 +1,9 @@
 import React, { useEffect } from "react";
-import ModeSwitch from "../../utils/ModeSwitch";
 import { useSelector } from "react-redux";
 import { RootState } from "../../redux/rootReducer";
 import { store } from "../../redux/store";
 import { setTheme } from "../../redux/theme/themeSlice";
-import { Navigate, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 const FloatingButton = () => {
   const theme = useSelector((state: RootState) => state.theme.theme);

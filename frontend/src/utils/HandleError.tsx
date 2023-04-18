@@ -98,6 +98,9 @@ const HandleError = async (
     case 421:
       CreateToast("orderfailed", "Can't place order as of now...", "error");
       break;
+    case 422:
+      CreateToast("ticketfailed", "Ticket not found", "error");
+      break;
     case 500:
       CreateToast("Servererror", "Server error", "error");
       console.log("Server error occurred.");

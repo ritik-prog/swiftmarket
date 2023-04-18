@@ -1,6 +1,5 @@
 import React, { useEffect } from "react";
 import IpBanned from "../pages/error/IpBanned";
-import ModeSwitch from "../utils/ModeSwitch";
 import { Outlet } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { RootState } from "../redux/rootReducer";
