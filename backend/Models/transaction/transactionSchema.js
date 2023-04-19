@@ -1,7 +1,27 @@
 const mongoose = require('mongoose');
+const { v4: uuidv4 } = require('uuid');
 
 const transactionSchema = new mongoose.Schema(
     {
+        trans_id: {
+            type: String,
+            default: function () {
+                // Use Mongoose's ObjectId() to generate a unique identifier
+                const objectId = new mongoose.Types.ObjectId();
+
+                // Use uuidv4() to generate a unique string identifier
+                const uuid = uuidv4();
+
+                // Combine the two identifiers with a prefix and suffix
+                return `trans_${Date.now()}_${objectId}_${uuid}`;
+            },
+            unique: true
+        },
+        customer: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'User',
+            required: true
+        },
         type: {
             type: String,
             required: true
@@ -21,12 +41,9 @@ const transactionSchema = new mongoose.Schema(
         },
         paymentDetails: {
             type: mongoose.Schema.Types.Mixed,
-            required: true
         },
         cartId: {
             type: String,
-            unique: true,
-            default: null
         },
         refundReason: {
             type: String
@@ -43,6 +60,8 @@ const transactionSchema = new mongoose.Schema(
         timestamps: { createdAt: true, updatedAt: false }
     }
 );
+
+
 
 transactionSchema.pre('save', function (next) {
     if (this.isNew) {

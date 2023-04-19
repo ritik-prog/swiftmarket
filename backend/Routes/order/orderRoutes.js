@@ -8,7 +8,6 @@ const { v4: uuidv4 } = require("uuid");
 
 const authenticateMiddleware = require("../../middleware/authenticateMiddleware");
 const { check, validationResult } = require("express-validator");
-const { default: mongoose } = require("mongoose");
 const { ObjectId } = require("mongodb");
 
 // Create a place order
@@ -17,8 +16,9 @@ router.post(
     authenticateMiddleware,
     [
         check("shippingAddress").not().isEmpty(),
+        check("number").not().isEmpty(),
         check("products").isArray().not().isEmpty(),
-        check("transactionId").isEmpty(),
+        check("transactionId").not().isEmpty(),
     ],
     async (req, res) => {
         // Data validation
@@ -29,18 +29,19 @@ router.post(
 
         const { shippingAddress, products, transactionId, number } = req.body;
 
-        let session;
+        // let session;
         try {
             // session = await mongoose.startSession();
             // session.startTransaction();
 
             // find transaction is Completed or not
             const foundTransaction = await Transaction.findOne({
-                transactionId,
+                trans_id: transactionId,
                 status: "Completed",
             });
 
-            if (foundTransaction && foundTransaction.cartId === null) {
+            console.log(foundTransaction)
+            if (foundTransaction && !foundTransaction.cartId) {
                 // Find product details
                 const productDetails = [];
                 for (let i = 0; i < products.length; i++) {
@@ -68,6 +69,7 @@ router.post(
                 }
                 for (let seller of sellers) {
                     const sellerId = new ObjectId(seller); // ensure that seller is an ObjectId
+                    console.log(sellerId)
                     const subOrderProducts = [];
                     for (let product of productDetails) {
                         if (product.product.seller.equals(sellerId)) {
@@ -78,6 +80,7 @@ router.post(
                         {
                             seller: sellerId,
                             shippingAddress,
+                            number,
                             customer: req.user._id,
                             transactionId: foundTransaction._id,
                             cartId,
@@ -92,7 +95,7 @@ router.post(
                 // await session.commitTransaction();
                 // session.endSession();
 
-                res.status(200).json({ message: "Order placed successfully", status: 200 });
+                res.status(200).json({ cart_id: cartId, message: "Order placed successfully", status: 200 });
                 const user = await User.findOne({
                     _id: req.user._id
                 });
@@ -107,74 +110,14 @@ router.post(
             }
         } catch (error) {
             console.error(error);
-            if (session) {
-                await session.abortTransaction();
-                session.endSession();
-            }
+            // if (session) {
+            //     session.abortTransaction();
+            //     session.endSession();
+            // }
             res.status(500).json({ message: "Server Error" });
         }
     }
 );
-
-// Create a transaction
-router.post("/transaction", async (req, res) => {
-    const { type, amount, paymentMethod, paymentDetails } = req.body;
-
-    try {
-        const newTransaction = new Transaction({
-            type,
-            amount,
-            status: "Pending",
-            paymentMethod,
-            paymentDetails,
-        });
-
-        await newTransaction.save();
-
-        // Delay the status update by 5 minutes
-        setTimeout(async () => {
-            const transaction = await Transaction.findById(newTransaction._id);
-            if (transaction.status === "Pending") {
-                transaction.status = "Failed";
-                await transaction.save();
-                console.log(`Transaction ${transaction._id} has failed`);
-            }
-        }, 300000); // 5 minutes in milliseconds
-
-        res.status(201).json(newTransaction);
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: "Server Error" });
-    }
-});
-
-// Update a transaction
-router.put("/transaction/:id", async (req, res) => {
-    const { type, amount, status, paymentMethod, paymentDetails, order } =
-        req.body;
-
-    try {
-        const transaction = await Transaction.findById(req.params.id);
-
-        if (!transaction) {
-            return res.status(404).json({ message: "Transaction not found" });
-        }
-
-        transaction.type = type || transaction.type;
-        transaction.amount = amount || transaction.amount;
-        transaction.status = status || transaction.status;
-        transaction.paymentMethod = paymentMethod || transaction.paymentMethod;
-        transaction.paymentDetails = paymentDetails || transaction.paymentDetails;
-        transaction.order = order || transaction.order;
-
-        const updatedTransaction = await transaction.save();
-
-        res.status(200).json(updatedTransaction);
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: "Server Error" });
-    }
-});
 
 // Get all orders for a customer
 router.get("/", authenticateMiddleware, async (req, res) => {

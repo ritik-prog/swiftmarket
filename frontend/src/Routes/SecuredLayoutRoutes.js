@@ -25,14 +25,7 @@ export const SecuredLayoutRoutes = {
                     <Wishlist />
                 </>
             ),
-        }, {
-            path: "orderconfirmed",
-            element: (
-                <>
-                    <OrderConfirmed />
-                </>
-            ),
-        },
+        }, 
         {
             path: "orders",
             element: (
@@ -40,6 +33,10 @@ export const SecuredLayoutRoutes = {
                     <OrderDetails />
                 </>
             ),
+        },
+        {
+            path: "order/confirmed/:cart_id",
+            element: <OrderConfirmed />,
         },
     ],
 }

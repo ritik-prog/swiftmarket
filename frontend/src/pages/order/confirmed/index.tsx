@@ -1,6 +1,9 @@
 import React from "react";
+import { useParams } from "react-router-dom";
 
 export const OrderConfirmed = () => {
+  const { cart_id } = useParams();
+  console.log(cart_id);
   return (
     <div className="max-w-4xl mx-auto my-4 md:my-6">
       <div className="overflow-hidden border border-gray-100  shadow rounded-xl">
@@ -43,26 +46,6 @@ export const OrderConfirmed = () => {
                       <p className="text-sm font-bold text-right text-gray-900 dark:text-white">
                         {product.price}
                       </p>
-
-                      <button
-                        type="button"
-                        className="inline-flex p-2 -m-2 text-gray-400 transition-all duration-200 rounded focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-900 hover:text-gray-900"
-                      >
-                        <svg
-                          className="w-5 h-5"
-                          xmlns="http://www.w3.org/2000/svg"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth="2"
-                            d="M6 18L18 6M6 6l12 12"
-                          ></path>
-                        </svg>
-                      </button>
                     </div>
                   </li>
                 ))}

@@ -1,11 +1,14 @@
 import { createBrowserRouter } from "react-router-dom";
-import Checkout from "../pages/order/checkout";
+import Checkout from "../pages/order/checkout/stripe";
 import Error404 from "../pages/error/Error404";
 import Verification from "../pages/auth/Verification";
 import Profile from "../pages/profile";
 import { MainLayoutRoutes } from "./MainLayoutRoutes";
 import { SecuredLayoutRoutes } from "./SecuredLayoutRoutes";
 import { RestrictedLayoutRoutes } from "./RestrictedLayout";
+import CheckoutLayout from "../pages/order/checkout/index";
+import MetaMask from "../pages/order/checkout/MetaMask";
+import StripeLayout from "../pages/order/checkout/StripeLayout";
 
 const routes = [
     MainLayoutRoutes,
@@ -27,7 +30,15 @@ const routes = [
     },
     {
         path: "/checkout",
-        element: <Checkout />,
+        element: <CheckoutLayout />,
+    },
+    {
+        path: "order/checkout/metamask/:transactionId",
+        element: <MetaMask />,
+    },
+    {
+        path: "order/checkout/stripe/:transactionId",
+        element: <StripeLayout />,
     },
     {
         path: "*",

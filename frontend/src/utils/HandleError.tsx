@@ -101,12 +101,25 @@ const HandleError = async (
     case 422:
       CreateToast("ticketfailed", "Ticket not found", "error");
       break;
+    case 499:
+      CreateToast(message.message, message.message, "error");
+      break;
     case 500:
+      console.log(error);
       CreateToast("Servererror", "Server error", "error");
       console.log("Server error occurred.");
       break;
-    case error.status:
-      CreateToast(message.message, message.message, "error");
+    case 502:
+      CreateToast("badgateway", "Bad gateway error", "error");
+      console.log("Bad gateway error occurred.");
+      break;
+    case 503:
+      CreateToast("serviceunavailable", "Service unavailable", "error");
+      console.log("Service unavailable error occurred.");
+      break;
+    case 504:
+      CreateToast("timeout", "Request timed out", "error");
+      console.log("Request timed out error occurred.");
       break;
     default:
       CreateToast("wentwrong", "Something went wrong....", "error");

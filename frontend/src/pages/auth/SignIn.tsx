@@ -26,26 +26,6 @@ const Login = () => {
     (state: RootState) => state.user.isAuthenticated
   );
 
-  // const handleLogin = async (event: React.MouseEvent<HTMLButtonElement>) => {
-  //   event.preventDefault();
-  //   try {
-  //     const response = await instance.post("/auth/login", {
-  //       email,
-  //       password,
-  //     });
-  //     delete response.data.user.role;
-  //     console.log(response);
-  //     dispatch(loginSuccess(response.data));
-  //     if (!response.data.user.verificationStatus) {
-  //       navigate("/verification");
-  //     } else {
-  //       navigate("/shop");
-  //     }
-  //   } catch {
-  //     console.log("error");
-  //   }
-  // };
-
   const { values, errors, touched, handleBlur, handleChange, handleSubmit } =
     useFormik({
       initialValues,
@@ -54,7 +34,6 @@ const Login = () => {
         try {
           const response = await signInpApi(values.email, values.password);
           delete response.data.user.role;
-          console.log(response);
           dispatch(loginSuccess(response.data));
           if (!response.data.user.verificationStatus) {
             navigate("/verification");

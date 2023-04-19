@@ -45,16 +45,13 @@ const Collection = () => {
           {products &&
             products.map((product: any) => (
               <li>
-                <span
-                  className="group block overflow-hidden"
-                  onClick={() => navigate(`/product?query=${product?._id}`)}
-                >
+                <span className="group block overflow-hidden">
                   <img
                     src={product?.thumbnailUrl}
                     alt=""
-                    className="h-[350px] w-full object-cover transition duration-500 group-hover:scale-105 sm:h-[450px]"
+                    className="h-[350px] w-full object-cover transition duration-500 group-hover:scale-105 sm:h-[450px] cursor-pointer"
+                    onClick={() => navigate(`/product?query=${product?._id}`)}
                   />
-
                   <div className="relative bg-white p-3">
                     <h3 className="text-xs text-gray-700 group-hover:underline group-hover:underline-offset-4">
                       {product?.productName}

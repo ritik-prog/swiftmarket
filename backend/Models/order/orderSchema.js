@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const { v4: uuidv4 } = require('uuid');
 const Product = require('../product/productSchema');
+const sendEmail = require('../../utils/sendEmail');
 
 const orderSchema = new mongoose.Schema({
     orderId: {
@@ -24,6 +25,10 @@ const orderSchema = new mongoose.Schema({
     shippingAddress: {
         type: String,
         required: true,
+    },
+    number: {
+        type: String,
+        trim: true,
     },
     customer: {
         type: mongoose.Schema.Types.ObjectId,
@@ -113,7 +118,7 @@ orderSchema.pre('save', function (next) {
 orderSchema.pre('save', async function (next) {
     try {
         const Seller = mongoose.model('Seller');
-        const seller = await Seller.findOne({ sellerID: this.sellerID });
+        const seller = await Seller.findOne({ _id: this.seller });
         seller.orders.push(this._id);
         await seller.save();
         const data = {
@@ -135,11 +140,12 @@ orderSchema.pre('save', async function (next) {
         let orderAmount = 0;
         let totalDiscount = 0;
         for (let i = 0; i < products.length; i++) {
-            const product = await Product.findById(products[i].product);
+            const product = await Product.findByIdAndUpdate(
+                products[i].product,
+                { $inc: { quantity: -products[i].quantity } },
+                { new: true }
+            );
             if (product) {
-                product.quantity -= products[i].quantity;
-                await product.save();
-
                 const price = product.price;
                 const discountedPrice = product.discountedPrice || price;
                 const quantity = products[i].quantity;

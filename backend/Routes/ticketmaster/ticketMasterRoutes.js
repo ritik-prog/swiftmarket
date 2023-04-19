@@ -14,7 +14,7 @@ router.get('/tickets', [authenticateMiddleware, authorizeMiddleware(['ticketmast
 router.post('/:id/join', [authenticateMiddleware, authorizeMiddleware(['ticketmaster', 'admin', 'superadmin', 'root'])], ticketController.ticketJoin);
 
 // Get tickets assigned to current ticketmaster
-router.get('/assigned', ticketAuthorize, async (req, res) => {
+router.get('/assigned', [authorizeMiddleware(['ticketmaster', 'admin', 'superadmin', 'root'])], async (req, res) => {
     try {
         const tickets = await Ticket.find({ agent_id: req.user._id })
             .populate({

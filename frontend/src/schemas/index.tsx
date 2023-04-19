@@ -33,3 +33,15 @@ export const loginSchema = Yup.object({
     .min(6, "Please enter valid password")
     .required("Please enter your password"),
 });
+
+export const checkoutSchema = Yup.object({
+  number: Yup.string()
+    .trim()
+    .min(10, "Please enter a valid number with at least 10 numbers")
+    .matches(/^[0-9]{10}$/, "Please enter a valid mobile number")
+    .required("Please enter your mobile number"),
+  address: Yup.string()
+    .trim()
+    .min(20, "Please enter a valid address with at least 20 characters")
+    .required("Please enter your address"),
+});

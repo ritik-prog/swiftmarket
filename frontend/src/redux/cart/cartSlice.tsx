@@ -22,10 +22,10 @@ interface CartState {
 // Define the initial state of the cart slice
 const initialState: CartState = {
   items: [],
+  totalPrice: 0,
+  totalDiscount: 0,
   totalAmount: 0,
   totalQuantity: 0,
-  totalDiscount: 0,
-  totalPrice: 0,
 };
 
 // Create the cart slice

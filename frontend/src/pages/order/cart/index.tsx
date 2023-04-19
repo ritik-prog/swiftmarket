@@ -97,7 +97,7 @@ export const ShoppingCart = () => {
               className="divide-y divide-gray-200 border-t border-b border-gray-200"
             >
               {cartItems.items.length !== 0 ? (
-                cartItems.items.map((product, productIdx) => (
+                cartItems.items.map((product) => (
                   <div key={product._id} className="px-4">
                     <li className="flex py-6 sm:py-6 ">
                       <div
@@ -127,7 +127,15 @@ export const ShoppingCart = () => {
                               </h3>
                             </div>
                             <div className="mt-1 flex text-sm">
-                              <p className="text-gray-500 dark:text-gray-200">
+                              <p
+                                className="text-gray-500 dark:text-gray-200"
+                                style={{
+                                  display: "-webkit-box",
+                                  WebkitLineClamp: 3,
+                                  WebkitBoxOrient: "vertical",
+                                  overflow: "hidden",
+                                }}
+                              >
                                 {product.productDescription}
                               </p>
                             </div>
@@ -233,7 +241,7 @@ export const ShoppingCart = () => {
                     Price ({cartItems.totalQuantity} item)
                   </dt>
                   <dd className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                    ₹{cartItems.totalAmount}
+                    ₹{cartItems.totalPrice}
                   </dd>
                 </div>
                 <div className="flex items-center justify-between pt-4">
@@ -252,7 +260,7 @@ export const ShoppingCart = () => {
                     Free
                   </dd>
                 </div>
-                <div className="flex items-center justify-between py-4 border-y border-dashed ">
+                <div className="flex items-center justify-between py-4 border-y border-dashed">
                   <dt className="text-base font-medium text-gray-900 dark:text-white">
                     Total Amount
                   </dt>
@@ -263,6 +271,15 @@ export const ShoppingCart = () => {
               </dl>
               <div className="px-6 pb-4 font-medium text-green-700 dark:text-green-400">
                 You will save ₹ {cartItems.totalDiscount} on this order
+              </div>
+              <div className="flex items-center justify-between border-y">
+                <button
+                  type="button"
+                  className="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 w-full"
+                  onClick={() => navigate("/checkout")}
+                >
+                  Checkout
+                </button>
               </div>
             </div>
           </section>

@@ -1,6 +1,110 @@
-import React from "react";
+import { useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import instance from "../../../utils/Axios";
+import { FaBitcoin, FaCreditCard } from "react-icons/fa";
+import { useState } from "react";
+import { useFormik } from "formik";
+import { checkoutSchema } from "../../../schemas";
+import { createTransaction } from "../../../api/order";
+import { CreateToast } from "../../../utils/Toast";
+
+interface CartItem {
+  _id: string;
+  productName: string;
+  price: number;
+  discountedPrice: number;
+  productDescription: "";
+  thumbnailUrl: string;
+  quantity: number;
+}
+
+interface CartState {
+  items: CartItem[];
+  totalAmount: number;
+  totalDiscount: number;
+  totalPrice: number;
+  totalQuantity: number;
+}
+
+const initialValues = {
+  address: "",
+  number: "",
+};
 
 const Checkout = () => {
+  const [address, setAddress] = useState("");
+  const [number, setNumber] = useState("");
+  const cartItems = useSelector((state: { cart: CartState }) => state.cart);
+  const navigate = useNavigate();
+
+  const {
+    values,
+    errors,
+    touched,
+    handleBlur,
+    handleChange,
+    handleSubmit,
+    setTouched,
+    isValid,
+  } = useFormik({
+    initialValues,
+    validationSchema: checkoutSchema,
+    onSubmit: async (values, action) => {},
+  });
+
+  const handleBlockchainPayment = async () => {
+    if (
+      !isValid ||
+      (Object.keys(touched).length === 0 && touched.constructor === Object)
+    ) {
+      setTouched(touched);
+      return;
+    } else {
+      try {
+        const data = {
+          type: "purchase",
+          amount: cartItems.totalAmount,
+          paymentMethod: "blockchain",
+        };
+        const result = await createTransaction(data);
+        console.log(result);
+        if (result._id) {
+          navigate(`/order/checkout/stripe/${result._id}`);
+        }
+      } catch (error) {
+        CreateToast("tryagain", "Try again after sometime", "error");
+      }
+    }
+  };
+
+  const handleStripePayment = async () => {
+    if (
+      !isValid ||
+      (Object.keys(touched).length === 0 && touched.constructor === Object)
+    ) {
+      setTouched(touched);
+      return;
+    } else {
+      try {
+        const data = {
+          type: "purchase",
+          amount: cartItems.totalAmount,
+          paymentMethod: "stripe",
+        };
+        const result = await createTransaction(data);
+        if (result.transaction.trans_id) {
+          navigate(`/order/checkout/stripe/${result.transaction.trans_id}`, {
+            state: {
+              address: values.address,
+              number: values.number,
+            },
+          });
+        }
+      } catch (error) {}
+    }
+  };
+
   return (
     <div className="relative mx-auto w-full bg-white">
       <div className="grid min-h-screen grid-cols-10">
@@ -10,110 +114,77 @@ const Checkout = () => {
               Secure Checkout
               <span className="mt-2 block h-1 w-10 bg-teal-600 sm:w-20"></span>
             </h1>
-            <form action="" className="mt-10 flex flex-col space-y-4">
+            <form
+              className="mt-10 flex flex-col space-y-4"
+              onSubmit={handleSubmit}
+            >
               <div>
-                <label htmlFor="email" className="text-xs font-semibold text-gray-500">
-                  Email
-                </label>
-                <input
-                  type="email"
-                  id="email"
-                  name="email"
-                  placeholder="john.capler@fang.com"
-                  className="mt-1 block w-full rounded border-gray-300 bg-gray-50 py-3 px-4 text-sm placeholder-gray-300 shadow-sm outline-none transition focus:ring-2 focus:ring-teal-500"
-                />
-              </div>
-              <div className="relative">
                 <label
-                  htmlFor="card-number"
+                  htmlFor="number"
                   className="text-xs font-semibold text-gray-500"
                 >
-                  Card number
+                  Number{" "}
+                  {errors.number && touched.number ? (
+                    <span className="text-red-500 text-sm font-sm">
+                      ({errors.number})
+                    </span>
+                  ) : (
+                    <span className="text-red-500 text-sm font-sm">*</span>
+                  )}
                 </label>
                 <input
                   type="text"
-                  id="card-number"
-                  name="card-number"
-                  placeholder="1234-5678-XXXX-XXXX"
-                  className="block w-full rounded border-gray-300 bg-gray-50 py-3 px-4 pr-10 text-sm placeholder-gray-300 shadow-sm outline-none transition focus:ring-2 focus:ring-teal-500"
-                />
-                <img
-                  src="/images/uQUFIfCYVYcLK0qVJF5Yw.png"
-                  alt=""
-                  className="absolute bottom-3 right-3 max-h-4"
+                  name="number"
+                  value={values.number}
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                  placeholder="1234567890"
+                  className="mt-1 block w-full rounded border-gray-300 bg-teal-1000 py-3 px-4 text-sm placeholder-gray-300 shadow-sm outline-none transition focus:ring-2 focus:ring-teal-500"
                 />
               </div>
               <div>
-                <p className="text-xs font-semibold text-gray-500">
-                  Expiration date
-                </p>
-                <div className="mr-6 flex flex-wrap">
-                  <div className="my-1">
-                    <label htmlFor="month" className="sr-only">
-                      Select expiration month
-                    </label>
-                    <select
-                      name="month"
-                      id="month"
-                      className="cursor-pointer rounded border-gray-300 bg-gray-50 py-3 px-2 text-sm shadow-sm outline-none transition focus:ring-2 focus:ring-teal-500"
-                    >
-                      <option value="">Month</option>
-                    </select>
-                  </div>
-                  <div className="my-1 ml-3 mr-6">
-                    <label htmlFor="year" className="sr-only">
-                      Select expiration year
-                    </label>
-                    <select
-                      name="year"
-                      id="year"
-                      className="cursor-pointer rounded border-gray-300 bg-gray-50 py-3 px-2 text-sm shadow-sm outline-none transition focus:ring-2 focus:ring-teal-500"
-                    >
-                      <option value="">Year</option>
-                    </select>
-                  </div>
-                  <div className="relative my-1">
-                    <label htmlFor="security-code" className="sr-only">
-                      Security code
-                    </label>
-                    <input
-                      type="text"
-                      id="security-code"
-                      name="security-code"
-                      placeholder="Security code"
-                      className="block w-36 rounded border-gray-300 bg-gray-50 py-3 px-4 text-sm placeholder-gray-300 shadow-sm outline-none transition focus:ring-2 focus:ring-teal-500"
-                    />
-                  </div>
-                </div>
-              </div>
-              <div>
-                <label htmlFor="card-name" className="sr-only">
-                  Card name
+                <label
+                  htmlFor="address"
+                  className="text-xs font-semibold text-gray-500"
+                >
+                  Address{" "}
+                  {errors.address && touched.address ? (
+                    <span className="text-red-500 text-sm font-sm">
+                      ({errors.address})
+                    </span>
+                  ) : (
+                    <span className="text-red-500 text-sm font-sm">*</span>
+                  )}
                 </label>
                 <input
-                  type="text"
-                  id="card-name"
-                  name="card-name"
-                  placeholder="Name on the card"
-                  className="mt-1 block w-full rounded border-gray-300 bg-gray-50 py-3 px-4 text-sm placeholder-gray-300 shadow-sm outline-none transition focus:ring-2 focus:ring-teal-500"
+                  type="address"
+                  name="address"
+                  value={values.address}
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                  placeholder="123 Main St Apt 4B New York, NY 10001"
+                  className="mt-1 block w-full rounded border-gray-300 bg-teal-1000 py-3 px-4 text-sm placeholder-gray-300 shadow-sm outline-none transition focus:ring-2 focus:ring-teal-500"
                 />
+              </div>
+              <div className="flex justify-between">
+                <button
+                  type="submit"
+                  className="mr-4 w-full mt-4 inline-flex items-center justify-center rounded bg-teal-600 py-2.5 px-4 text-base font-semibold tracking-wide text-white text-opacity-80 outline-none ring-offset-2 transition hover:text-opacity-100 focus:ring-2 focus:ring-teal-500 sm:text-lg"
+                  onClick={handleBlockchainPayment}
+                >
+                  <FaBitcoin className="mr-2" />
+                  Pay with Blockchain
+                </button>
+                <button
+                  type="submit"
+                  onClick={handleStripePayment}
+                  className="w-full mt-4 inline-flex items-center justify-center rounded bg-blue-500 py-2.5 px-4 text-base font-semibold tracking-wide text-white text-opacity-80 outline-none ring-offset-2 transition hover:text-opacity-100 focus:ring-2 focus:ring-blue-500 sm:text-lg"
+                >
+                  <FaCreditCard className="mr-2" />
+                  Pay with Stripe
+                </button>
               </div>
             </form>
-            <p className="mt-10 text-center text-sm font-semibold text-gray-500">
-              By placing this order you agree to the{" "}
-              <a
-                href="#"
-                className="whitespace-nowrap text-teal-400 underline hover:text-teal-600"
-              >
-                Terms and Conditions
-              </a>
-            </p>
-            <button
-              type="submit"
-              className="mt-4 inline-flex w-full items-center justify-center rounded bg-teal-600 py-2.5 px-4 text-base font-semibold tracking-wide text-white text-opacity-80 outline-none ring-offset-2 transition hover:text-opacity-100 focus:ring-2 focus:ring-teal-500 sm:text-lg"
-            >
-              Place Order
-            </button>
           </div>
         </div>
         <div className="relative col-span-full flex flex-col py-6 pl-8 pr-4 sm:py-12 lg:col-span-4 lg:py-24">
@@ -128,74 +199,57 @@ const Checkout = () => {
           </div>
           <div className="relative">
             <ul className="space-y-5">
-              <li className="flex justify-between">
-                <div className="inline-flex">
-                  <img
-                    src="https://images.unsplash.com/photo-1620331311520-246422fd82f9?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxzZWFyY2h8MTN8fGhhaXIlMjBkcnllcnxlbnwwfHwwfHw%3D&auto=format&fit=crop&w=500&q=60"
-                    alt=""
-                    className="max-h-16"
-                  />
-                  <div className="ml-3">
-                    <p className="text-base font-semibold text-white">
-                      Nano Titanium Hair Dryer
+              {cartItems.items.length !== 0 ? (
+                cartItems.items.map((product) => (
+                  <li className="flex justify-between">
+                    <div className="inline-flex">
+                      <img
+                        src={product.thumbnailUrl}
+                        alt={product.productName}
+                        className="max-h-16"
+                      />
+                      <div className="ml-3">
+                        <p className="text-base font-semibold text-white">
+                          {product.productName}
+                        </p>
+                      </div>
+                    </div>
+                    <p className="text-sm font-semibold text-white">
+                      ${product.price}
                     </p>
-                    <p className="text-sm font-medium text-white text-opacity-80">
-                      Pdf, doc Kindle
-                    </p>
-                  </div>
-                </div>
-                <p className="text-sm font-semibold text-white">$260.00</p>
-              </li>
-              <li className="flex justify-between">
-                <div className="inline-flex">
-                  <img
-                    src="https://images.unsplash.com/photo-1621607512214-68297480165e?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxzZWFyY2h8MjV8fGhhaXIlMjBkcnllcnxlbnwwfHwwfHw%3D&auto=format&fit=crop&w=500&q=60"
-                    alt=""
-                    className="max-h-16"
-                  />
-                  <div className="ml-3">
-                    <p className="text-base font-semibold text-white">Luisia H35</p>
-                    <p className="text-sm font-medium text-white text-opacity-80">
-                      Hair Dryer
-                    </p>
-                  </div>
-                </div>
-                <p className="text-sm font-semibold text-white">$350.00</p>
-              </li>
+                  </li>
+                ))
+              ) : (
+                <></>
+              )}
             </ul>
             <div className="my-5 h-0.5 w-full bg-white bg-opacity-30"></div>
             <div className="space-y-2">
-              <p className="flex justify-between text-lg font-bold text-white">
-                <span>Total price:</span>
-                <span>$510.00</span>
-              </p>
-              <p className="flex justify-between text-sm font-medium text-white">
-                <span>Vat: 10%</span>
-                <span>$55.00</span>
-              </p>
+              <div className="flex items-center justify-between">
+                <dt className="text-sm text-white dark:text-gray-200">
+                  Price ({cartItems.totalQuantity} item)
+                </dt>
+                <dd className="text-sm font-medium text-white dark:text-gray-100">
+                  ₹{cartItems.totalPrice}
+                </dd>
+              </div>
+              <div className="flex items-center justify-between pt-4">
+                <dt className="flex items-center text-sm text-white dark:text-gray-200">
+                  <span>Discount</span>
+                </dt>
+                <dd className="text-sm font-medium text-white dark:text-green-400">
+                  - ₹{cartItems.totalDiscount}
+                </dd>
+              </div>
+              <div className="flex items-center justify-between py-4 border-y border-dashed">
+                <dt className="text-base font-medium text-white dark:text-white">
+                  Total Amount
+                </dt>
+                <dd className="text-base font-medium text-white dark:text-white">
+                  ₹{cartItems.totalAmount}
+                </dd>
+              </div>
             </div>
-          </div>
-          <div className="relative mt-10 text-white">
-            <h3 className="mb-5 text-lg font-bold">Support</h3>
-            <p className="text-sm font-semibold">
-              +01 653 235 211 <span className="font-light">(International)</span>
-            </p>
-            <p className="mt-1 text-sm font-semibold">
-              support@nanohair.com <span className="font-light">(Email)</span>
-            </p>
-            <p className="mt-2 text-xs font-medium">
-              Call us now htmlFor payment related issues
-            </p>
-          </div>
-          <div className="relative mt-10 flex">
-            <p className="flex flex-col">
-              <span className="text-sm font-bold text-white">
-                Money Back Guarantee
-              </span>
-              <span className="text-xs font-medium text-white">
-                within 30 days of purchase
-              </span>
-            </p>
           </div>
         </div>
       </div>
