@@ -19,6 +19,7 @@ router.post(
         check("number").not().isEmpty(),
         check("products").isArray().not().isEmpty(),
         check("transactionId").not().isEmpty(),
+        check("fullname").not().isEmpty(),
     ],
     async (req, res) => {
         // Data validation
@@ -27,7 +28,7 @@ router.post(
             return res.status(400).json({ errors: errors.array() });
         }
 
-        const { shippingAddress, products, transactionId, number } = req.body;
+        const { shippingAddress, products, transactionId, number, fullname } = req.body;
 
         // let session;
         try {
@@ -69,11 +70,11 @@ router.post(
                 }
                 for (let seller of sellers) {
                     const sellerId = new ObjectId(seller); // ensure that seller is an ObjectId
-                    console.log(sellerId)
                     const subOrderProducts = [];
                     for (let product of productDetails) {
                         if (product.product.seller.equals(sellerId)) {
-                            subOrderProducts.push({ product: product.product._id, quantity: product.quantity });
+                            console.log(product)
+                            subOrderProducts.push({ product: product.product._id, quantity: product.quantity, price: product.product.price, discountedPrice: product.product.discountedPrice });
                         }
                     }
                     await Order.create(
@@ -85,6 +86,7 @@ router.post(
                             transactionId: foundTransaction._id,
                             cartId,
                             products: subOrderProducts,
+                            fullname: fullname,
                         },
                     );
                 }
@@ -101,6 +103,7 @@ router.post(
                 });
                 user.address = shippingAddress;
                 user.number = number;
+                user.name = fullname;
                 await user.save();
             } else {
                 res.status(421).json({ message: "Can't place order as of now...", status: 421 });
@@ -120,18 +123,16 @@ router.post(
 );
 
 // Get all orders for a customer
-router.get("/", authenticateMiddleware, async (req, res) => {
+router.get("/all-orders", authenticateMiddleware, async (req, res) => {
     try {
         const orders = await Order.find({ customer: req.user._id })
-            .populate(
-                "subOrders.seller",
-                "businessName businessNumber businessEmail sellerID"
-            )
-            .populate(
-                "subOrders.products",
-                "productName productPrice productQuantity seller"
-            );
-        res.send(orders);
+            .populate({
+                path: 'products.product',
+                select: '-_id -__v',
+            })
+            .populate('transactionId')
+            .sort({ createdAt: -1 });
+        res.status(200).send({ orders: orders, status: 200 });
     } catch (error) {
         res.status(500).send({ error: error.message });
     }

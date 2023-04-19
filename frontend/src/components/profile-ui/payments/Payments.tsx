@@ -30,7 +30,7 @@ const Payments = () => {
                     </div>
                     <div className="flex justify-between items-center">
                       <span className="text-gray-500 dark:text-gray-400 text-sm font-medium">
-                        $1250.00
+                        ₹1250.00
                       </span>
                       <span className="bg-gray-200 rounded-full px-2 py-1 text-xs text-gray-700 dark:bg-gray-700 dark:text-gray-200 font-medium">
                         Paid

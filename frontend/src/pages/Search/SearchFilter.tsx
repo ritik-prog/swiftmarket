@@ -7,6 +7,7 @@ import { searchProducts, searchProductsByCategory } from "../../api/product";
 import { addItem as addItemToCart } from "../../redux/cart/cartSlice";
 import { addItem } from "../../redux/wishlist/wishlistSlice";
 import { CreateToast } from "../../utils/Toast";
+import { setType } from "../../redux/sidebar/sidebarSlice";
 
 interface CartItem {
   _id: string;
@@ -120,6 +121,7 @@ const SearchFilter = () => {
       thumbnailUrl: product.thumbnailUrl,
     };
     dispatch(addItem(wishlistItem));
+    dispatch(setType("wishlist"));
     navigate("/profile");
   };
 

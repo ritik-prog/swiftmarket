@@ -275,8 +275,14 @@ export const ShoppingCart = () => {
               <div className="flex items-center justify-between border-y">
                 <button
                   type="button"
-                  className="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 w-full"
+                  className={`inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium shadow-sm text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 w-full
+                  ${
+                    cartItems.items.length <= 0
+                      ? "bg-indigo-400 hover:bg-indigo-400"
+                      : "bg-indigo-600 hover:bg-indigo-700"
+                  }`}
                   onClick={() => navigate("/checkout")}
+                  disabled={cartItems.items.length <= 0}
                 >
                   Checkout
                 </button>

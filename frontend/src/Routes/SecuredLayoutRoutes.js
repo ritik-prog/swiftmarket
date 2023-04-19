@@ -2,7 +2,7 @@ import SecuredLayout from "../layouts/SecuredLayout";
 import { ShoppingCart } from "../pages/order/cart";
 import Wishlist from "../components/profile-ui/wishlist/Wishlist";
 import { OrderConfirmed } from "../pages/order/confirmed";
-import { OrderDetails } from "../pages/order/details/indes";
+import { OrderDetails } from "../pages/order/details/orderDetails";
 
 // Secured Layout
 export const SecuredLayoutRoutes = {

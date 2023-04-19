@@ -40,12 +40,12 @@ const Recommendations = () => {
             </div>
             <div className="flex justify-between space-x-8 items-start w-full">
               <p className="text-base xl:text-lg leading-6">
-                $36.00{" "}
-                <span className="text-red-300 line-through"> $45.00</span>
+                ₹36.00{" "}
+                <span className="text-red-300 line-through"> ₹45.00</span>
               </p>
               <p className="text-base xl:text-lg leading-6 text-gray-800">01</p>
               <p className="text-base xl:text-lg font-semibold leading-6 text-gray-800">
-                $36.00
+                ₹36.00
               </p>
             </div>
           </div>
@@ -83,12 +83,12 @@ const Recommendations = () => {
             </div>
             <div className="flex justify-between space-x-8 items-start w-full">
               <p className="text-base xl:text-lg leading-6">
-                $20.00{" "}
-                <span className="text-red-300 line-through"> $30.00</span>
+                ₹20.00{" "}
+                <span className="text-red-300 line-through"> ₹30.00</span>
               </p>
               <p className="text-base xl:text-lg leading-6 text-gray-800">01</p>
               <p className="text-base xl:text-lg font-semibold leading-6 text-gray-800">
-                $20.00
+                ₹20.00
               </p>
             </div>
           </div>

@@ -10,10 +10,15 @@ import {
 } from "@stripe/react-stripe-js";
 import { CreateToast } from "../../../utils/Toast";
 import { placeOrderApi, updateTransaction } from "../../../api/order";
+import { useDispatch } from "react-redux";
+import { setType } from "../../../redux/sidebar/sidebarSlice";
+import { clearCart } from "../../../redux/cart/cartSlice";
 
 const Stripe = ({ options }) => {
   const cartItems = useSelector((state) => state.cart);
+  const user = useSelector((state) => state.user);
   const navigate = useNavigate();
+  const dispatch = useDispatch()
   const { state } = useLocation();
   const { transactionId } = useParams();
   const stripe = useStripe();
@@ -27,7 +32,7 @@ const Stripe = ({ options }) => {
       return;
     }
 
-    if (!state.address || !state.number) {
+    if (!state.address || !state.number || !state.fullname) {
       navigate('/cart')
     }
 
@@ -36,7 +41,7 @@ const Stripe = ({ options }) => {
         payment_method: {
           card: elements.getElement(CardElement),
           billing_details: {
-            name: "Jenny Rosen",
+            name: state.fullname,
           },
         },
       })
@@ -54,10 +59,13 @@ const Stripe = ({ options }) => {
       const { cart_id } = await placeOrderApi({
         shippingAddress: state.address,
         number: state.number,
+        fullname: state.fullname,
         products: products,
         transactionId: transactionId,
       });
-      navigate(`/order/confirmed/${cart_id}`)
+      dispatch(setType('orders'))
+      navigate(`/profile`)
+      dispatch(clearCart())
       CreateToast('payment', 'Payment Successful', 'success');
     }
   };
@@ -120,7 +128,7 @@ const Stripe = ({ options }) => {
                       </div>
                     </div>
                     <p className="text-sm font-semibold text-white">
-                      ${product.price}
+                      ₹{product.price}
                     </p>
                   </li>
                 ))

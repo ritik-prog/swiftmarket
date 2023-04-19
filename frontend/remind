@@ -1,6 +1,10 @@
-order confirmed 
-order details
-shooping cart
-checkout page
-payment page
--- devui tabs
+complete metamask itegration(checkout)
+(profile)ask for refund :- add order complete status after 7 days and check everytime order is fetched
+
+account setting:- update profile (profile)
+transactions:- payments(profile)
+
+complete profile
+
+forget password (login)
+apply for seller

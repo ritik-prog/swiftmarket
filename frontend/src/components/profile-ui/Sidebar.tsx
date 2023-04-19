@@ -1,15 +1,19 @@
 import React, { useState } from "react";
 import ContainerHandler from "./ContainerHandler";
 import { useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
+import { RootState } from "../../redux/rootReducer";
+import { useDispatch } from "react-redux";
+import { setType } from "../../redux/sidebar/sidebarSlice";
 
 const Sidebar = () => {
   const navigate = useNavigate();
-  //  const history = useHistory();
-  const [type, setType] = useState("wishlist");
+  const type = useSelector((state: RootState) => state.sidebar.type);
+  const dispatch = useDispatch();
   const [openSidebar, setOpenSidebar] = useState(true);
   const handletype = (type: string) => {
     setOpenSidebar(false);
-    setType(type);
+    dispatch(setType(type));
   };
   return (
     <div>
@@ -46,7 +50,12 @@ const Sidebar = () => {
           id="default-sidebar"
           aria-label="Sidebar"
         >
-          <span className="cursor-pointer" onClick={() => navigate(-1)}>
+          <span
+            className="cursor-pointer"
+            onClick={() =>
+              type === "orders" ? navigate("/shop") : navigate(-1)
+            }
+          >
             <svg
               xmlns="http://www.w3.org/2000/svg"
               fill="none"

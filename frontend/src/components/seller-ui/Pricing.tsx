@@ -26,7 +26,7 @@ const Pricing = ({ isOpen, openModal }: PricingProps) => {
             </p>
 
             <h2 className="text-4xl font-semibold text-gray-800 uppercase dark:text-gray-100">
-              $0
+              ₹0
             </h2>
 
             <p className="font-medium text-gray-500 dark:text-gray-300">

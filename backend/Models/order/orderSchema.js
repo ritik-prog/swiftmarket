@@ -8,6 +8,13 @@ const orderSchema = new mongoose.Schema({
         type: String,
         unique: true
     },
+    fullname: {
+        type: String,
+        required: true,
+        trim: true,
+        minlength: 5,
+        maxlength: 25,
+    },
     cartId: {
         type: String,
         required: true,
@@ -48,11 +55,21 @@ const orderSchema = new mongoose.Schema({
                 default: 1,
                 min: 1,
             },
+            price: {
+                type: Number,
+                required: true,
+                default: 0,
+            },
+            discountedPrice: {
+                type: Number,
+                required: true,
+                default: 0,
+            },
         },
     ],
     orderStatus: {
         type: String,
-        enum: ['Placed', 'Confirmed', 'Shipped', 'Delivered', 'Payment Failed', 'Cancelled'],
+        enum: ['Placed', 'Confirmed', 'Shipped', 'Delivered', 'Payment Failed', 'Cancelled', 'Completed'],
         required: true,
         default: 'Placed',
     },

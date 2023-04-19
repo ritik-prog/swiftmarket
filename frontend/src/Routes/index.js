@@ -1,5 +1,4 @@
 import { createBrowserRouter } from "react-router-dom";
-import Checkout from "../pages/order/checkout/stripe";
 import Error404 from "../pages/error/Error404";
 import Verification from "../pages/auth/Verification";
 import Profile from "../pages/profile";

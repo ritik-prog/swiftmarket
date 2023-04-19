@@ -30,6 +30,7 @@ interface CartState {
 const initialValues = {
   address: "",
   number: "",
+  fullname: "",
 };
 
 const Checkout = () => {
@@ -98,6 +99,7 @@ const Checkout = () => {
             state: {
               address: values.address,
               number: values.number,
+              fullname: values.fullname,
             },
           });
         }
@@ -118,6 +120,30 @@ const Checkout = () => {
               className="mt-10 flex flex-col space-y-4"
               onSubmit={handleSubmit}
             >
+              <div>
+                <label
+                  htmlFor="fullname"
+                  className="text-xs font-semibold text-gray-500"
+                >
+                  Full Name{" "}
+                  {errors.fullname && touched.fullname ? (
+                    <span className="text-red-500 text-sm font-sm">
+                      ({errors.fullname})
+                    </span>
+                  ) : (
+                    <span className="text-red-500 text-sm font-sm">*</span>
+                  )}
+                </label>
+                <input
+                  type="text"
+                  name="fullname"
+                  value={values.fullname}
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                  placeholder="John Marik"
+                  className="mt-1 block w-full rounded border-gray-300 bg-teal-1000 py-3 px-4 text-sm placeholder-gray-300 shadow-sm outline-none transition focus:ring-2 focus:ring-teal-500"
+                />
+              </div>
               <div>
                 <label
                   htmlFor="number"
@@ -215,7 +241,7 @@ const Checkout = () => {
                       </div>
                     </div>
                     <p className="text-sm font-semibold text-white">
-                      ${product.price}
+                      ₹{product.price}
                     </p>
                   </li>
                 ))

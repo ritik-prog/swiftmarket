@@ -44,4 +44,8 @@ export const checkoutSchema = Yup.object({
     .trim()
     .min(20, "Please enter a valid address with at least 20 characters")
     .required("Please enter your address"),
+  fullname: Yup.string()
+    .trim()
+    .min(5, "Please enter a valid name with at least 5 characters")
+    .max(25, "Please enter a valid address with max 25 characters"),
 });

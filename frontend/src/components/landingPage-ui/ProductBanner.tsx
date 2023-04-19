@@ -127,7 +127,7 @@ const ProductBanner = () => {
                     {product.productName}
                   </h3>
                   <p className="text-body-color mb-2 text-md font-medium">
-                    Price: ${product.discountedPrice}
+                    Price: ₹{product.discountedPrice}
                   </p>
                   <a
                     href="javascript:void(0)"
@@ -166,7 +166,7 @@ const ProductBanner = () => {
                     {product.productName}
                   </h3>
                   <p className="text-body-color mb-2 text-md font-medium">
-                    Price: ${product.discountedPrice}
+                    Price: ₹{product.discountedPrice}
                   </p>
                   <a
                     href="javascript:void(0)"
@@ -205,7 +205,10 @@ const ProductBanner = () => {
                     {product.productName}
                   </h3>
                   <p className="text-body-color mb-2 text-md font-medium">
-                    Price: ${product.discountedPrice}
+                    Price: ₹
+                    {product.discountedPrice
+                      ? product.discountedPrice
+                      : product.price}
                   </p>
                   <a
                     href="javascript:void(0)"
@@ -244,7 +247,7 @@ const ProductBanner = () => {
                     {product.productName}
                   </h3>
                   <p className="text-body-color mb-2 text-md font-medium">
-                    Price: $
+                    Price: ₹
                     {product.discountedPrice
                       ? product.discountedPrice
                       : product.price}

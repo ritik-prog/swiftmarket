@@ -27,3 +27,12 @@ export const placeOrderApi = async (data: any) => {
     return { success: false, message: "Network error" };
   }
 };
+
+export const getOrderApi = async () => {
+  try {
+    const response = await instance.get("order/all-orders");
+    return response.data;
+  } catch (error) {
+    return { success: false, message: "Network error" };
+  }
+};

@@ -62,7 +62,7 @@ const Collection = () => {
 
                       <span className="tracking-wider text-gray-900">
                         {" "}
-                        $
+                        ₹
                         {product?.discountedPrice
                           ? product?.discountedPrice
                           : product?.price}{" "}
