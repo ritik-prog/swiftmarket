@@ -142,20 +142,20 @@ export const ShoppingCart = () => {
                             {product.discountedPrice !== 0 ? (
                               <div className="mt-1 flex items-end">
                                 <p className="text-xs line-through font-medium text-gray-500 dark:text-gray-100">
-                                  {product.price}
+                                  ₹{product.price}
                                 </p>
                                 <p className="text-sm font-medium text-gray-900 dark:text-white">
-                                  &nbsp;&nbsp;{product.discountedPrice}
+                                  &nbsp;&nbsp;₹{product.discountedPrice}
                                 </p>
                                 &nbsp;&nbsp;
                                 <p className="text-sm font-medium text-green-500">
-                                  {product.price - product.discountedPrice}
+                                  ₹{product.price - product.discountedPrice}
                                 </p>
                               </div>
                             ) : (
                               <div className="mt-1 flex items-end">
                                 <p className="text-xs line-through font-medium text-gray-500 dark:text-gray-100">
-                                  {product.price}
+                                  ₹{product.price}
                                 </p>
                               </div>
                             )}

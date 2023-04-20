@@ -3,7 +3,7 @@ import SearchFilter from "../pages/Search/SearchFilter";
 import Privacy from "../pages/conditions/privacy";
 import TandC from "../pages/conditions/tandc";
 import Home from "../pages/home";
-import LandingPage from "../pages/landing";
+import LandingPage from "../pages/landingPage";
 import Overview from "../pages/product/Overview";
 import ApplyAsSeller from "../pages/seller/ApplyAsSeller";
 import SellerPage from "../pages/seller/SellerPage";

@@ -98,7 +98,8 @@ const Sidebar = () => {
                 />
               </div>
 
-              <span
+              {/* home */}
+              {/* <span
                 className="flex items-center px-3 py-2 text-gray-600 transition-colors duration-300 transform rounded-lg dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 dark:hover:text-gray-200 hover:text-gray-700"
                 onClick={() => handletype("home")}
               >
@@ -118,9 +119,11 @@ const Sidebar = () => {
                 </svg>
 
                 <span className="mx-2 text-sm font-medium">Home</span>
-              </span>
+              </span> */}
+              {/* end */}
+
               <span
-                className="flex items-center px-3 py-2 text-gray-600 transition-colors duration-300 transform rounded-lg dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 dark:hover:text-gray-200 hover:text-gray-700"
+                className="flex items-center px-3 py-2 text-gray-600 transition-colors duration-300 transform rounded-lg dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 dark:hover:text-gray-200 hover:text-gray-700 cursor-pointer"
                 onClick={() => handletype("orders")}
               >
                 <svg
@@ -141,7 +144,7 @@ const Sidebar = () => {
                 <span className="mx-2 text-sm font-medium">My Orders</span>
               </span>
               <span
-                className="flex items-center px-3 py-2 text-gray-600 transition-colors duration-300 transform rounded-lg dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 dark:hover:text-gray-200 hover:text-gray-700"
+                className="cursor-pointer flex items-center px-3 py-2 text-gray-600 transition-colors duration-300 transform rounded-lg dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 dark:hover:text-gray-200 hover:text-gray-700"
                 onClick={() => handletype("transactions")}
               >
                 <svg
@@ -162,7 +165,7 @@ const Sidebar = () => {
                 <span className="mx-2 text-sm font-medium">Payments</span>
               </span>
               <span
-                className="flex items-center px-3 py-2 text-gray-600 transition-colors duration-300 transform rounded-lg dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 dark:hover:text-gray-200 hover:text-gray-700"
+                className="cursor-pointer flex items-center px-3 py-2 text-gray-600 transition-colors duration-300 transform rounded-lg dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 dark:hover:text-gray-200 hover:text-gray-700"
                 onClick={() => handletype("wishlist")}
               >
                 <svg
@@ -183,7 +186,7 @@ const Sidebar = () => {
                 <span className="mx-2 text-sm font-medium">Saved Items</span>
               </span>
               <span
-                className="flex items-center px-3 py-2 text-gray-600 transition-colors duration-300 transform rounded-lg dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 dark:hover:text-gray-200 hover:text-gray-700"
+                className="cursor-pointer flex items-center px-3 py-2 text-gray-600 transition-colors duration-300 transform rounded-lg dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 dark:hover:text-gray-200 hover:text-gray-700"
                 onClick={() => handletype("tickets")}
               >
                 <svg
@@ -204,7 +207,7 @@ const Sidebar = () => {
                 <span className="mx-2 text-sm font-medium">Help Center</span>
               </span>
               <span
-                className="flex items-center px-3 py-2 text-gray-600 transition-colors duration-300 transform rounded-lg dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 dark:hover:text-gray-200 hover:text-gray-700"
+                className="cursor-pointer flex items-center px-3 py-2 text-gray-600 transition-colors duration-300 transform rounded-lg dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 dark:hover:text-gray-200 hover:text-gray-700"
                 onClick={() => handletype("setting")}
               >
                 <svg

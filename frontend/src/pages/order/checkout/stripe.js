@@ -34,6 +34,7 @@ const Stripe = ({ options }) => {
 
     if (!state.address || !state.number || !state.fullname) {
       navigate('/cart')
+      CreateToast('paymenterror', "Something went wrong...", 'error');
     }
 
     const result = await stripe
@@ -47,6 +48,7 @@ const Stripe = ({ options }) => {
       })
     if (result.error) {
       CreateToast('paymenterror', result.error.message, 'error');
+      navigate('/cart')
       return;
     }
     if (result?.paymentIntent?.status === "succeeded") {
@@ -64,7 +66,7 @@ const Stripe = ({ options }) => {
         transactionId: transactionId,
       });
       dispatch(setType('orders'))
-      navigate(`/profile`)
+      navigate(`/profile`, { replace: true })
       dispatch(clearCart())
       CreateToast('payment', 'Payment Successful', 'success');
     }

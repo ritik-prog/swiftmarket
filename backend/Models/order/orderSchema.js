@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const { v4: uuidv4 } = require('uuid');
 const Product = require('../product/productSchema');
 const sendEmail = require('../../utils/sendEmail');
+const User = require('../auth/userSchema');
 
 const orderSchema = new mongoose.Schema({
     orderId: {
@@ -69,7 +70,7 @@ const orderSchema = new mongoose.Schema({
     ],
     orderStatus: {
         type: String,
-        enum: ['Placed', 'Confirmed', 'Shipped', 'Delivered', 'Payment Failed', 'Cancelled', 'Completed'],
+        enum: ['Placed', 'Confirmed', 'Shipped', 'Delivered', 'Payment Failed', 'Cancelled', 'Completed', 'Returned'],
         required: true,
         default: 'Placed',
     },
@@ -174,6 +175,17 @@ orderSchema.pre('save', async function (next) {
             this.orderAmount = orderAmount;
             this.totalDiscount = totalDiscount;
             this.orderTotal = orderAmount - totalDiscount;
+        }
+        if (this.orderStatus === "Delivered") {
+            this.trackingDetails.deliveryStatus = "Delivered"
+            const customer = await User.findById(this.customer);
+            const data = {
+                customerName: customer.name,
+                totalCost: this.orderTotal,
+                subject: 'Order Delivered - SwiftMarket'
+            };
+            // Send email
+            sendEmail(customer.email, data, './order/orderDelivered.hbs');
         }
         next();
     } catch (error) {

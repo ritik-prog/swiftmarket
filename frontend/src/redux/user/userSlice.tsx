@@ -7,6 +7,8 @@ const initialState = {
     email: "",
     verificationStatus: false,
     role: "",
+    name: "",
+    address: "",
   },
   isAuthenticated: false,
   ban: {

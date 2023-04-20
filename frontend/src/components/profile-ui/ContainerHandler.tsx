@@ -12,8 +12,8 @@ interface ContainerHandlerProps {
 
 const ContainerHandler = ({ type }: ContainerHandlerProps) => {
   switch (type) {
-    case "home":
-      return <Home />;
+    // case "home":
+    //   return <Home />;
     case "orders":
       return <OrderDetails />;
     case "transactions":

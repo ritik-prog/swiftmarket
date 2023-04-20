@@ -1,7 +1,5 @@
 import React, { useState } from "react";
 import { useNavigate, Navigate } from "react-router-dom";
-import instance from "../../utils/Axios";
-import axios from "axios";
 import { useDispatch } from "react-redux";
 import { loginSuccess } from "../../redux/user/userSlice";
 import { useSelector } from "react-redux";
@@ -34,6 +32,7 @@ const Login = () => {
         try {
           const response = await signInpApi(values.email, values.password);
           delete response.data.user.role;
+          console.log(response.data);
           dispatch(loginSuccess(response.data));
           if (!response.data.user.verificationStatus) {
             navigate("/verification");

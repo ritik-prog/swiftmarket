@@ -5,12 +5,16 @@ const router = require("express").Router();
 const stripe = require("stripe")("sk_test_51HTOQGCH0xfOm9H95fTqnzn5FXJ004IjhWnpb7EtesBucXomOPnww0bmUmJ4hJWgATawLLW7UEngu9QaYDSFUlzi00qJb5ijjb");
 
 router.post("/intent", async (req, res) => {
-  const paymentIntent = await stripe.paymentIntents.create({
-    amount: req.body.amount * 100,
-    currency: 'inr',
-    payment_method_types: ['card'],
-  });
-  res.json({ client_secret: paymentIntent.client_secret });
+  try {
+    const paymentIntent = await stripe.paymentIntents.create({
+      amount: req.body.amount * 100,
+      currency: 'inr',
+      payment_method_types: ['card'],
+    });
+    res.json({ client_secret: paymentIntent.client_secret });
+  } catch (err) {
+    res.status(499).json({ message: 'Try after sometime...' })
+  }
 });
 
 // Create a transaction
@@ -100,7 +104,7 @@ router.put("/transaction/:transactionId", [authenticateMiddleware], async (req, 
     const transaction = await Transaction.findOne({
       trans_id: req.params.transactionId
     });
-    
+
     if (String(req.user._id) === String(transaction.customer)) {
 
       if (!transaction) {
@@ -115,6 +119,17 @@ router.put("/transaction/:transactionId", [authenticateMiddleware], async (req, 
     } else {
       res.status(499).json({ message: 'Something went wrong...', status: 499 })
     }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server Error" });
+  }
+});
+
+// Get Transactions
+router.get("/transactions", [authenticateMiddleware], async (req, res) => {
+  try {
+    const transactions = await Transaction.find({ customer: req.user._id }).sort({ createdAt: -1 }).exec();
+    res.status(200).json({ transactions, status: 200 });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Server Error" });

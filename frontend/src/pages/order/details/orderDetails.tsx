@@ -11,7 +11,6 @@ export function OrderDetails() {
     const res = await getOrderApi();
     setOrders(res.orders);
     setActiveOrder(res.orders[0]);
-    console.log(res.orders);
   }
   useEffect(() => {
     getData();
@@ -31,17 +30,19 @@ export function OrderDetails() {
             <div className="w-full overflow-y-visible">
               <div className="px-1 md:px-5">
                 {orders &&
-                  orders.map((order: any) => (
+                  orders.map((order: any, index: any) => (
                     <div
                       onClick={() => setActiveOrder(order)}
                       role="button"
-                      className="mb-4 flex w-full shrink-0 cursor-pointer flex-col overflow-hidden rounded border-2 border-green-600 bg-gray-100 dark:bg-gray-700 dark:text-white last:mb-0  "
+                      className={`mb-4 flex w-full shrink-0 cursor-pointer flex-col overflow-hidden rounded border-2 bg-gray-100 dark:bg-gray-700 dark:text-white last:mb-0 ${
+                        activeOrder._id === order._id && "border-green-600"
+                      } `}
                     >
                       <div className="flex items-center justify-between border-b py-3 px-5 md:px-3 lg:px-5 ">
                         <span className="flex shrink-0 text-sm font-bold text-heading ltr:mr-4 rtl:ml-4 lg:text-base">
                           Order
                           <span className="font-normal">
-                            #{order.orderId.split("_")[1]}
+                            #{index+1}
                           </span>
                         </span>
                         <span
@@ -60,6 +61,8 @@ export function OrderDetails() {
                               ? "bg-red-600"
                               : order.orderStatus === "Cancelled"
                               ? "bg-[#9CA3AF]"
+                              : order.orderStatus === "Returned"
+                              ? "bg-red-600"
                               : ""
                           }`}
                           title={order.orderStatus}
@@ -142,18 +145,20 @@ export function OrderDetails() {
                   {activeOrder.orderId.split("_")[1]}
                 </h2>
                 <div className="flex items-center">
-                  <button className="flex items-center text-sm font-semibold text-gray-500 dark:text-gray-200 transition-colors hover:text-accent disabled:cursor-not-allowed disabled:text-gray-400 disabled:hover:text-gray-400 ltr:mr-4 rtl:ml-4">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      viewBox="0 0 106.059 106.059"
-                      fill="currentColor"
-                      width={18}
-                      className="ltr:mr-2 rtl:ml-2"
-                    >
-                      <path d="M90.546 15.518c-20.688-20.69-54.347-20.69-75.031-.005-20.688 20.685-20.686 54.345.002 75.034 20.682 20.684 54.341 20.684 75.027-.004 20.686-20.685 20.685-54.343.002-75.025zm-5.789 69.24c-17.494 17.494-45.96 17.496-63.455.002-17.498-17.497-17.496-45.966 0-63.46 17.494-17.493 45.959-17.495 63.457.002 17.494 17.494 17.492 45.963-.002 63.456zm-7.74-10.757a2.998 2.998 0 0 1-1.562 3.943 2.998 2.998 0 0 1-3.944-1.562c-2.893-6.689-9.73-11.012-17.421-11.012-7.868 0-14.747 4.319-17.522 11.004a3.002 3.002 0 0 1-3.921 1.621 3 3 0 0 1-1.62-3.921c3.71-8.932 12.764-14.703 23.063-14.703 10.084 0 19.084 5.742 22.927 14.63zM33.24 38.671a6.201 6.201 0 1 1 12.4 0 6.201 6.201 0 0 1-12.4 0zm28.117 0a6.201 6.201 0 0 1 12.403 0c0 3.426-2.776 6.202-6.2 6.202s-6.203-2.776-6.203-6.202z" />
-                    </svg>
-                    Ask for a refund
-                  </button>
+                  {activeOrder.orderStatus !== "Completed" && (
+                    <button className="flex items-center text-sm font-semibold text-gray-500 dark:text-gray-200 transition-colors hover:text-accent disabled:cursor-not-allowed disabled:text-gray-400 disabled:hover:text-gray-400 ltr:mr-4 rtl:ml-4">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 106.059 106.059"
+                        fill="currentColor"
+                        width={18}
+                        className="ltr:mr-2 rtl:ml-2"
+                      >
+                        <path d="M90.546 15.518c-20.688-20.69-54.347-20.69-75.031-.005-20.688 20.685-20.686 54.345.002 75.034 20.682 20.684 54.341 20.684 75.027-.004 20.686-20.685 20.685-54.343.002-75.025zm-5.789 69.24c-17.494 17.494-45.96 17.496-63.455.002-17.498-17.497-17.496-45.966 0-63.46 17.494-17.493 45.959-17.495 63.457.002 17.494 17.494 17.492 45.963-.002 63.456zm-7.74-10.757a2.998 2.998 0 0 1-1.562 3.943 2.998 2.998 0 0 1-3.944-1.562c-2.893-6.689-9.73-11.012-17.421-11.012-7.868 0-14.747 4.319-17.522 11.004a3.002 3.002 0 0 1-3.921 1.621 3 3 0 0 1-1.62-3.921c3.71-8.932 12.764-14.703 23.063-14.703 10.084 0 19.084 5.742 22.927 14.63zM33.24 38.671a6.201 6.201 0 1 1 12.4 0 6.201 6.201 0 0 1-12.4 0zm28.117 0a6.201 6.201 0 0 1 12.403 0c0 3.426-2.776 6.202-6.2 6.202s-6.203-2.776-6.203-6.202z" />
+                      </svg>
+                      Ask for a refund
+                    </button>
+                  )}
                 </div>
               </div>
               <div className="relative mx-5 mb-6 overflow-hidden rounded">
@@ -181,6 +186,8 @@ export function OrderDetails() {
                                 ? "bg-red-600"
                                 : activeOrder.orderStatus === "Cancelled"
                                 ? "bg-[#9CA3AF]"
+                                : activeOrder.orderStatus === "Returned"
+                                ? "bg-red-600"
                                 : ""
                             }`}
                             title={activeOrder.orderStatus}
@@ -273,158 +280,159 @@ export function OrderDetails() {
                 </div>
               </div>
               <div>
-                {activeOrder.orderStatus !== "Cancelled" && (
-                  <div className="flex w-full items-center justify-center px-6">
-                    <div className="h-full w-full dark:text-white">
-                      <div className="flex flex-col md:flex-row py-7">
-                        <div className="flex md:flex-col w-full md:w-1/5 relative pb-6 ">
-                          <div className="flex justify-center items-center md:mb-4">
-                            <div
-                              className={`bg-green-600 absolute top-1/2 md:top-auto md:left-1/2 h-1/4 md:h-1 w-1 md:w-1/2`}
-                            />
-                            <div className="p-2 z-10 bg-green-600 rounded-full">
-                              <CheckIcon
-                                className="h-4 w-4 text-white"
-                                strokeWidth={4}
+                {activeOrder.orderStatus !== "Cancelled" &&
+                  activeOrder.orderStatus !== "Returned" && (
+                    <div className="flex w-full items-center justify-center px-6">
+                      <div className="h-full w-full dark:text-white">
+                        <div className="flex flex-col md:flex-row py-7">
+                          <div className="flex md:flex-col w-full md:w-1/5 relative pb-6 ">
+                            <div className="flex justify-center items-center md:mb-4">
+                              <div
+                                className={`bg-green-600 absolute top-1/2 md:top-auto md:left-1/2 h-1/4 md:h-1 w-1 md:w-1/2`}
                               />
+                              <div className="p-2 z-10 bg-green-600 rounded-full">
+                                <CheckIcon
+                                  className="h-4 w-4 text-white"
+                                  strokeWidth={4}
+                                />
+                              </div>
+                            </div>
+                            <div className="text-base font-semibold capitalize text-body-dark ltr:text-left rtl:text-right md:px-2 md:!text-center ml-2 md:ml-0">
+                              Order Placed
                             </div>
                           </div>
-                          <div className="text-base font-semibold capitalize text-body-dark ltr:text-left rtl:text-right md:px-2 md:!text-center ml-2 md:ml-0">
-                            Order Placed
-                          </div>
-                        </div>
-                        <div className="flex md:flex-col w-full md:w-1/5 relative pb-6 ">
-                          <div className="flex justify-center items-center md:mb-4">
-                            <div
-                              className={`${
-                                activeOrder.orderStatus === "Confirmed" ||
-                                activeOrder.orderStatus === "Shipped" ||
-                                activeOrder.orderStatus === "Delivered" ||
-                                activeOrder.orderStatus === "Completed"
-                                  ? "bg-green-600"
-                                  : "bg-gray-200"
-                              } absolute -top-1/4 md:top-auto md:left-0 h-full md:h-1 w-1 md:w-full`}
-                            />
+                          <div className="flex md:flex-col w-full md:w-1/5 relative pb-6 ">
+                            <div className="flex justify-center items-center md:mb-4">
+                              <div
+                                className={`${
+                                  activeOrder.orderStatus === "Confirmed" ||
+                                  activeOrder.orderStatus === "Shipped" ||
+                                  activeOrder.orderStatus === "Delivered" ||
+                                  activeOrder.orderStatus === "Completed"
+                                    ? "bg-green-600"
+                                    : "bg-gray-200"
+                                } absolute -top-1/4 md:top-auto md:left-0 h-full md:h-1 w-1 md:w-full`}
+                              />
 
-                            {activeOrder.orderStatus === "Confirmed" ||
-                            activeOrder.orderStatus === "Shipped" ||
-                            activeOrder.orderStatus === "Delivered" ||
-                            activeOrder.orderStatus === "Completed" ? (
-                              <div className="p-2 z-10 bg-green-600 rounded-full">
-                                <CheckIcon
-                                  className="h-4 w-4 text-white"
-                                  strokeWidth={4}
-                                />
-                              </div>
-                            ) : (
-                              <div className="z-10 h-8 w-8 border-dashed bg-white  dark:bg-gray-700 text-green-600 border border-green-600 rounded-full justify-center items-center flex">
-                                <span className="h-4 w-4 text-green-600 justify-center items-center flex">
-                                  2
-                                </span>
-                              </div>
-                            )}
+                              {activeOrder.orderStatus === "Confirmed" ||
+                              activeOrder.orderStatus === "Shipped" ||
+                              activeOrder.orderStatus === "Delivered" ||
+                              activeOrder.orderStatus === "Completed" ? (
+                                <div className="p-2 z-10 bg-green-600 rounded-full">
+                                  <CheckIcon
+                                    className="h-4 w-4 text-white"
+                                    strokeWidth={4}
+                                  />
+                                </div>
+                              ) : (
+                                <div className="z-10 h-8 w-8 border-dashed bg-white  dark:bg-gray-700 text-green-600 border border-green-600 rounded-full justify-center items-center flex">
+                                  <span className="h-4 w-4 text-green-600 justify-center items-center flex">
+                                    2
+                                  </span>
+                                </div>
+                              )}
+                            </div>
+                            <div className="text-base font-semibold capitalize text-body-dark ltr:text-left rtl:text-right md:px-2 md:!text-center ml-2 md:ml-0">
+                              Order Confirmed
+                            </div>
                           </div>
-                          <div className="text-base font-semibold capitalize text-body-dark ltr:text-left rtl:text-right md:px-2 md:!text-center ml-2 md:ml-0">
-                            Order Confirmed
-                          </div>
-                        </div>
-                        <div className="flex md:flex-col w-full md:w-1/5 relative pb-6 ">
-                          <div className="flex justify-center items-center md:mb-4">
-                            <div
-                              className={`${
-                                activeOrder.orderStatus === "Shipped" ||
-                                activeOrder.orderStatus === "Delivered" ||
-                                activeOrder.orderStatus === "Completed"
-                                  ? "bg-green-600"
-                                  : "bg-gray-200"
-                              } absolute -top-1/4 md:top-auto md:left-0 h-full md:h-1 w-1 md:w-full`}
-                            />
+                          <div className="flex md:flex-col w-full md:w-1/5 relative pb-6 ">
+                            <div className="flex justify-center items-center md:mb-4">
+                              <div
+                                className={`${
+                                  activeOrder.orderStatus === "Shipped" ||
+                                  activeOrder.orderStatus === "Delivered" ||
+                                  activeOrder.orderStatus === "Completed"
+                                    ? "bg-green-600"
+                                    : "bg-gray-200"
+                                } absolute -top-1/4 md:top-auto md:left-0 h-full md:h-1 w-1 md:w-full`}
+                              />
 
-                            {activeOrder.orderStatus === "Shipped" ||
-                            activeOrder.orderStatus === "Delivered" ||
-                            activeOrder.orderStatus === "Completed" ? (
-                              <div className="p-2 z-10 bg-green-600 rounded-full">
-                                <CheckIcon
-                                  className="h-4 w-4 text-white"
-                                  strokeWidth={4}
-                                />
-                              </div>
-                            ) : (
-                              <div className="z-10 h-8 w-8 border-dashed bg-white  dark:bg-gray-700 text-green-600 border border-green-600 rounded-full justify-center items-center flex">
-                                <span className="h-4 w-4 text-green-600 justify-center items-center flex">
-                                  3
-                                </span>
-                              </div>
-                            )}
+                              {activeOrder.orderStatus === "Shipped" ||
+                              activeOrder.orderStatus === "Delivered" ||
+                              activeOrder.orderStatus === "Completed" ? (
+                                <div className="p-2 z-10 bg-green-600 rounded-full">
+                                  <CheckIcon
+                                    className="h-4 w-4 text-white"
+                                    strokeWidth={4}
+                                  />
+                                </div>
+                              ) : (
+                                <div className="z-10 h-8 w-8 border-dashed bg-white  dark:bg-gray-700 text-green-600 border border-green-600 rounded-full justify-center items-center flex">
+                                  <span className="h-4 w-4 text-green-600 justify-center items-center flex">
+                                    3
+                                  </span>
+                                </div>
+                              )}
+                            </div>
+                            <div className="text-base font-semibold capitalize text-body-dark ltr:text-left rtl:text-right md:px-2 md:!text-center ml-2 md:ml-0">
+                              Order Shipped
+                            </div>
                           </div>
-                          <div className="text-base font-semibold capitalize text-body-dark ltr:text-left rtl:text-right md:px-2 md:!text-center ml-2 md:ml-0">
-                            Order Shipped
-                          </div>
-                        </div>
-                        <div className="flex md:flex-col w-full md:w-1/5 relative pb-6 ">
-                          <div className="flex justify-center items-center md:mb-4">
-                            <div
-                              className={`${
-                                activeOrder.orderStatus === "Delivered" ||
-                                activeOrder.orderStatus === "Completed"
-                                  ? "bg-green-600"
-                                  : "bg-gray-200"
-                              } absolute -top-1/4 md:top-auto md:left-0 h-full md:h-1 w-1 md:w-full`}
-                            />
+                          <div className="flex md:flex-col w-full md:w-1/5 relative pb-6 ">
+                            <div className="flex justify-center items-center md:mb-4">
+                              <div
+                                className={`${
+                                  activeOrder.orderStatus === "Delivered" ||
+                                  activeOrder.orderStatus === "Completed"
+                                    ? "bg-green-600"
+                                    : "bg-gray-200"
+                                } absolute -top-1/4 md:top-auto md:left-0 h-full md:h-1 w-1 md:w-full`}
+                              />
 
-                            {activeOrder.orderStatus === "Delivered" ||
-                            activeOrder.orderStatus === "Completed" ? (
-                              <div className="p-2 z-10 bg-green-600 rounded-full">
-                                <CheckIcon
-                                  className="h-4 w-4 text-white"
-                                  strokeWidth={4}
-                                />
-                              </div>
-                            ) : (
-                              <div className="z-10 h-8 w-8 border-dashed bg-white  dark:bg-gray-700 text-green-600 border border-green-600 rounded-full justify-center items-center flex">
-                                <span className="h-4 w-4 text-green-600 justify-center items-center flex">
-                                  4
-                                </span>
-                              </div>
-                            )}
+                              {activeOrder.orderStatus === "Delivered" ||
+                              activeOrder.orderStatus === "Completed" ? (
+                                <div className="p-2 z-10 bg-green-600 rounded-full">
+                                  <CheckIcon
+                                    className="h-4 w-4 text-white"
+                                    strokeWidth={4}
+                                  />
+                                </div>
+                              ) : (
+                                <div className="z-10 h-8 w-8 border-dashed bg-white  dark:bg-gray-700 text-green-600 border border-green-600 rounded-full justify-center items-center flex">
+                                  <span className="h-4 w-4 text-green-600 justify-center items-center flex">
+                                    4
+                                  </span>
+                                </div>
+                              )}
+                            </div>
+                            <div className="text-base font-semibold capitalize text-body-dark ltr:text-left rtl:text-right md:px-2 md:!text-center ml-2 md:ml-0">
+                              Order Delivered
+                            </div>
                           </div>
-                          <div className="text-base font-semibold capitalize text-body-dark ltr:text-left rtl:text-right md:px-2 md:!text-center ml-2 md:ml-0">
-                            Order Delivered
-                          </div>
-                        </div>
-                        <div className="flex md:flex-col w-full md:w-1/5 relative pb-6 ">
-                          <div className="flex justify-center items-center md:mb-4">
-                            <div
-                              className={`${
-                                activeOrder.orderStatus === "Completed"
-                                  ? "bg-green-600"
-                                  : "bg-gray-200"
-                              } absolute -top-1/4 md:top-auto md:left-0 h-full md:h-1 w-1 md:w-full`}
-                            />
+                          <div className="flex md:flex-col w-full md:w-1/5 relative pb-6 ">
+                            <div className="flex justify-center items-center md:mb-4">
+                              <div
+                                className={`${
+                                  activeOrder.orderStatus === "Completed"
+                                    ? "bg-green-600"
+                                    : "bg-gray-200"
+                                } absolute -top-1/4 md:top-auto md:left-0 h-full md:h-1 w-1 md:w-full`}
+                              />
 
-                            {activeOrder.orderStatus === "Completed" ? (
-                              <div className="p-2 z-10 bg-green-600 rounded-full">
-                                <CheckIcon
-                                  className="h-4 w-4 text-white"
-                                  strokeWidth={4}
-                                />
-                              </div>
-                            ) : (
-                              <div className="z-10 h-8 w-8 border-dashed bg-white  dark:bg-gray-700 text-green-600 border border-green-600 rounded-full justify-center items-center flex">
-                                <span className="h-4 w-4 text-green-600 justify-center items-center flex">
-                                  5
-                                </span>
-                              </div>
-                            )}
-                          </div>
-                          <div className="text-base font-semibold capitalize text-body-dark ltr:text-left rtl:text-right md:px-2 md:!text-center ml-2 md:ml-0">
-                            Order Completed
+                              {activeOrder.orderStatus === "Completed" ? (
+                                <div className="p-2 z-10 bg-green-600 rounded-full">
+                                  <CheckIcon
+                                    className="h-4 w-4 text-white"
+                                    strokeWidth={4}
+                                  />
+                                </div>
+                              ) : (
+                                <div className="z-10 h-8 w-8 border-dashed bg-white  dark:bg-gray-700 text-green-600 border border-green-600 rounded-full justify-center items-center flex">
+                                  <span className="h-4 w-4 text-green-600 justify-center items-center flex">
+                                    5
+                                  </span>
+                                </div>
+                              )}
+                            </div>
+                            <div className="text-base font-semibold capitalize text-body-dark ltr:text-left rtl:text-right md:px-2 md:!text-center ml-2 md:ml-0">
+                              Order Completed
+                            </div>
                           </div>
                         </div>
                       </div>
                     </div>
-                  </div>
-                )}
+                  )}
                 <div className="border-t border-gray-400">
                   {activeOrder.products.map((product: any) => (
                     <div key={product._id} className="px-4">
@@ -450,7 +458,10 @@ export function OrderDetails() {
 
                               <div className="mt-1 flex text-sm">
                                 <p className="text-gray-500 dark:text-gray-200">
-                                  Quantity: {product.quantity}
+                                  Quantity:{" "}
+                                  <span className="font-bold">
+                                    {product.quantity}
+                                  </span>
                                 </p>
                               </div>
                               <div className="mt-1 flex items-end">
@@ -474,6 +485,76 @@ export function OrderDetails() {
                 </div>
               </div>
             </div>
+            {/* Tracking Details */}
+            {activeOrder.orderStatus !== "Cancelled" &&
+              activeOrder.orderStatus !== "Returned" &&
+              activeOrder.trackingDetails && (
+                <div className="bg-white rounded-lg shadow p-6">
+                  <h2 className="text-2xl font-bold mb-4">Tracking Details</h2>
+                  <div className="mb-2 md:mb-0">
+                    <span className="text-gray-500 font-medium mr-2">
+                      Carrier:
+                    </span>
+                    <span>
+                      {activeOrder.trackingDetails.carrierName || "N/A"}
+                    </span>
+                  </div>
+
+                  <div className="mb-2 md:mb-0">
+                    <span className="text-gray-500 font-medium mr-2">
+                      Tracking Number:
+                    </span>
+                    <span>
+                      {activeOrder.trackingDetails.trackingNumber || "N/A"}
+                    </span>
+                  </div>
+                  <div className="mb-2 md:mb-0">
+                    <span className="text-gray-500 font-medium mr-2">
+                      Delivery Date:
+                    </span>
+                    <span>
+                      {activeOrder.trackingDetails.deliveryDate
+                        ? new Date(
+                            activeOrder.trackingDetails.deliveryDate
+                          ).toLocaleDateString()
+                        : "N/A"}
+                    </span>
+                  </div>
+                  <div className="mb-2 md:mb-0">
+                    <span className="text-gray-500 font-medium mr-2">
+                      Delivery Status:
+                    </span>
+                    <span
+                      className={`capitalize ${
+                        activeOrder.trackingDetails.deliveryStatus ===
+                        "Delivered"
+                          ? "text-green-500"
+                          : activeOrder.trackingDetails.deliveryStatus ===
+                            "Out for Delivery"
+                          ? "text-yellow-500"
+                          : activeOrder.trackingDetails.deliveryStatus ===
+                            "In Transit"
+                          ? "text-blue-500"
+                          : "text-red-500"
+                      }`}
+                    >
+                      {activeOrder.trackingDetails.deliveryStatus || "N/A"}
+                    </span>
+                  </div>
+                  <div className="mt-4">
+                    {activeOrder.trackingDetails.trackingUrl && (
+                      <a
+                        href={activeOrder.trackingDetails.trackingUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-blue-500 hover:underline"
+                      >
+                        Track Shipment
+                      </a>
+                    )}
+                  </div>
+                </div>
+              )}
           </div>
         )}
       </div>

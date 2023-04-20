@@ -125,6 +125,16 @@ router.post(
 // Get all orders for a customer
 router.get("/all-orders", authenticateMiddleware, async (req, res) => {
     try {
+        const oneWeekAgo = new Date();
+        oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+
+        // Update orders that are more than 7 days old and have status 'Delivered'
+        await Order.updateMany({
+            createdAt: { $lt: oneWeekAgo },
+            orderStatus: { $ne: 'Completed', $eq: 'Delivered' }
+        },
+            { orderStatus: 'Completed' });
+
         const orders = await Order.find({ customer: req.user._id })
             .populate({
                 path: 'products.product',
@@ -137,5 +147,6 @@ router.get("/all-orders", authenticateMiddleware, async (req, res) => {
         res.status(500).send({ error: error.message });
     }
 });
+
 
 module.exports = router;

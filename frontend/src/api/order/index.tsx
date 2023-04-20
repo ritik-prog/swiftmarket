@@ -19,6 +19,11 @@ export const updateTransaction = async (transactionId: any) => {
   return response.data;
 };
 
+export const getTransactionsApi = async () => {
+  const response = await instance.get(`payment/transactions`);
+  return response.data;
+};
+
 export const placeOrderApi = async (data: any) => {
   try {
     const response = await instance.post("order/placeorder", data);

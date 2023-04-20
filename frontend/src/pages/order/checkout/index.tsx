@@ -1,6 +1,6 @@
 import { useDispatch } from "react-redux";
 import { useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
 import instance from "../../../utils/Axios";
 import { FaBitcoin, FaCreditCard } from "react-icons/fa";
 import { useState } from "react";
@@ -34,8 +34,6 @@ const initialValues = {
 };
 
 const Checkout = () => {
-  const [address, setAddress] = useState("");
-  const [number, setNumber] = useState("");
   const cartItems = useSelector((state: { cart: CartState }) => state.cart);
   const navigate = useNavigate();
 
@@ -101,13 +99,14 @@ const Checkout = () => {
               number: values.number,
               fullname: values.fullname,
             },
+            replace: true,
           });
         }
       } catch (error) {}
     }
   };
 
-  return (
+  return cartItems.items.length > 0 ? (
     <div className="relative mx-auto w-full bg-white">
       <div className="grid min-h-screen grid-cols-10">
         <div className="col-span-full py-6 px-4 sm:py-12 lg:col-span-6 lg:py-24">
@@ -280,6 +279,8 @@ const Checkout = () => {
         </div>
       </div>
     </div>
+  ) : (
+    <Navigate to="/shop" />
   );
 };
 
