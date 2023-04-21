@@ -129,4 +129,37 @@ router.delete(
     sellerController.deleteProductForSeller
 );
 
+// Get dashboard data 
+router.get(
+    "/get-metrics",
+    [
+        authenticateMiddleware,
+        authorizeMiddleware(["seller"]),
+        checkVerificationMiddleware,
+    ],
+    sellerController.getDashboardData
+);
+
+// get sales data
+router.get(
+    "/get-sales-data",
+    [
+        authenticateMiddleware,
+        authorizeMiddleware(["seller"]),
+        checkVerificationMiddleware,
+    ],
+    sellerController.getSalesData
+);
+
+// get orders
+router.get(
+    "/get-orders",
+    [
+        authenticateMiddleware,
+        authorizeMiddleware(["seller"]),
+        checkVerificationMiddleware,
+    ],
+    sellerController.getOrders
+);
+
 module.exports = router;
