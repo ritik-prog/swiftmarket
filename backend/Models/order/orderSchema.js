@@ -161,7 +161,7 @@ orderSchema.pre('save', async function (next) {
             const product = await Product.findByIdAndUpdate(
                 products[i].product,
                 { $inc: { quantity: -products[i].quantity } },
-                { new: true }
+                { runValidators: true, new: true }
             );
             if (product) {
                 const price = product.price;

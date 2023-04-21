@@ -34,7 +34,7 @@ const productSchema = new mongoose.Schema(
         quantity: {
             type: Number,
             required: true,
-            min: 10,
+            min: 0,
             max: 10000
         },
         category: {
@@ -175,11 +175,18 @@ productSchema.pre(/^find/, function (next) {
     next();
 });
 
-productSchema.pre('save', function (next) {
-    if (this.quantity === 0 || this.quantity < 0) {
+productSchema.pre(['find', 'findOne', 'update', 'save', 'findOneAndUpdate', 'findByIdAndUpdate'], function (next) {
+    if (this?.quantity && this?.quantity <= 0) {
         this.isAvailable = false;
     }
     next();
+});
+
+productSchema.post(['find', 'findOne', 'update', 'save', 'findOneAndUpdate', 'findByIdAndUpdate'], function (doc) {
+    if (doc?.quantity <= 0 && doc?.isAvailable) {
+        doc.isAvailable = false;
+        doc.save(); // save the updated document
+    }
 });
 
 // rating average

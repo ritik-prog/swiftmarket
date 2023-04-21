@@ -190,6 +190,7 @@ exports.getTopProductsByTopCategorySearched = async (req, res) => {
             { $sort: { count: -1 } },
             { $limit: 4 },
         ]);
+        console.log(searchResults)
         const topCategories = searchResults.map((result) => result._id);
         const topProducts = await Promise.all(
             topCategories.map(async (category) => {
