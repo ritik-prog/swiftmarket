@@ -13,7 +13,7 @@ const SideBar = () => {
     }
   };
   return (
-    <aside className="z-[`-1`] flex flex-col w-64 h-screen px-4 py-8 overflow-y-auto bg-white border-r rtl:border-r-0 rtl:border-l dark:bg-gray-900 dark:border-gray-700">
+    <aside className="flex flex-col w-64 h-screen px-4 py-8 overflow-y-auto bg-white border-r rtl:border-r-0 rtl:border-l dark:bg-gray-900 dark:border-gray-700">
       <div className="flex flex-col items-center mt-6 -mx-2">
         <img
           className="object-cover w-24 h-24 mx-2 rounded-full"

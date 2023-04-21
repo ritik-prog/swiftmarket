@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { Outlet } from "react-router-dom";
+import { Navigate, Outlet } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { RootState } from "../redux/rootReducer";
 import instance from "../utils/Axios";
@@ -20,6 +20,9 @@ interface AuthenticationResponse {
 
 const MainLayout = ({ children }: Props) => {
   const ban = useSelector((state: RootState) => state.user.ban);
+  const { isAuthenticated, user } = useSelector(
+    (state: RootState) => state.user
+  );
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -40,6 +43,12 @@ const MainLayout = ({ children }: Props) => {
 
   if (ban?.status && ban?.banExpiresAt < Date.now()) {
     return <IpBanned />;
+  }
+
+  if (isAuthenticated && user.verificationStatus) {
+    return <Navigate to="/shop" />;
+  } else if (isAuthenticated && !user.verificationStatus) {
+    return <Navigate to="/verification" />;
   }
 
   return (

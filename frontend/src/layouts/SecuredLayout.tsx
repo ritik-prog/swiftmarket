@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import IpBanned from "../pages/error/IpBanned";
-import { Outlet } from "react-router-dom";
+import { Navigate, Outlet } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { RootState } from "../redux/rootReducer";
 import { useDispatch } from "react-redux";
@@ -13,6 +13,9 @@ import FloatingButton from "../components/common/FloatingButton";
 const SecuredLayout = () => {
   // const theme = useSelector((state: RootState) => state.theme.theme);
   const ban = useSelector((state: RootState) => state.user.ban);
+  const { isAuthenticated, user } = useSelector(
+    (state: RootState) => state.user
+  );
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -32,6 +35,12 @@ const SecuredLayout = () => {
 
   if (ban?.status) {
     return <IpBanned />;
+  }
+
+  if (isAuthenticated && user.verificationStatus) {
+    return <Navigate to="/shop" />;
+  } else if (isAuthenticated && !user.verificationStatus) {
+    return <Navigate to="/verification" />;
   }
 
   return (

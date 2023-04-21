@@ -174,9 +174,9 @@ sellerSchema.pre('save', async function (next) {
         const productIds = this.productListings.map((listing) => listing._id);
         const Product = mongoose.model('Product');
         const products = await Product.find({ _id: { $in: productIds } });
-        const ratings = products.map((product) => product.ratingsAvg);
+        const ratings = products.map((product) => product.ratingsAvg).filter((rating) => rating !== undefined);
         const sumRatings = ratings.reduce((acc, curr) => acc + curr, 0);
-        const avgRating = sumRatings / ratings.length;
+        const avgRating = ratings.length > 0 ? sumRatings / ratings.length : 0;
         this.ratingAvg = avgRating;
         next();
     } catch (error) {

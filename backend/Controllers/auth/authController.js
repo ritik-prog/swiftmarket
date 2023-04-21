@@ -7,6 +7,9 @@ const User = require('../../models/auth/userSchema');
 const { sendVerificationCode } = require('./verificationController');
 const handleError = require('../../utils/errorHandler');
 const sendEmail = require('../../utils/sendEmail');
+const { default: mongoose } = require('mongoose');
+const Seller = require('../../models/seller/sellerSchema');
+const generateCode = require('../../utils/generateCode');
 
 exports.signup = async (req, res) => {
     const errors = validationResult(req);
@@ -92,26 +95,47 @@ exports.login = async (req, res) => {
                 });
             }
 
-            // Set token in cookies
-            res.cookie('token', token, {
-                httpOnly: true, // cookie cannot be accessed from client-side scripts
-                secure: process.env.NODE_ENV === 'production', // cookie should only be sent over HTTPS in production
-                sameSite: 'strict', // cookie should only be sent for same-site requests
-                maxAge: 5 * 60 * 60 * 1000 // 5hr
-            });
+            if (user.role === "seller") {
+                const seller = await Seller.findById(user.seller);
+                const verificationCode = generateCode();
+                const codeExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000); // 1 day from now
 
-            res.status(200).json({
-                user: {
-                    id: user.id,
-                    name: user.name,
-                    email: user.email,
-                    username: user.username,
-                    address: user.address,
-                    verificationStatus: user.verificationStatus,
-                    role: user.role
-                },
-                status: 'success'
-            });
+                seller.loginCode = verificationCode;
+                seller.loginCodeExpiresAt = codeExpiry;
+                await seller.save();
+
+                const data = {
+                    subject: 'New Seller Account - SwiftMarket',
+                    username: seller.businessName,
+                    verificationCode: seller.loginCode,
+                    verificationLink: 'https://example.com/verify'
+                };
+
+                await sendEmail(seller.businessEmail, data, './seller/loginVerification.hbs');
+
+                return res.status(200).json({ role: "seller", message: "Please check your email address for login instructions." });
+            } else {
+                // Set token in cookies
+                res.cookie('token', token, {
+                    httpOnly: true, // cookie cannot be accessed from client-side scripts
+                    secure: process.env.NODE_ENV === 'production', // cookie should only be sent over HTTPS in production
+                    sameSite: 'strict', // cookie should only be sent for same-site requests
+                    maxAge: 5 * 60 * 60 * 1000 // 5hr
+                });
+
+                res.status(200).json({
+                    user: {
+                        id: user.id,
+                        name: user.name,
+                        email: user.email,
+                        username: user.username,
+                        address: user.address,
+                        verificationStatus: user.verificationStatus,
+                        role: user.role
+                    },
+                    status: 'success'
+                });
+            }
         }).catch((err) => {
             throw err;
         });

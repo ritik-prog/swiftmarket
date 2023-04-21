@@ -9,6 +9,7 @@ import { loginSchema } from "../../schemas";
 import { signInpApi } from "../../api/auth";
 import { errorClass, noErrorClass } from "../../utils/StyleClasses";
 import { CreateToast } from "../../utils/Toast";
+import { ClipLoader } from "react-spinners";
 
 const initialValues = {
   email: "",
@@ -17,6 +18,7 @@ const initialValues = {
 
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -30,17 +32,27 @@ const Login = () => {
       validationSchema: loginSchema,
       onSubmit: async (values, action) => {
         try {
+          setLoading(true);
           const response = await signInpApi(values.email, values.password);
-          delete response.data.user.role;
-          console.log(response.data);
-          dispatch(loginSuccess(response.data));
-          if (!response.data.user.verificationStatus) {
-            navigate("/verification");
+          if (response.data.role === "seller") {
+            CreateToast("login", response.data.message, "success");
+            setLoading(false);
           } else {
-            CreateToast("login", "Logged in successfully", "success");
-            navigate("/");
+            delete response.data.user.role;
+            dispatch(loginSuccess(response.data));
+            if (!response.data.user.verificationStatus) {
+              setLoading(false);
+              navigate("/verification");
+            } else {
+              setLoading(false);
+              CreateToast("login", "Logged in successfully", "success");
+              navigate("/");
+            }
           }
-        } catch {}
+          setLoading(false);
+        } catch {
+          setLoading(false);
+        }
       },
     });
 
@@ -255,21 +267,27 @@ const Login = () => {
                       className="w-full inline-flex items-center justify-center rounded-md bg-indigo-600 px-3.5 py-2.5 text-base font-semibold leading-7 text-white hover:bg-indigo-500"
                       type="submit"
                     >
-                      Get started
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        strokeWidth={1.5}
-                        stroke="currentColor"
-                        className="w-4 h-4 ml-2"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          d="M4.5 12h15m0 0l-6.75-6.75M19.5 12l-6.75 6.75"
-                        />
-                      </svg>
+                      {loading ? (
+                        <ClipLoader color="#fff" />
+                      ) : (
+                        <>
+                          Get started
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            strokeWidth={1.5}
+                            stroke="currentColor"
+                            className="w-4 h-4 ml-2"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              d="M4.5 12h15m0 0l-6.75-6.75M19.5 12l-6.75 6.75"
+                            />
+                          </svg>
+                        </>
+                      )}
                     </button>
                   </div>
                 </div>

@@ -8,7 +8,7 @@ const ticketAuthorize = async (req, res, next) => {
         const token = req.cookies.token;
         // Check if not token
         if (!token) {
-            return res.status(403).json({ status: 'error', message: 'Unauthorized: No token provided' });
+            return res.status(403).json({ status: 'error', message: 'Unauthorized Access' });
         }
         // Verify token
         const decoded = jwt.verify(token, process.env.JWT_SECRET);

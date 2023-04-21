@@ -6,6 +6,7 @@ import Error404 from "./pages/error/Error404";
 import OrdersTable from "./pages/orders/Orders";
 import FundRelease from "./pages/funds/FundRelease";
 import UpdateProfile from "./pages/Settings/UpdateProfile";
+import Login from "./pages/login/Login";
 
 const router = createBrowserRouter([
     {
@@ -31,13 +32,21 @@ const router = createBrowserRouter([
             {
                 path: "/profile",
                 element: <UpdateProfile />,
-            },
-            {
-                path: '*',
-                element: <Error404 />
             }
         ],
     },
+    {
+        path: "/login/:email",
+        element: <Login />,
+    },
+    {
+        path: "error",
+        element: <Error404 />,
+    },
+    {
+        path: "*",
+        element: <Error404 />,
+    }
 ]);
 
 export default router

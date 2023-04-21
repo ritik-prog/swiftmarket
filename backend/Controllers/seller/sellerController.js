@@ -7,6 +7,8 @@ const Order = require('../../models/order/orderSchema');
 const sendEmail = require('../../utils/sendEmail');
 
 const handleError = require('../../utils/errorHandler');
+const { default: mongoose } = require('mongoose');
+const User = require('../../models/auth/userSchema');
 
 // Apply for seller account
 const applyForSellerAccount = async (req, res, next) => {
@@ -144,6 +146,53 @@ const verifySeller = async (req, res) => {
         return handleError(res, err);
     }
 };
+
+// seller login
+const loginSeller = async (req, res) => {
+    try {
+        // Find the seller by the verification code
+        const seller = await Seller.findOne({ businessEmail: req.params.email });
+        const code = req.body.code;
+
+        if (!seller) {
+            return handleError(res, {
+                name: 'not_found',
+                status: 'error',
+                message: 'Seller not found',
+            });
+        }
+
+        if (seller.loginCodeExpiresAt < Date.now()) {
+            res.status(400).json({ status: 'error', message: 'Verification code expired' });
+        } else {
+            if (seller.loginCode === code) {
+                seller.loginCode = null;
+                seller.loginCodeExpiresAt = null;
+                await seller.save();
+                const user = await User.findById(seller.user);
+
+                const isMatch = await bcrypt.compare(password, user.password);
+
+                if (!isMatch) {
+                    return res.status(403).json({ status: 'error', message: 'Invalid credentials' });
+                } else {
+                    const token = await user.generateAuthToken();
+                    res.cookie('token', token, {
+                        httpOnly: true, // cookie cannot be accessed from client-side scripts
+                        secure: process.env.NODE_ENV === 'production', // cookie should only be sent over HTTPS in production
+                        sameSite: 'strict', // cookie should only be sent for same-site requests
+                        maxAge: 5 * 60 * 60 * 1000 // 5hr
+                    });
+                }
+                return res.status(200).json({ status: 'success', seller: seller });
+            } else {
+                return res.status(412).json({ message: 'Invalid or expired verification code', status: 'error' });
+            }
+        }
+    } catch (err) {
+        return handleError(res, err);
+    }
+}
 
 // Get a seller by ID
 const getSellerProfile = async (req, res) => {
@@ -456,7 +505,7 @@ const getDashboardData = async (req, res) => {
 
 
 
-        const productListings = await ProductListing.aggregate([
+        const productListings = await Product.aggregate([
             {
                 $match: {
                     seller: mongoose.Types.ObjectId(sellerId),
@@ -491,9 +540,9 @@ const getDashboardData = async (req, res) => {
             },
             {
                 $lookup: {
-                    from: "productlistings",
-                    localField: "_id",
-                    foreignField: "product",
+                    from: "sellers",
+                    localField: "seller",
+                    foreignField: "productlistings.product",
                     as: "product"
                 }
             },
@@ -502,11 +551,10 @@ const getDashboardData = async (req, res) => {
             },
             {
                 $project: {
-                    "product._id": 0,
-                    "product.seller": 0,
-                    "product.__v": 0,
-                    "product.createdAt": 0,
-                    "product.updatedAt": 0
+                    "product.productlistings._id": 0,
+                    "product.productlistings.__v": 0,
+                    "product.productlistings.createdAt": 0,
+                    "product.productlistings.updatedAt": 0
                 }
             },
             {
@@ -518,6 +566,7 @@ const getDashboardData = async (req, res) => {
                 $limit: 5
             }
         ]);
+
 
         res.status(200).json({
             orderTotal: orderTotal.length > 0 ? orderTotal[0].total : 0,
@@ -580,14 +629,18 @@ const getSalesData = async (req, res) => {
             },
         ]);
 
+        console.log(salesData)
+
         const labels = [];
         const sales = [];
         const counts = [];
+
         for (let i = 0; i < 7; i++) {
-            const monthIndex = (today.getMonth() - i + 12) % 12;
-            const monthName = new Intl.DateTimeFormat("en-US", { month: "long" }).format(new Date(0, monthIndex));
-            const year = today.getFullYear() - Math.floor((today.getMonth() - i) / 12);
-            const monthData = salesData.find((d) => d.month === monthIndex + 1 && d.year === year);
+            const date = new Date();
+            date.setMonth(date.getMonth() - i);
+            const monthName = new Intl.DateTimeFormat("en-US", { month: "long" }).format(date);
+            const year = date.getFullYear();
+            const monthData = salesData.find((d) => d.month === date.getMonth() + 1 && d.year === year);
             labels.unshift(`${monthName} ${year}`);
             sales.unshift(monthData ? monthData.sales : 0);
             counts.unshift(monthData ? monthData.count : 0);
@@ -616,4 +669,4 @@ const getOrders = async (req, res) => {
     }
 };
 
-module.exports = { getOrders, getSalesData, getDashboardData, getSellerProfile, updateSellerById, deleteSellerById, deleteProductForSeller, updateProductForSeller, createProductForSeller, applyForSellerAccount, verifySeller };
+module.exports = { loginSeller, getOrders, getSalesData, getDashboardData, getSellerProfile, updateSellerById, deleteSellerById, deleteProductForSeller, updateProductForSeller, createProductForSeller, applyForSellerAccount, verifySeller };

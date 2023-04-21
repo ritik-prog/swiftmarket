@@ -50,6 +50,17 @@ router.post(
     sellerController.verifySeller
 );
 
+// seller login
+router.post(
+    "/login/:email",
+    [
+        check("email", "email is required").notEmpty().isEmail(),
+        check("code", "code is required").notEmpty(),
+        check("password", "password is required").notEmpty(),
+    ],
+    sellerController.loginSeller
+);
+
 // Get seller profile
 router.get(
     "/profile",

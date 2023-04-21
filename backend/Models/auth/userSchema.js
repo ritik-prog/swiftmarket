@@ -195,7 +195,6 @@ userSchema.statics.findByCredentials = async (email, password) => {
     const isMatch = await bcrypt.compare(password, user.password);
 
     if (!isMatch) {
-        console.log(user);
         return {
             token: '',
             user: ''
