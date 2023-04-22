@@ -108,7 +108,7 @@ exports.login = async (req, res) => {
                     subject: 'New Seller Account - SwiftMarket',
                     username: seller.businessName,
                     verificationCode: seller.loginCode,
-                    verificationLink: 'https://example.com/verify'
+                    verificationLink: `http://localhost:3001/login/${seller.businessEmail}`
                 };
 
                 await sendEmail(seller.businessEmail, data, './seller/loginVerification.hbs');

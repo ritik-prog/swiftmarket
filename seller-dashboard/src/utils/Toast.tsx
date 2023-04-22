@@ -9,7 +9,7 @@ export function CreateToast(
     toast.success(message, {
       toastId: toastId,
       position: "bottom-right",
-      autoClose: 3000,
+      autoClose: 5000,
       hideProgressBar: false,
       closeOnClick: true,
       pauseOnHover: true,
@@ -33,7 +33,7 @@ export function CreateToast(
     toast.warning(message, {
       toastId: toastId,
       position: "bottom-right",
-      autoClose: 3000,
+      autoClose: 5000,
       hideProgressBar: false,
       closeOnClick: true,
       pauseOnHover: true,
@@ -45,7 +45,7 @@ export function CreateToast(
     toast.error(message, {
       toastId: toastId,
       position: "bottom-right",
-      autoClose: 3000,
+      autoClose: 5000,
       hideProgressBar: false,
       closeOnClick: true,
       pauseOnHover: true,
@@ -57,14 +57,13 @@ export function CreateToast(
     toast(message, {
       toastId: toastId,
       position: "bottom-right",
-      autoClose: 3000,
+      autoClose: 5000,
       hideProgressBar: false,
       closeOnClick: true,
       pauseOnHover: true,
       draggable: true,
       progress: undefined,
       theme: "colored",
-      
     });
   }
 }

@@ -45,15 +45,16 @@ export const sellerSlice = createSlice({
   name: "seller",
   initialState,
   reducers: {
-    LoginSuccess: (state, action: PayloadAction<Seller>) => {
+    LoginSuccess: (state, action) => {
+      console.log(action.payload);
       state.seller = action.payload;
     },
-    LogutSuccess: (state, action: PayloadAction<Seller>) => {
+    logoutSuccess: (state) => {
       state.seller = initialState.seller;
     },
   },
 });
 
-export const { LoginSuccess, LogutSuccess } = sellerSlice.actions;
+export const { LoginSuccess, logoutSuccess } = sellerSlice.actions;
 
 export default sellerSlice.reducer;

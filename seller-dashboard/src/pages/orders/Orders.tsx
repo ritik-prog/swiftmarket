@@ -1,7 +1,20 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { getOrders } from "../../api/order";
 
 export default function OrdersTable() {
-  return (
+  const [orders, setOrders] = useState<any>([]);
+  const fetchData = async () => {
+    try {
+      const results = await getOrders();
+      console.log(results);
+      setOrders(results.orders);
+    } catch (error) {}
+  };
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  return orders !== undefined ? (
     <div className="flex flex-col justify-center p-10">
       <div className="overflow-x-auto">
         <div className="flex justify-between py-3 pl-2">
@@ -36,9 +49,7 @@ export default function OrdersTable() {
                 <label className="text-sm font-medium text-gray-800 dark:text-white whitespace-nowrap">
                   Sort by Status:
                 </label>
-                <select
-                  className="block w-full my-0 pl-0 ml-1 text-sm text-gray-600 dark:text-gray-100 dark:bg-gray-900 outline-none mr-2"
-                >
+                <select className="block w-full my-0 pl-0 ml-1 text-sm text-gray-600 dark:text-gray-100 dark:bg-gray-900 outline-none mr-2">
                   <option>All</option>
                   <option>Price</option>
                   <option>Low to high</option>
@@ -58,78 +69,89 @@ export default function OrdersTable() {
                     scope="col"
                     className="px-6 py-3 text-xs font-bold text-left text-gray-500 uppercase "
                   >
-                    orderId
+                    order Id
                   </th>
                   <th
                     scope="col"
                     className="px-6 py-3 text-xs font-bold text-left text-gray-500 uppercase "
                   >
-                    orderDate
+                    Name
                   </th>
                   <th
                     scope="col"
                     className="px-6 py-3 text-xs font-bold text-left text-gray-500 uppercase "
                   >
-                    orderStatus
+                    Shipping Address
                   </th>
                   <th
                     scope="col"
                     className="px-6 py-3 text-xs font-bold text-left text-gray-500 uppercase "
                   >
-                    orderTotal
+                    Order Date
+                  </th>
+                  <th
+                    scope="col"
+                    className="px-6 py-3 text-xs font-bold text-left text-gray-500 uppercase "
+                  >
+                    Status
+                  </th>
+                  <th
+                    scope="col"
+                    className="px-6 py-3 text-xs font-bold text-left text-gray-500 uppercase "
+                  >
+                    Total
                   </th>
                   <th
                     scope="col"
                     className="px-6 py-3 text-xs font-bold text-right text-gray-500 uppercase "
                   >
-                    View Order
+                    View Details
                   </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
-                <tr>
-                  <td className="px-6 py-4 text-sm font-medium text-gray-800 whitespace-nowrap">
-                    1
-                  </td>
-                  <td className="px-6 py-4 text-sm text-gray-800 whitespace-nowrap">
-                    Jone Doe
-                  </td>
-                  <td className="px-6 py-4 text-sm text-gray-800 whitespace-nowrap">
-                    jonne62@gmail.com
-                  </td>
-                  <td className="px-6 py-4 text-sm text-gray-800 whitespace-nowrap">
-                    jonne62@gmail.com
-                  </td>
-                  <td className="px-6 py-4 text-sm font-medium text-right whitespace-nowrap">
-                    <a className="text-green-500 hover:text-green-700" href="#">
-                      View Order
-                    </a>
-                  </td>
-                </tr>
-                <tr>
-                  <td className="px-6 py-4 text-sm font-medium text-gray-800 whitespace-nowrap">
-                    1
-                  </td>
-                  <td className="px-6 py-4 text-sm text-gray-800 whitespace-nowrap">
-                    Jone Doe
-                  </td>
-                  <td className="px-6 py-4 text-sm text-gray-800 whitespace-nowrap">
-                    jonne62@gmail.com
-                  </td>
-                  <td className="px-6 py-4 text-sm text-gray-800 whitespace-nowrap">
-                    jonne62@gmail.com
-                  </td>
-                  <td className="px-6 py-4 text-sm font-medium text-right whitespace-nowrap">
-                    <a className="" href="#">
-                      View Order
-                    </a>
-                  </td>
-                </tr>
+                {orders &&
+                  orders.map((order: any) => (
+                    <tr>
+                      <td className="px-6 py-4 text-sm font-medium text-gray-800 whitespace-nowrap">
+                        {order._id}
+                      </td>
+                      <td className="px-6 py-4 text-sm text-gray-800 whitespace-nowrap">
+                        {order.fullname}
+                      </td>
+                      <td className="px-6 py-4 text-sm text-gray-800 whitespace-wrap flex flex-wrap wrapper">
+                        {order.shippingAddress}
+                      </td>
+                      <td className="px-6 py-4 text-sm text-gray-800 whitespace-nowrap">
+                        {new Date(order.createdAt).toLocaleDateString("en-US", {
+                          month: "long",
+                          day: "numeric",
+                          year: "numeric",
+                        })}
+                      </td>
+                      <td className="px-6 py-4 text-sm text-gray-800 whitespace-nowrap">
+                        {order.orderStatus}
+                      </td>
+                      <td className="px-6 py-4 text-sm text-gray-800 whitespace-nowrap">
+                        {order.orderTotal}
+                      </td>
+                      <td className="px-6 py-4 text-sm font-medium text-right whitespace-nowrap">
+                        <button
+                          type="button"
+                          className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-500 hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                        >
+                          Show Details
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
               </tbody>
             </table>
           </div>
         </div>
       </div>
     </div>
+  ) : (
+    <p>No order Found</p>
   );
 }

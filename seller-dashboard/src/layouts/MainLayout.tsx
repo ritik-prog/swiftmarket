@@ -14,6 +14,7 @@ const MainLayout = () => {
   const { isAuthenticated, user } = useSelector(
     (state: RootState) => state.user
   );
+  const { seller } = useSelector((state: RootState) => state.seller);
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -36,9 +37,9 @@ const MainLayout = () => {
     return <IpBanned />;
   }
 
-  if (isAuthenticated && user.verificationStatus) {
+  if (!isAuthenticated && !user.verificationStatus && !seller) {
     return <Navigate to="error" />;
-  } else if (isAuthenticated && !user.verificationStatus) {
+  } else if (isAuthenticated && !user.verificationStatus && seller) {
     return <Navigate to="error" />;
   }
 
@@ -57,5 +58,5 @@ const MainLayout = () => {
   );
 };
 
-export default withAuth(MainLayout);
-// export default MainLayout;
+// export default withAuth(MainLayout);
+export default MainLayout;

@@ -1,16 +1,20 @@
 import React, { useEffect, useRef, useState } from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { Navigate, useNavigate, useParams } from "react-router-dom";
 import { RootState } from "../../redux/rootReducer";
+import { login } from "../../api/auth";
+import { CreateToast } from "../../utils/Toast";
+import { loginSuccess } from "../../redux/user/userSlice";
+import { LoginSuccess as sellerLoginSuccess } from "../../redux/seller/sellerSlice";
 
 const Login = () => {
   const [password, setPassword] = useState("");
   const inputRefs = useRef<HTMLInputElement[]>([]);
   const { email } = useParams();
-  const isAuthenticated = useSelector(
-    (state: RootState) => state.user.isAuthenticated
-  );
-  //   const navigate = useNavigate();
+  const state = useSelector((state: RootState) => state);
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+
   const handleKeyDown = (
     index: number,
     event: React.KeyboardEvent<HTMLInputElement>
@@ -55,10 +59,31 @@ const Login = () => {
     }
   };
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const code = inputRefs.current.map((input) => input.value).join("");
+    console.log(code);
     // submit code to server for validation
+    const data = {
+      code,
+      password,
+      email,
+    };
+    try {
+      const result = await login(data);
+      if (result !== undefined) {
+        CreateToast("login", "Login Success", "success");
+        console.log(result)
+        console.log(result.seller);
+        dispatch(loginSuccess({ user: result.user }));
+        dispatch(sellerLoginSuccess(result.seller));
+        // navigate to dashboard
+        navigate("/", { replace: true });
+      }
+      if (result === undefined) {
+        CreateToast("login", "Login Failed", "error");
+      }
+    } catch {}
   };
 
   const renderInputs = () => {
@@ -91,7 +116,8 @@ const Login = () => {
   if (!isValidEmail(email || "")) {
     return <Navigate to={"error"} replace />;
   }
-  if (isAuthenticated) {
+
+  if (state.user.isAuthenticated && state.seller.seller) {
     return <Navigate to={"/"} replace />;
   } else {
     return (

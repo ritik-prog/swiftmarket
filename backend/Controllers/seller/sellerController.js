@@ -9,6 +9,7 @@ const sendEmail = require('../../utils/sendEmail');
 const handleError = require('../../utils/errorHandler');
 const { default: mongoose } = require('mongoose');
 const User = require('../../models/auth/userSchema');
+const bcrypt = require('bcryptjs');
 
 // Apply for seller account
 const applyForSellerAccount = async (req, res, next) => {
@@ -153,6 +154,7 @@ const loginSeller = async (req, res) => {
         // Find the seller by the verification code
         const seller = await Seller.findOne({ businessEmail: req.params.email });
         const code = req.body.code;
+        const password = req.body.password;
 
         if (!seller) {
             return handleError(res, {
@@ -166,9 +168,6 @@ const loginSeller = async (req, res) => {
             res.status(400).json({ status: 'error', message: 'Verification code expired' });
         } else {
             if (seller.loginCode === code) {
-                seller.loginCode = null;
-                seller.loginCodeExpiresAt = null;
-                await seller.save();
                 const user = await User.findById(seller.user);
 
                 const isMatch = await bcrypt.compare(password, user.password);
@@ -183,8 +182,21 @@ const loginSeller = async (req, res) => {
                         sameSite: 'strict', // cookie should only be sent for same-site requests
                         maxAge: 5 * 60 * 60 * 1000 // 5hr
                     });
+                    seller.loginCode = null;
+                    seller.loginCodeExpiresAt = null;
+                    await seller.save();
+                    return res.status(200).json({
+                        status: 'success', seller: seller, user: {
+                            id: user.id,
+                            name: user.name,
+                            email: user.email,
+                            username: user.username,
+                            address: user.address,
+                            verificationStatus: user.verificationStatus,
+                            role: user.role
+                        },
+                    });
                 }
-                return res.status(200).json({ status: 'success', seller: seller });
             } else {
                 return res.status(412).json({ message: 'Invalid or expired verification code', status: 'error' });
             }
@@ -501,8 +513,7 @@ const getDashboardData = async (req, res) => {
 
         const avgOrderValue = (orderTotal.length > 0 && orderTotal[0].total) ? (orderTotal[0].total / totalOrders).toFixed(2) : 0;
 
-        const avgOrderSize = (orderTotal.length > 0 && orderTotal[0].count) ? (orderTotal[0].count / totalOrders).toFixed(2) : 0;
-
+        const avgOrderSize = (orderTotal.length > 0 && orderTotal[0].count) ? (orderTotal[0].count / totalOrders).toFixed(0) : 0;
 
 
         const productListings = await Product.aggregate([
@@ -540,9 +551,9 @@ const getDashboardData = async (req, res) => {
             },
             {
                 $lookup: {
-                    from: "sellers",
-                    localField: "seller",
-                    foreignField: "productlistings.product",
+                    from: "products",
+                    localField: "_id",
+                    foreignField: "_id",
                     as: "product"
                 }
             },
@@ -590,7 +601,6 @@ const getDashboardData = async (req, res) => {
 const getSalesData = async (req, res) => {
     const sellerId = req.user.seller;
     const today = new Date();
-    const firstDayOfCurrentMonth = new Date(today.getFullYear(), today.getMonth(), 1);
     const sixMonthsAgo = new Date(today.setMonth(today.getMonth() - 6));
     const firstDayOfSixMonthsAgo = new Date(sixMonthsAgo.getFullYear(), sixMonthsAgo.getMonth(), 1);
 
@@ -628,8 +638,6 @@ const getSalesData = async (req, res) => {
                 },
             },
         ]);
-
-        console.log(salesData)
 
         const labels = [];
         const sales = [];

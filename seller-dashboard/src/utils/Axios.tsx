@@ -1,6 +1,7 @@
 import axios from "axios";
 import HandleError from "./HandleError";
 import { logoutSuccess } from "../redux/user/userSlice";
+import { logoutSuccess as sellerLogoutSuccess } from "../redux/seller/sellerSlice";
 import { store } from "../redux/store";
 import { CreateToast } from "./Toast";
 import requestIp from "request-ip";
@@ -38,6 +39,7 @@ instance.interceptors.response.use(
   (error) => {
     HandleError(error, (error) => {
       store.dispatch(logoutSuccess());
+      store.dispatch(sellerLogoutSuccess());
     });
     if (error.code === "ECONNABORTED") {
       CreateToast("Timeouterror", "Timeout error", "error");
