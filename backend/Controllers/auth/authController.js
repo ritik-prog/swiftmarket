@@ -15,7 +15,7 @@ exports.signup = async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
         return handleError(res, {
-            name: 'CustomValidationError',
+            code: 'CustomValidationError',
             status: 'error',
             errors: errors.array()
         });
@@ -29,7 +29,7 @@ exports.signup = async (req, res) => {
 
         if (user) {
             return handleError(res, {
-                name: 'already_exists',
+                code: 'already_exists',
                 status: 'error',
                 message: 'User already exists',
             });
@@ -76,7 +76,7 @@ exports.login = async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
         return handleError(res, {
-            name: 'CustomValidationError',
+            code: 'CustomValidationError',
             status: 'error',
             errors: errors.array()
         });
@@ -105,7 +105,7 @@ exports.login = async (req, res) => {
                 await seller.save();
 
                 const data = {
-                    subject: 'New Seller Account - SwiftMarket',
+                    subject: 'Seller Login - SwiftMarket',
                     username: seller.businessName,
                     verificationCode: seller.loginCode,
                     verificationLink: `http://localhost:3001/login/${seller.businessEmail}`
@@ -165,7 +165,7 @@ exports.getUser = async (req, res) => {
 
         if (!user) {
             return handleError(res, {
-                name: 'not_found',
+                code: 'not_found',
                 status: 'error',
                 message: 'User not found',
             });
@@ -191,7 +191,7 @@ exports.updateProfile = async (req, res) => {
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
             return handleError(res, {
-                name: 'CustomValidationError',
+                code: 'CustomValidationError',
                 status: 'error',
                 errors: errors.array()
             });
@@ -200,7 +200,7 @@ exports.updateProfile = async (req, res) => {
         const user = await User.findById(req.user.id).select('-password -__v');
         if (!user) {
             return handleError(res, {
-                name: 'not_found',
+                code: 'not_found',
                 status: 'error',
                 message: 'User not found',
             });
@@ -218,7 +218,7 @@ exports.updateProfile = async (req, res) => {
 
         const data = {
             userUpdated: {
-                name: user.name,
+                code: user.name,
                 email: user.email,
                 role: user.role
             },
@@ -238,7 +238,7 @@ exports.updatePassword = async (req, res) => {
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
             return handleError(res, {
-                name: 'CustomValidationError',
+                code: 'CustomValidationError',
                 status: 'error',
                 errors: errors.array()
             });
@@ -266,7 +266,7 @@ exports.updatePassword = async (req, res) => {
 
         const data = {
             passwordUpdated: {
-                name: user.name,
+                code: user.name,
                 email: user.email,
                 role: user.role
             },
@@ -298,7 +298,7 @@ exports.deleteAccount = async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
         return handleError(res, {
-            name: 'CustomValidationError',
+            code: 'CustomValidationError',
             status: 'error',
             errors: errors.array()
         });
@@ -315,7 +315,7 @@ exports.deleteAccount = async (req, res) => {
 
         if (!user) {
             return handleError(res, {
-                name: 'not_found',
+                code: 'not_found',
                 status: 'error',
                 message: 'User not found'
             });
@@ -332,7 +332,7 @@ exports.deleteAccount = async (req, res) => {
         await user.remove();
         const data = {
             userDeleted: {
-                name: user.name,
+                code: user.name,
                 email: user.email,
                 role: user.role,
                 deletedAt: new Date()

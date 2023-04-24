@@ -3,6 +3,7 @@ const { v4: uuidv4 } = require('uuid');
 const Product = require('../product/productSchema');
 const sendEmail = require('../../utils/sendEmail');
 const User = require('../auth/userSchema');
+const Payroll = require('../payroll/payrollSchema');
 
 const orderSchema = new mongoose.Schema({
     orderId: {
@@ -114,6 +115,7 @@ const orderSchema = new mongoose.Schema({
         type: Number,
         default: 0,
     },
+    notes: mongoose.Schema.Types.Mixed,
     createdAt: {
         type: Date,
         default: Date.now
@@ -135,61 +137,76 @@ orderSchema.pre('save', function (next) {
 // Save order ID to seller's orders array
 orderSchema.pre('save', async function (next) {
     try {
-        const Seller = mongoose.model('Seller');
-        const seller = await Seller.findOne({ _id: this.seller });
-        seller.orders.push(this._id);
-        await seller.save();
-        const data = {
-            sellerName: seller.businessName,
-            subject: 'New Order - SwiftMarket'
-        };
-        // Send email
-        sendEmail(seller.businessEmail, data, './order/informSeller.hbs');
+        if (this.isNew) { // check if the document is new
+            const Seller = mongoose.model('Seller');
+            const seller = await Seller.findOne({ _id: this.seller });
+            seller.orders.push(this._id);
+            await seller.save();
+            const data = {
+                sellerName: seller.businessName,
+                subject: 'New Order - SwiftMarket'
+            };
+            
+            let payroll = await Payroll.findOne({ user: seller._id });
+            if (!payroll) {
+                payroll = new Payroll({ user: seller._id, role: 'seller', amount:this.orderTotal });
+            }else{
+                payroll.amount += this.orderTotal;
+            }
+            await payroll.save();
+
+            // Send email
+            sendEmail(seller.businessEmail, data, './order/informSeller.hbs');
+        }
         next();
     } catch (error) {
         next(error);
     }
 });
 
+
 // desrease quantity of product
 orderSchema.pre('save', async function (next) {
-    try {
-        const products = this.products;
-        let orderAmount = 0;
-        let totalDiscount = 0;
-        for (let i = 0; i < products.length; i++) {
-            const product = await Product.findByIdAndUpdate(
-                products[i].product,
-                { $inc: { quantity: -products[i].quantity } },
-                { runValidators: true, new: true }
-            );
-            if (product) {
-                const price = product.price;
-                const discountedPrice = product.discountedPrice || price;
-                const quantity = products[i].quantity;
+    if (this.isNew) {
+        try {
+            const products = this.products;
+            let orderAmount = 0;
+            let totalDiscount = 0;
+            for (let i = 0; i < products.length; i++) {
+                const product = await Product.findByIdAndUpdate(
+                    products[i].product,
+                    { $inc: { quantity: -products[i].quantity } },
+                    { runValidators: true, new: true }
+                );
+                if (product) {
+                    const price = product.price;
+                    const discountedPrice = product.discountedPrice || price;
+                    const quantity = products[i].quantity;
 
-                orderAmount += price * quantity;
-                totalDiscount += (price - discountedPrice) * quantity;
+                    orderAmount += price * quantity;
+                    totalDiscount += (price - discountedPrice) * quantity;
+                }
+
+                this.orderAmount = orderAmount;
+                this.totalDiscount = totalDiscount;
+                this.orderTotal = orderAmount - totalDiscount;
             }
+            next();
+        } catch (error) {
+            next(error);
+        }
+    }
 
-            this.orderAmount = orderAmount;
-            this.totalDiscount = totalDiscount;
-            this.orderTotal = orderAmount - totalDiscount;
-        }
-        if (this.orderStatus === "Delivered") {
-            this.trackingDetails.deliveryStatus = "Delivered"
-            const customer = await User.findById(this.customer);
-            const data = {
-                customerName: customer.name,
-                totalCost: this.orderTotal,
-                subject: 'Order Delivered - SwiftMarket'
-            };
-            // Send email
-            sendEmail(customer.email, data, './order/orderDelivered.hbs');
-        }
-        next();
-    } catch (error) {
-        next(error);
+    if (this.orderStatus === "Delivered") {
+        this.trackingDetails.deliveryStatus = "Delivered"
+        const customer = await User.findById(this.customer);
+        const data = {
+            customerName: customer.name,
+            totalCost: this.orderTotal,
+            subject: 'Order Delivered - SwiftMarket'
+        };
+        // Send email
+        sendEmail(customer.email, data, './order/orderDelivered.hbs');
     }
 });
 

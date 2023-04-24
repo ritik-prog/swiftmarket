@@ -12,13 +12,13 @@ exports.getAllProductsOfSellerByUsername = async (req, res, next) => {
         }).populate("productListings");
         if (!seller) {
             return handleError(res, {
-                name: "not_found",
+                code: "not_found",
                 status: "error",
                 message: "Seller not found",
             });
         } else if (!seller.productListings || seller.productListings.length === 0) {
             return handleError(res, {
-                name: "not_found",
+                code: "not_found",
                 status: "error",
                 message: "No products found for the seller",
             });
@@ -51,7 +51,7 @@ exports.getSellerProduct = async (req, res, next) => {
 
         if (!product) {
             return handleError(res, {
-                name: "not_found",
+                code: "not_found",
                 status: "error",
                 message: "Product not found",
             });
@@ -77,7 +77,7 @@ exports.getProductById = async (req, res, next) => {
         const product = await Product.findById(req.params.id);
         if (!product) {
             return handleError(res, {
-                name: "not_found",
+                code: "not_found",
                 status: "error",
                 message: "Product not found",
             });

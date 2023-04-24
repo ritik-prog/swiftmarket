@@ -1,12 +1,26 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import ProductDetails from "./ProductDetails";
+import { getProducts } from "../../api/product";
+import { useNavigate } from "react-router-dom";
 
 const Products = () => {
+  const [products, setProducts] = useState<any>();
+  const navigate = useNavigate();
+  const fetchData = async () => {
+    const result = await getProducts();
+    setProducts(result.products);
+    console.log(result);
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
   return (
     <div className="flex flex-col justify-center p-10">
       <div className="overflow-x-auto">
         <div className="flex justify-between py-3 pl-2">
-          <div className="relative max-w-xs">
+          {/* <div className="relative max-w-xs">
             <label htmlFor="hs-table-search" className="sr-only">
               Search
             </label>
@@ -29,10 +43,10 @@ const Products = () => {
                 <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z" />
               </svg>
             </div>
-          </div>
+          </div> */}
 
           <div className="flex items-center space-x-2">
-            <div className="relative">
+            {/* <div className="relative">
               <div className="flex items-center py-3 pl-3 border border-black dark:border-white rounded-md">
                 <label className="text-sm font-medium text-gray-800 dark:text-white whitespace-nowrap">
                   Sort by Status:
@@ -44,9 +58,12 @@ const Products = () => {
                   <option>High to low</option>
                 </select>
               </div>
-            </div>
+            </div> */}
 
-            <button className="rounded-md bg-indigo-600 px-3.5 py-1.5 text-base font-semibold leading-7 text-white hover:bg-indigo-500">
+            <button
+              onClick={() => navigate("/newproduct")}
+              className="rounded-md bg-indigo-600 px-3.5 py-1.5 text-base font-semibold leading-7 text-white hover:bg-indigo-500"
+            >
               Add Product
             </button>
           </div>
@@ -61,73 +78,87 @@ const Products = () => {
                     scope="col"
                     className="px-6 py-3 text-xs font-bold text-left text-gray-500 uppercase "
                   >
-                    orderId
+                    Thumbnail
                   </th>
                   <th
                     scope="col"
                     className="px-6 py-3 text-xs font-bold text-left text-gray-500 uppercase "
                   >
-                    orderDate
+                    Product Name
                   </th>
                   <th
                     scope="col"
                     className="px-6 py-3 text-xs font-bold text-left text-gray-500 uppercase "
                   >
-                    orderStatus
+                    Views
                   </th>
                   <th
                     scope="col"
                     className="px-6 py-3 text-xs font-bold text-left text-gray-500 uppercase "
                   >
-                    orderTotal
+                    price
                   </th>
                   <th
                     scope="col"
-                    className="px-6 py-3 text-xs font-bold text-right text-gray-500 uppercase "
+                    className="px-6 py-3 text-xs font-bold text-left text-gray-500 uppercase "
                   >
-                    View Order
+                    discount
+                  </th>
+                  <th
+                    scope="col"
+                    className="px-6 py-3 text-xs font-bold text-left text-gray-500 uppercase "
+                  >
+                    Quantity
+                  </th>
+                  <th
+                    scope="col"
+                    className="px-6 py-3 text-xs font-bold text-right text-gray-500 uppercase"
+                  >
+                    Update
                   </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
-                <tr>
-                  <td className="px-6 py-4 text-sm font-medium text-gray-800 whitespace-nowrap">
-                    1
-                  </td>
-                  <td className="px-6 py-4 text-sm text-gray-800 whitespace-nowrap">
-                    Jone Doe
-                  </td>
-                  <td className="px-6 py-4 text-sm text-gray-800 whitespace-nowrap">
-                    jonne62@gmail.com
-                  </td>
-                  <td className="px-6 py-4 text-sm text-gray-800 whitespace-nowrap">
-                    jonne62@gmail.com
-                  </td>
-                  <td className="px-6 py-4 text-sm font-medium text-right whitespace-nowrap">
-                    <a className="text-green-500 hover:text-green-700" href="#">
-                      View Order
-                    </a>
-                  </td>
-                </tr>
-                <tr>
-                  <td className="px-6 py-4 text-sm font-medium text-gray-800 whitespace-nowrap">
-                    1
-                  </td>
-                  <td className="px-6 py-4 text-sm text-gray-800 whitespace-nowrap">
-                    Jone Doe
-                  </td>
-                  <td className="px-6 py-4 text-sm text-gray-800 whitespace-nowrap">
-                    jonne62@gmail.com
-                  </td>
-                  <td className="px-6 py-4 text-sm text-gray-800 whitespace-nowrap">
-                    jonne62@gmail.com
-                  </td>
-                  <td className="px-6 py-4 text-sm font-medium text-right whitespace-nowrap">
-                    <a className="" href="#">
-                      View Order
-                    </a>
-                  </td>
-                </tr>
+                {products &&
+                  products.map((product: any) => (
+                    <tr>
+                      <td className="px-6 py-4 text-sm font-medium text-gray-800 whitespace-nowrap">
+                        <img
+                          src={product.thumbnailUrl}
+                          className="w-20 h-auto"
+                        />
+                      </td>
+                      <td className="px-6 py-4 text-sm text-gray-800 whitespace-wrap flex flex-wrap">
+                        {product.productName}
+                      </td>
+                      <td className="px-6 py-4 text-sm text-gray-800 whitespace-nowrap">
+                        {product.views}
+                      </td>
+                      <td className="px-6 py-4 text-sm text-gray-800 whitespace-nowrap">
+                        {product.price}
+                      </td>
+                      <td className="px-6 py-4 text-sm text-gray-800 whitespace-nowrap">
+                        {(
+                          ((product.price - product.discountedPrice) /
+                            product.price) *
+                          100
+                        ).toFixed(0)}
+                        %
+                      </td>
+                      <td className="px-6 py-4 text-sm text-gray-800 whitespace-nowrap">
+                        {product.quantity}
+                      </td>
+                      <td className="px-6 py-4 text-sm font-medium text-right whitespace-nowrap">
+                        <button
+                          type="button"
+                          className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-500 hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                          onClick={() => navigate(`/product/${product._id}`)}
+                        >
+                          Update
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
               </tbody>
             </table>
           </div>

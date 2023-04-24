@@ -61,6 +61,12 @@ router.post(
     sellerController.loginSeller
 );
 
+// check login status
+router.get(
+    "/checkloginstatus/:email",
+    sellerController.checkVerificationCode
+);
+
 // Get seller profile
 router.get(
     "/profile",
@@ -79,18 +85,15 @@ router.put(
         authenticateMiddleware,
         authorizeMiddleware(["seller"]),
         checkVerificationMiddleware,
-        check("fullName").not().isEmpty(),
-        check("email").isEmail(),
-        check("phoneNumber").isMobilePhone(),
+        check("businessEmail").isEmail(),
+        check("businessNumber").isMobilePhone(),
         check("businessName").not().isEmpty(),
         check("businessRegistrationNumber").not().isEmpty(),
         check("businessType").not().isEmpty(),
         check("businessAddress").not().isEmpty(),
         check("businessWebsite").isURL(),
         check("taxIDNumber").not().isEmpty(),
-        check("paymentPreferences").not().isEmpty(),
-        check("blockchainWalletAddress").not().isEmpty(),
-        check("paypalAccountEmailAddress").isEmail(),
+        check("businessLogo").not().isEmpty(),
         check("productCategories").isArray(),
     ],
     sellerController.updateSellerById
@@ -105,6 +108,28 @@ router.delete(
         checkVerificationMiddleware,
     ],
     sellerController.deleteSellerById
+);
+
+// get seller products
+router.get(
+    "/products",
+    [
+        authenticateMiddleware,
+        authorizeMiddleware(["seller"]),
+        checkVerificationMiddleware,
+    ],
+    sellerController.getSellerProducts
+);
+
+// get product by id
+router.get(
+    "/product/:id",
+    [
+        authenticateMiddleware,
+        authorizeMiddleware(["seller"]),
+        checkVerificationMiddleware,
+    ],
+    sellerController.getProductById
 );
 
 // Create a product of a seller
@@ -130,7 +155,7 @@ router.put(
 );
 
 // DELETE a product of a seller
-router.delete(
+router.post(
     "/deleteproduct",
     [
         authenticateMiddleware,
@@ -171,6 +196,61 @@ router.get(
         checkVerificationMiddleware,
     ],
     sellerController.getOrders
+);
+
+// get orders
+router.get(
+    "/get-order/:orderId",
+    [
+        authenticateMiddleware,
+        authorizeMiddleware(["seller"]),
+        checkVerificationMiddleware,
+    ],
+    sellerController.getOrdersById
+);
+
+// update order status
+router.put(
+    "/update-order-status",
+    [
+        authenticateMiddleware,
+        authorizeMiddleware(["seller"]),
+        checkVerificationMiddleware,
+    ],
+    sellerController.updateOrderStatus
+);
+
+// cancel order
+router.put(
+    "/cancel-order",
+    [
+        authenticateMiddleware,
+        authorizeMiddleware(["seller"]),
+        checkVerificationMiddleware,
+    ],
+    sellerController.cancelOrder
+);
+
+// add tracking details
+router.put(
+    "/add-tracking-details",
+    [
+        authenticateMiddleware,
+        authorizeMiddleware(["seller"]),
+        checkVerificationMiddleware,
+    ],
+    sellerController.addTrackingDetails
+);
+
+// accept order
+router.put(
+    "/accept-order",
+    [
+        authenticateMiddleware,
+        authorizeMiddleware(["seller"]),
+        checkVerificationMiddleware,
+    ],
+    sellerController.acceptOrder
 );
 
 module.exports = router;

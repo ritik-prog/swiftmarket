@@ -11,7 +11,7 @@ const sendVerificationCode = async (res, email) => {
         const user = await User.findOne({ email: email });
         if (!user) {
             throw new Error({
-                name: 'not_found',
+                code: 'not_found',
                 status: 'error',
                 message: 'User not found'
             });
@@ -54,7 +54,7 @@ const verifyUser = async (email, verificationCode) => {
         const user = await User.findOne({ email: email });
         if (!user) {
             throw new Error({
-                name: 'not_found',
+                code: 'not_found',
                 status: 'error',
                 message: 'User not found'
             });
@@ -97,7 +97,7 @@ async function sendVerificationCodeAgain(email) {
         const user = await User.findOne({ email });
         if (!user) {
             throw new Error({
-                name: 'not_found',
+                code: 'not_found',
                 status: 'error',
                 message: 'User not found',
             });

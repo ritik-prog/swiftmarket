@@ -3,7 +3,7 @@ const { Schema } = mongoose;
 
 // Define Withdrawal Request schema
 const WithdrawalRequestSchema = new Schema({
-    user: { type: Schema.Types.ObjectId, ref: 'User' }, // Reference to User schema
+    user: { type: Schema.Types.ObjectId, ref: 'User', required: true }, // Reference to User schema
     bankDetails: {
         bankName: { type: String, required: true },
         accountNumber: { type: String, required: true },

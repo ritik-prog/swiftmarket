@@ -24,18 +24,21 @@ const productSchema = new mongoose.Schema(
             type: Number,
             required: true,
             min: 0,
-            max: 500000
+            max: 500000,
+            default: 0
         },
         discountedPrice: {
             type: Number,
             min: 0,
-            max: 500000
+            max: 500000,
+            default: 0
         },
         quantity: {
             type: Number,
             required: true,
             min: 0,
-            max: 10000
+            max: 10000,
+            default: 0
         },
         category: {
             type: String,
@@ -235,23 +238,22 @@ productSchema.pre('save', function (next) {
 
 
 productSchema.pre('save', function (next) {
-    const tokenizer = new natural.WordTokenizer();
-    const stemmer = natural.PorterStemmer;
-    const stopwords = natural.stopwords;
+    if (this.isNew) {
+        const tokenizer = new natural.WordTokenizer();
+        const stemmer = natural.PorterStemmer;
+        const stopwords = natural.stopwords;
 
-    const keywords = [
-        ...tokenizer.tokenize(this.productName),
-        ...tokenizer.tokenize(this.businessName),
-        ...tokenizer.tokenize(this.productDescription),
-        ...tokenizer.tokenize(this.category),
-        ...tokenizer.tokenize(...this.tags),
-    ]
-        .map((word) => stemmer.stem(word.toLowerCase()))
-        .filter((word) => !stopwords.includes(word))
-        .filter(Boolean);
-
-    this.keywords = keywords;
-
+        const keywords = [
+            ...tokenizer?.tokenize(this?.productName),
+            ...tokenizer?.tokenize(this?.productDescription),
+            ...tokenizer?.tokenize(this?.category),
+            ...tokenizer?.tokenize(...this?.tags),
+        ]
+            .map((word) => stemmer.stem(word.toLowerCase()))
+            .filter((word) => !stopwords.includes(word))
+            .filter(Boolean);
+        this.keywords = keywords;
+    }
     next();
 });
 

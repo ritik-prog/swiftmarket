@@ -11,7 +11,7 @@ router.get('/seller/:username',
 // GET a specific product of a seller
 router.get('/:username/product/:id', getSellerProduct);
 
-// // GET a product by ID
+// GET a product by ID
 router.get('/search/:id', getProductById);
 
 // Predict the top 5 most popular products in a category

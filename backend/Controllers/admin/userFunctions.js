@@ -20,7 +20,7 @@ const createUser = async (req, res) => {
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
             return handleError(res, {
-                name: 'CustomValidationError',
+                code: 'CustomValidationError',
                 status: 'error',
                 errors: errors.array()
             });
@@ -31,7 +31,7 @@ const createUser = async (req, res) => {
         let user = await User.findOne({ $or: [{ username }, { email }] });
         if (user) {
             return handleError(res, {
-                name: 'already_exists',
+                code: 'already_exists',
                 status: 'error',
                 message: 'User already exists',
             });
@@ -51,7 +51,7 @@ const createUser = async (req, res) => {
         const token = await user.generateAuthToken();
         const data = {
             newUser: {
-                name: user.name,
+                code: user.name,
                 email: user.email,
                 role: user.role,
                 password
@@ -74,7 +74,7 @@ const updateUser = async (req, res) => {
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
             return handleError(res, {
-                name: 'CustomValidationError',
+                code: 'CustomValidationError',
                 status: 'error',
                 errors: errors.array()
             });
@@ -86,7 +86,7 @@ const updateUser = async (req, res) => {
         const user = await User.findById(id);
         if (!user) {
             return handleError(res, {
-                name: 'not_found',
+                code: 'not_found',
                 status: 'error',
                 message: 'User not found',
             });
@@ -100,12 +100,12 @@ const updateUser = async (req, res) => {
 
         const data = {
             userUpdated: {
-                name: user.name,
+                code: user.name,
                 email: user.email,
                 role: user.role
             },
             violation: {
-                name: req.body.violationName,
+                code: req.body.violationName,
                 reason: req.body.violationReason,
                 adminUsername: req.user.fullname,
             },
@@ -128,7 +128,7 @@ const deleteUser = async (req, res) => {
 
         if (!user) {
             return handleError(res, {
-                name: 'not_found',
+                code: 'not_found',
                 status: 'error',
                 message: 'User not found',
             });
@@ -139,12 +139,12 @@ const deleteUser = async (req, res) => {
         await user.delete();
         const data = {
             userDeleted: {
-                name: user.name,
+                code: user.name,
                 email: user.email,
                 role: user.role
             },
             violation: {
-                name: req.body.violationName,
+                code: req.body.violationName,
                 reason: req.body.violationReason,
                 adminUsername: req.user.fullname,
             },
@@ -167,7 +167,7 @@ const banUser = async (req, res) => {
 
         if (!user) {
             return handleError(res, {
-                name: 'not_found',
+                code: 'not_found',
                 status: 'error',
                 message: 'User not found',
             });
@@ -179,11 +179,11 @@ const banUser = async (req, res) => {
 
         const data = {
             userBanned: {
-                name: user.name,
+                code: user.name,
                 email: user.email,
             },
             violation: {
-                name: req.body.violationName,
+                code: req.body.violationName,
                 reason: req.body.violationReason,
                 adminUsername: req.user.fullname,
             },

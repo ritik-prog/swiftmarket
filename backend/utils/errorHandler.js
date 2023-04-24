@@ -5,14 +5,14 @@ const errorCode = require("../data/errorCode");
 function handleError(res, err) {
     console.log(err);
 
-    if (err.name === 'CustomValidationError') {
+    if (err.code === 'CustomValidationError') {
         return res.status(400).json({
             error: "CustomValidationError",
             message: err.errors
         });
     }
 
-    if (err.name === 'ValidationError') {
+    if (err.code === 'ValidationError') {
         return res.status(400).json({
             error: errorCode.MISSING_FIELDS.code,
             message: err.message
@@ -26,35 +26,35 @@ function handleError(res, err) {
         });
     }
 
-    if (err.name === 'not_found') {
+    if (err.code === 'not_found') {
         return res.status(409).json({
-            error: err.name,
+            error: err.code,
             message: err.message
         });
     }
 
-    if (err.name === errorCode.ALREADY_EXISTS.code) {
+    if (err.code === errorCode.ALREADY_EXISTS.code) {
         return res.status(410).json({
             error: errorCode.ALREADY_EXISTS.code,
             message: err.message
         });
     }
 
-    if (err.name === errorCode.UNAUTHORIZED_ACCESS.code) {
+    if (err.code === errorCode.UNAUTHORIZED_ACCESS.code) {
         return res.status(403).json({
             error: errorCode.UNAUTHORIZED_ACCESS.code,
             message: errorCode.UNAUTHORIZED_ACCESS.message
         });
     }
 
-    if (err.name === 'TokenExpiredError') {
+    if (err.code === 'TokenExpiredError') {
         return res.status(401).json({
             error: errorCode.UNAUTHORIZED_ACCESS.code,
             message: errorCode.UNAUTHORIZED_ACCESS.message
         });
     }
 
-    if (err.name === 'JsonWebTokenError') {
+    if (err.code === 'JsonWebTokenError') {
         return res.status(401).json({
             error: errorCode.UNAUTHORIZED_ACCESS.code,
             message: errorCode.UNAUTHORIZED_ACCESS.message
@@ -75,7 +75,7 @@ function handleError(res, err) {
         });
     }
 
-    if (err.name === 'CastError' && err.kind === 'ObjectId') {
+    if (err.code === 'CastError' && err.kind === 'ObjectId') {
         return res.status(404).json({
             error: errorCode.USER_NOT_FOUND.code,
             message: 'User not found'

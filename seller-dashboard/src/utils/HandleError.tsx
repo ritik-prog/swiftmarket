@@ -10,6 +10,11 @@ const HandleError = async (
   const error = e as AxiosError;
   const data = error.response?.data as { code: string };
   const message = error.response?.data as { message: string };
+  const status = error.response?.data as { status: string };
+  if (status.status === "error") {
+    CreateToast("error", message.message, "error");
+    return;
+  }
   switch (error.response?.status) {
     case 400:
       switch (data.code) {
@@ -18,22 +23,18 @@ const HandleError = async (
           break;
         case "missing_fields":
           CreateToast("Missingfields", "Missing fields", "error");
-          console.log("Missing fields error occurred.");
           break;
         default:
-          CreateToast("Unknown", "Unknown error", "error");
-          console.log("Unknown 400 error occurred.");
+          CreateToast("Unknown", "Invalid Value", "error");
           break;
       }
       break;
     case 404:
       CreateToast("notfound", "404 Not Found", "error");
-      console.log("Resource not found error occurred.");
       break;
     case 401:
       onError(error);
       CreateToast("notfound", message.message, "error");
-      console.log("Authentication failed error occurred.");
       break;
     case 403:
       onError(error);

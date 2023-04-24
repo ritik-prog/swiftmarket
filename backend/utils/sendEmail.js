@@ -32,7 +32,7 @@ async function sendEmail(email, data, templateName) {
     });
 
     // Render email template
-    const html = renderTemplate(templateName, data);
+    const html = await renderTemplate(templateName, data);
 
     // Set email message
     const mailOptions = {

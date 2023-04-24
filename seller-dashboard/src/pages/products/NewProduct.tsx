@@ -1,16 +1,12 @@
 import React, { useEffect, useState } from "react";
-import {
-  deleteProduct,
-  getProductById,
-  updateProduct,
-} from "../../api/product";
+import { createProduct, getProductById } from "../../api/product";
 import { useNavigate, useParams } from "react-router-dom";
 import { categories } from "../../data/categories";
+import FullPageLoading from "../loading/FullPageLoading";
 import { CreateToast } from "../../utils/Toast";
 
 const ProductDetails = () => {
-  const { id } = useParams();
-  const [product, setProduct] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [productName, setProductName] = useState("");
   const [productDescription, setProductDescription] = useState("");
   const [quantity, setQuantity] = useState("");
@@ -23,35 +19,11 @@ const ProductDetails = () => {
       answer: "",
     },
   ]);
-
-  const [keywords, setKeywords] = useState(["null"]);
-  const [inputValue, setInputValue] = useState("");
   const navigate = useNavigate();
-
-  function handleInputChange(event: any) {
-    setInputValue(event.target.value);
-  }
-
-  function handleKeyDownKeywords(event: any) {
-    if (event.key === "Enter" && inputValue.trim() !== "") {
-      event.preventDefault();
-      if (!keywords.includes(inputValue.trim())) {
-        // check for duplicates
-        setKeywords([...keywords, inputValue.trim()]);
-        setInputValue("");
-      }
-      setInputValue("");
-    }
-  }
-
-  function handleRemoveKeyword(indexToRemove: any) {
-    setKeywords((prevKeywords) =>
-      prevKeywords.filter((_, index) => index !== indexToRemove)
-    );
-  }
 
   // add links
   const [links, setLinks] = useState<string[]>([]);
+  const [inputValue, setInputValue] = useState<any>("");
   const [error, setError] = useState("");
   const [thumbnailUrl, setThumbnailUrl] = useState("");
 
@@ -59,10 +31,9 @@ const ProductDetails = () => {
     return /\.(jpg|jpeg|png|webp|avif|gif)$/.test(url);
   }
 
-  const [imageLink, setImageLink] = useState<any>();
   const handleAddLink = async (event: any) => {
     event.preventDefault();
-    const link = imageLink.trim();
+    const link = inputValue.trim();
 
     if (!isImgUrl(link)) {
       setError("Please enter a valid image link");
@@ -77,7 +48,7 @@ const ProductDetails = () => {
 
     // Add link to list
     setLinks([...links, link]);
-    setImageLink("");
+    setInputValue("");
     setError("");
   };
 
@@ -129,48 +100,11 @@ const ProductDetails = () => {
     setTags(newTags);
   };
 
-  // fetch product
-  async function fetchData() {
+  const handleSubmit = async (event: any) => {
+    event.preventDefault();
     try {
-      const result = await getProductById(id);
-      setProduct(true);
-      setProductName(result.product.productName);
-      setProductDescription(result.product.productDescription);
-      setQuantity(result.product.quantity);
-      setPrice(result.product.price);
-      setDiscount(
-        (
-          ((result.product.price - result.product.discountedPrice) /
-            result.product.price) *
-          100
-        ).toFixed(0)
-      );
-      setCategory(result.product.category);
-      setFaqs(result.product.faqs);
-      setKeywords(result.product.keywords);
-      setLinks(result.product.imagesUrl);
-      setTags(result.product.tags);
-      setThumbnailUrl(result.product.thumbnailUrl);
-    } catch (error) {
-      setProduct(false);
-    }
-  }
-
-  useEffect(() => {
-    fetchData();
-  }, []);
-
-  function handleKeyDown(event: any) {
-    if (event.key === "Enter") {
-      event.preventDefault();
-    }
-  }
-
-  const handleSubmit = async (e: any) => {
-    e.preventDefault();
-    try {
+      setLoading(true);
       const dataToSend = {
-        productId: id,
         imagesUrl: links,
         thumbnailUrl: thumbnailUrl,
         productName: productName,
@@ -180,39 +114,31 @@ const ProductDetails = () => {
         discountedPrice: (price - (price * discount) / 100).toFixed(0),
         category: category,
         faqs: faqs,
-        keywords: keywords,
         tags: tags,
       };
-      const result = await updateProduct(dataToSend);
-      console.log(result);
-      if (result) {
-        await fetchData();
-        CreateToast("updated", "Product updated successfully", "success");
+      // api call
+      const response = await createProduct(dataToSend);
+      if (response.status === "success") {
+        CreateToast("created", "Product created successfully", "success");
+        setLoading(false);
+        navigate(`/product/${response._id}`);
       }
     } catch (err) {
+      setLoading(false);
       console.log(err);
     }
   };
 
-  const handleDeleteProduct = async () => {
-    try {
-      const data = {
-        _id: id,
-      };
-      const result = await deleteProduct(data);
-      if (result.status === "success") {
-        CreateToast("deleted", "Product deleted successfully", "success");
-        navigate("/products");
-      }
-    } catch (error) {
-      console.log(error);
+  function handleKeyDown(event: any) {
+    if (event.key === "Enter") {
+      event.preventDefault();
     }
-  };
+  }
 
-  return product ? (
+  return !loading ? (
     <div className="flex flex-col justify-center items-center">
       <div className="bg-white shadow p-4 rounded-lg">
-        <h1 className="text-xl font-bold">Product Details</h1>
+        <h1 className="text-xl font-bold">Add New Product</h1>
       </div>
       <form
         onSubmit={handleSubmit}
@@ -230,11 +156,11 @@ const ProductDetails = () => {
             className="border border-gray-300 rounded-md p-2 w-full h-12 resize-none"
             required
             minLength={10}
-            onKeyDown={handleKeyDown}
             maxLength={150}
             placeholder="Enter Product Name Here (10-150 characters)"
             defaultValue={productName}
             onChange={(event) => setProductName(event.target.value)}
+            onKeyDown={handleKeyDown}
           ></textarea>
         </div>
         {/* product Description */}
@@ -250,10 +176,10 @@ const ProductDetails = () => {
             required
             minLength={10}
             maxLength={1000}
-            onKeyDown={handleKeyDown}
             placeholder="Enter Product Name Here (10-150 characters)"
             defaultValue={productDescription}
             onChange={(event) => setProductDescription(event.target.value)}
+            onKeyDown={handleKeyDown}
           ></textarea>
         </div>
         <div className="grid grid-cols-2 gap-4 mt-4">
@@ -269,29 +195,31 @@ const ProductDetails = () => {
               className="flex h-10 w-full rounded-md border border-gray-300 bg-transparent py-2 px-3 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-gray-400 focus:ring-offset-1 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-700 dark:text-gray-50 dark:focus:ring-gray-400 dark:focus:ring-offset-gray-900"
               type="number"
               id="quantity"
-              onKeyDown={handleKeyDown}
+              required
               placeholder="100"
               onChange={(event) => setQuantity(event.target.value)}
               defaultValue={quantity}
               min={0}
+              onKeyDown={handleKeyDown}
             />
           </div>
           <div className="grid w-full max-w-sm items-center gap-1.5">
             <label
               className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-              htmlFor="Price"
+              htmlFor="quantity"
             >
               Price
             </label>
             <input
               className="flex h-10 w-full rounded-md border border-gray-300 bg-transparent py-2 px-3 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-gray-400 focus:ring-offset-1 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-700 dark:text-gray-50 dark:focus:ring-gray-400 dark:focus:ring-offset-gray-900"
               type="number"
+              required
               id="Price"
               placeholder="4999"
-              onKeyDown={handleKeyDown}
               defaultValue={price}
               min={0}
               onChange={(event) => setPrice(event.target.value)}
+              onKeyDown={handleKeyDown}
             />
           </div>
           <div className="grid w-full max-w-sm items-center gap-1.5">
@@ -307,10 +235,10 @@ const ProductDetails = () => {
               id="Price"
               placeholder="10"
               min={0}
-              onKeyDown={handleKeyDown}
               max={60}
               defaultValue={discount}
               onChange={(event) => setDiscount(event.target.value)}
+              onKeyDown={handleKeyDown}
             />
           </div>
           <div className="grid grid-cols-1">
@@ -326,6 +254,7 @@ const ProductDetails = () => {
               required
               defaultValue={category}
               onChange={(event) => setCategory(event.target.value)}
+              onKeyDown={handleKeyDown}
             >
               <option defaultValue="" selected>
                 Choose a category
@@ -377,14 +306,17 @@ const ProductDetails = () => {
               className="flex-1 h-10 rounded-md border border-gray-300 bg-transparent py-2 px-3 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-gray-400 focus:ring-offset-1"
               type="url"
               id="imageLink"
-              onKeyDown={handleKeyDown}
               placeholder="https://example.com/image.jpg"
               required
-              onChange={(event) => setThumbnailUrl(event.target.value)}
-              defaultValue={thumbnailUrl}
+              onChange={(event) =>
+                setThumbnailUrl(() =>
+                  isImgUrl(event.target.value) ? event.target.value : ""
+                )
+              }
+              value={thumbnailUrl}
+              onKeyDown={handleKeyDown}
             />
           </div>
-
           <div className="flex flex-wrap gap-2 mt-2">
             {thumbnailUrl && (
               <div className="relative">
@@ -397,7 +329,9 @@ const ProductDetails = () => {
           </div>
           {thumbnailUrl.length === 0 && (
             <p className="mt-4 text-sm text-gray-500">
-              No image links added yet. Enter an image link above to add.
+              No image links added yet. Enter an image link above by copying and
+              pasting it into the field. Only valid image links will be
+              accepted.
             </p>
           )}
         </div>
@@ -411,9 +345,9 @@ const ProductDetails = () => {
                 type="url"
                 id="imageLink"
                 placeholder="https://example.com/image.jpg"
-                required={links.length === 0}
-                value={imageLink}
-                onChange={(event) => setImageLink(event.target.value)}
+                required={links.length <= 0}
+                value={inputValue}
+                onChange={(event) => setInputValue(event.target.value)}
                 onKeyDown={(e) => {
                   if (e.key === "Enter") {
                     handleAddLink(e);
@@ -483,9 +417,9 @@ const ProductDetails = () => {
                 id={`question-${index}`}
                 defaultValue={faq.question}
                 onChange={(event) => handleQuestionChange(event, index)}
+                onKeyDown={handleKeyDown}
                 className="border border-gray-300 rounded-md p-2 w-full"
                 required
-                onKeyDown={handleKeyDown}
                 minLength={5}
                 maxLength={100}
                 placeholder="e.g. What are the benefits of using this product?"
@@ -520,65 +454,19 @@ const ProductDetails = () => {
             </div>
           ))}
         </div>
-        {/* keywords */}
-        <div className="m-4">
-          <div className="bg-gray-200 rounded-lg shadow-lg p-4">
-            <p className="font-medium text-gray-700 mb-2">
-              Keywords generated by{" "}
-              <span className="text-indigo-600 font-bold">SwiftKey</span>
-            </p>
-            <div className="flex flex-wrap gap-2">
-              {keywords.map((keyword: any, index: any) => (
-                <div
-                  key={index}
-                  className="bg-gray-300 rounded-full py-1 px-3 text-sm font-medium text-gray-700 flex items-center"
-                >
-                  {keyword}
-                  <button
-                    type="button"
-                    className="ml-2 text-gray-500 hover:text-gray-700 focus:outline-none"
-                    onClick={() => handleRemoveKeyword(index)}
-                  >
-                    &times;
-                  </button>
-                </div>
-              ))}
-            </div>
-            <input
-              className="mt-3 w-full flex-1 h-10 rounded-md border border-gray-300 bg-transparent py-2 px-3 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-gray-400 focus:ring-offset-1 dark:border-gray-700 dark:text-gray-50 dark:focus:ring-gray-400 dark:focus:ring-offset-gray-900"
-              type="text"
-              placeholder="Enter a keyword"
-              value={inputValue}
-              onChange={handleInputChange}
-              onKeyDown={handleKeyDownKeywords}
-            />
-            <p className="mt-4 text-sm text-gray-500">
-              Note: SwiftKey generates auto-suggested keywords based on product
-              data, but it's recommended to remove any irrelevant or sensitive
-              keywords from the list.
-            </p>
-          </div>
-        </div>
         {/* buttons */}
         <div className="p-4 flex justify-end">
           <button
             type="submit"
-            className="mr-3 rounded-md bg-yellow-600 px-3.5 py-1.5 text-base font-semibold leading-7 text-white hover:bg-yellow-500"
+            className="mr-3 rounded-md bg-green-600 px-3.5 py-1.5 text-base font-semibold leading-7 text-white hover:bg-green-500"
           >
-            Update Product
-          </button>
-          <button
-            type="button"
-            className="rounded-md bg-red-600 px-3.5 py-1.5 text-base font-semibold leading-7 text-white hover:bg-red-500"
-            onClick={handleDeleteProduct}
-          >
-            Delete Product
+            Add Product
           </button>
         </div>
       </form>
     </div>
   ) : (
-    <p>not found</p>
+    <FullPageLoading />
   );
 };
 

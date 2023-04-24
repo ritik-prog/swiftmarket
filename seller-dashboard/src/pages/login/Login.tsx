@@ -6,13 +6,35 @@ import { login } from "../../api/auth";
 import { CreateToast } from "../../utils/Toast";
 import { loginSuccess } from "../../redux/user/userSlice";
 import { LoginSuccess as sellerLoginSuccess } from "../../redux/seller/sellerSlice";
+import instance from "../../utils/Axios";
 
 const Login = () => {
+  const { email } = useParams();
+  const navigate = useNavigate();
+
+  function isValidEmail(email: any) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  }
+
+  async function checkEmail() {
+    if (!isValidEmail(email || "")) {
+      return <Navigate to={"error"} replace />;
+    }
+    const res = await instance.get(`/seller/checkloginstatus/${email}`);
+    console.log(res)
+    if (res.data.status !== "allow") {
+      navigate("/error");
+    }
+  }
+
+  useEffect(() => {
+    checkEmail();
+  }, []);
+
   const [password, setPassword] = useState("");
   const inputRefs = useRef<HTMLInputElement[]>([]);
-  const { email } = useParams();
   const state = useSelector((state: RootState) => state);
-  const navigate = useNavigate();
   const dispatch = useDispatch();
 
   const handleKeyDown = (
@@ -73,7 +95,7 @@ const Login = () => {
       const result = await login(data);
       if (result !== undefined) {
         CreateToast("login", "Login Success", "success");
-        console.log(result)
+        console.log(result);
         console.log(result.seller);
         dispatch(loginSuccess({ user: result.user }));
         dispatch(sellerLoginSuccess(result.seller));
@@ -107,15 +129,6 @@ const Login = () => {
     }
     return inputs;
   };
-
-  function isValidEmail(email: any) {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
-  }
-
-  if (!isValidEmail(email || "")) {
-    return <Navigate to={"error"} replace />;
-  }
 
   if (state.user.isAuthenticated && state.seller.seller) {
     return <Navigate to={"/"} replace />;

@@ -30,7 +30,7 @@ const acceptSeller = async (req, res, next) => {
 
         if (!newSellerApplication) {
             return handleError(res, {
-                name: 'not_found',
+                code: 'not_found',
                 status: 'error',
                 message: 'Seller application not found',
             });
@@ -110,7 +110,7 @@ const createSeller = async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
         return handleError(res, {
-            name: 'CustomValidationError',
+            code: 'CustomValidationError',
             status: 'error',
             errors: errors.array()
         });
@@ -119,7 +119,7 @@ const createSeller = async (req, res) => {
         const user = await User.findById(req.body.userId);
         if (!user) {
             return handleError(res, {
-                name: 'not_found',
+                code: 'not_found',
                 status: 'error',
                 message: 'User not found',
             });
@@ -128,7 +128,7 @@ const createSeller = async (req, res) => {
         let seller = await Seller.findOne({ businessEmail: req.body.businessEmail });
         if (seller) {
             return handleError(res, {
-                name: 'already_exists',
+                code: 'already_exists',
                 status: 'error',
                 message: 'Seller already exists',
             });
@@ -193,7 +193,7 @@ const updateSeller = async (req, res) => {
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
             return handleError(res, {
-                name: 'CustomValidationError',
+                code: 'CustomValidationError',
                 status: 'error',
                 errors: errors.array()
             });
@@ -206,7 +206,7 @@ const updateSeller = async (req, res) => {
         const seller = await Seller.findById(id);
         if (!seller) {
             return handleError(res, {
-                name: 'not_found',
+                code: 'not_found',
                 status: 'error',
                 message: 'Seller not found',
             });
@@ -218,11 +218,11 @@ const updateSeller = async (req, res) => {
 
         const data = {
             sellerUpdated: {
-                name: seller.businessName,
+                code: seller.businessName,
                 email: seller.businessEmail
             },
             violation: {
-                name: req.body.violationName,
+                code: req.body.violationName,
                 reason: req.body.violationReason,
                 adminUsername: req.user.fullname,
             },
@@ -245,7 +245,7 @@ const deleteSeller = async (req, res) => {
 
         if (!seller) {
             return handleError(res, {
-                name: 'not_found',
+                code: 'not_found',
                 status: 'error',
                 message: 'Seller not found',
             });
@@ -253,11 +253,11 @@ const deleteSeller = async (req, res) => {
 
         const data = {
             sellerDeleted: {
-                name: seller.businessName,
+                code: seller.businessName,
                 email: seller.businessEmail
             },
             violation: {
-                name: req.body.violationName,
+                code: req.body.violationName,
                 reason: req.body.violationReason,
                 adminUsername: req.user.fullname,
             },

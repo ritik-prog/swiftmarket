@@ -35,7 +35,7 @@ export function SalesChart(props: SalesChartProps) {
         backgroundColor: "rgba(255, 99, 132, 0.5)",
       },
       {
-        label: "Counts",
+        label: "Orders",
         data: liveData?.counts,
         backgroundColor: "rgba(53, 162, 235, 0.5)",
       },

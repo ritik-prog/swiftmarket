@@ -17,7 +17,7 @@ const applyForSellerAccount = async (req, res, next) => {
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
             return handleError(res, {
-                name: 'CustomValidationError',
+                code: 'CustomValidationError',
                 status: 'error',
                 errors: errors.array()
             });
@@ -45,7 +45,7 @@ const applyForSellerAccount = async (req, res, next) => {
         });
         if (existingSeller) {
             return handleError(res, {
-                name: 'already_exists',
+                code: 'already_exists',
                 status: 'error',
                 message: 'There is already an existing seller with the same business email or business username',
             });
@@ -85,7 +85,7 @@ const verifySeller = async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
         return handleError(res, {
-            name: 'CustomValidationError',
+            code: 'CustomValidationError',
             status: 'error',
             errors: errors.array()
         });
@@ -99,7 +99,7 @@ const verifySeller = async (req, res) => {
 
         if (!seller) {
             return handleError(res, {
-                name: 'not_found',
+                code: 'not_found',
                 status: 'error',
                 message: 'Seller not found',
             });
@@ -158,7 +158,7 @@ const loginSeller = async (req, res) => {
 
         if (!seller) {
             return handleError(res, {
-                name: 'not_found',
+                code: 'not_found',
                 status: 'error',
                 message: 'Seller not found',
             });
@@ -188,7 +188,7 @@ const loginSeller = async (req, res) => {
                     return res.status(200).json({
                         status: 'success', seller: seller, user: {
                             id: user.id,
-                            name: user.name,
+                            code: user.name,
                             email: user.email,
                             username: user.username,
                             address: user.address,
@@ -206,6 +206,29 @@ const loginSeller = async (req, res) => {
     }
 }
 
+// check verification code
+const checkVerificationCode = async (req, res) => {
+    try {
+        // Find the seller by the verification code
+        const seller = await Seller.findOne({ businessEmail: req.params.email });
+
+        if (!seller) {
+            res.status(200).json({ status: 'deny' });
+        }
+
+        if (seller.loginCodeExpiresAt < Date.now() || seller.loginCode === null || seller.loginCode === "") {
+            res.status(412).json({ status: 'error', message: 'Access Denied' });
+        } else {
+            res.status(200).json({ status: 'allow' });
+        }
+
+
+    } catch (err) {
+        // res.status(200).json({ status: 'deny' });
+    }
+}
+
+
 // Get a seller by ID
 const getSellerProfile = async (req, res) => {
     try {
@@ -220,63 +243,51 @@ const updateSellerById = async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
         return handleError(res, {
-            name: 'CustomValidationError',
+            code: 'CustomValidationError',
             status: 'error',
             errors: errors.array()
         });
     }
     try {
-        let seller = await Seller.findById(req.params.id);
+        let seller = req.seller;
 
         if (!seller) {
             return handleError(res, {
-                name: 'not_found',
+                code: 'not_found',
                 status: 'error',
                 message: 'Seller not found',
             });
         }
 
-
-
         const {
-            fullName,
-            email,
-            phoneNumber,
-            businessName,
+            businessUsername,
+            businessEmail,
             businessRegistrationNumber,
+            businessNumber,
+            businessName,
+            businessLogo,
             businessType,
-            businessAddress,
             businessWebsite,
             taxIDNumber,
-            paymentPreferences,
-            blockchainWalletAddress,
-            paypalAccountEmailAddress,
             productCategories,
-            productListings,
-            salesHistory,
-            ratingsAndReviews
+            businessAddress,
         } = req.body;
 
         const sellerFields = {};
-        if (fullName) sellerFields.fullName = fullName;
-        if (email) sellerFields.email = email;
-        if (phoneNumber) sellerFields.phoneNumber = phoneNumber;
+        if (businessEmail) sellerFields.businessEmail = businessEmail;
+        if (businessNumber) sellerFields.businessNumber = businessNumber;
         if (businessName) sellerFields.businessName = businessName;
+        if (businessUsername) sellerFields.businessUsername = businessUsername;
+        if (businessLogo) sellerFields.businessLogo = businessLogo;
         if (businessRegistrationNumber) sellerFields.businessRegistrationNumber = businessRegistrationNumber;
         if (businessType) sellerFields.businessType = businessType;
         if (businessAddress) sellerFields.businessAddress = businessAddress;
         if (businessWebsite) sellerFields.businessWebsite = businessWebsite;
         if (taxIDNumber) sellerFields.taxIDNumber = taxIDNumber;
-        if (paymentPreferences) sellerFields.paymentPreferences = paymentPreferences;
-        if (blockchainWalletAddress) sellerFields.blockchainWalletAddress = blockchainWalletAddress;
-        if (paypalAccountEmailAddress) sellerFields.paypalAccountEmailAddress = paypalAccountEmailAddress;
         if (productCategories) sellerFields.productCategories = productCategories;
-        if (productListings) sellerFields.productListings = productListings;
-        if (salesHistory) sellerFields.salesHistory = salesHistory;
-        if (ratingsAndReviews) sellerFields.ratingsAndReviews = ratingsAndReviews;
 
 
-        if (seller.user.toString() !== req.user.id) {
+        if (toString(seller.user._id) !== toString(req.user._id)) {
             return handleError(res, {
                 code: 'unauthorized_access',
                 status: 'error',
@@ -284,9 +295,9 @@ const updateSellerById = async (req, res) => {
             });
         }
 
-        seller = await Seller.findByIdAndUpdate(req.params.id, { $set: sellerFields }, { new: true });
+        seller = await Seller.findByIdAndUpdate(seller._id, { $set: sellerFields }, { new: true });
 
-        res.status(200).json({ status: 'success', message: 'Seller updated successfully', data: seller });
+        res.status(200).json({ status: 'success', message: 'Seller updated successfully', seller: seller });
     } catch (err) {
         return handleError(res, err);
     }
@@ -295,16 +306,18 @@ const updateSellerById = async (req, res) => {
 // Delete a seller by ID
 const deleteSellerById = async (req, res) => {
     try {
-        const seller = req.user
+        const seller = req.seller
         if (!seller) {
             return handleError(res, {
-                name: 'not_found',
+                code: 'not_found',
                 status: 'error',
                 message: 'Seller not found',
             });
         }
 
-        await Seller.findByIdAndDelete(req.user.seller);
+        await Seller.deleteOne({ _id: seller._id });
+        req.user.role = "user";
+        await req.user.save();
 
         const data = {
             username: seller.fullName,
@@ -325,7 +338,7 @@ const createProductForSeller = async (req, res, next) => {
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
             return handleError(res, {
-                name: 'CustomValidationError',
+                code: 'CustomValidationError',
                 status: 'error',
                 errors: errors.array()
             });
@@ -335,7 +348,7 @@ const createProductForSeller = async (req, res, next) => {
 
         if (!seller) {
             return handleError(res, {
-                name: 'not_found',
+                code: 'not_found',
                 status: 'error',
                 message: 'Seller not found',
             });
@@ -343,7 +356,6 @@ const createProductForSeller = async (req, res, next) => {
 
         const product = new Product({
             seller: seller._id,
-            businessName: seller.businessName,
             productName: req.body.productName,
             productDescription: req.body.productDescription,
             price: req.body.price,
@@ -352,7 +364,6 @@ const createProductForSeller = async (req, res, next) => {
             imagesUrl: req.body.imagesUrl,
             thumbnailUrl: req.body.thumbnailUrl,
             tags: req.body.tags,
-            featured: req.body.featured || false,
             discountedPrice: req.body.discountedPrice,
             faqs: req.body.faqs,
             updatedBy: {
@@ -369,10 +380,18 @@ const createProductForSeller = async (req, res, next) => {
         res.status(200).json({
             status: 'success',
             message: 'Created a new product',
-            data: {
-                product
-            }
+            _id: product._id
         });
+    } catch (err) {
+        return handleError(res, err);
+    }
+};
+
+// get seller products
+const getSellerProducts = async (req, res) => {
+    try {
+        const products = await Product.find({ seller: req.seller._id });
+        res.status(200).json({ status: 'success', products: products });
     } catch (err) {
         return handleError(res, err);
     }
@@ -384,25 +403,25 @@ const updateProductForSeller = async (req, res) => {
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
             return handleError(res, {
-                name: 'CustomValidationError',
+                code: 'CustomValidationError',
                 status: 'error',
                 errors: errors.array()
             });
         }
 
-        const seller = await Seller.findOne({ _id: req.user._id });
+        const seller = req.seller;
         if (!seller) {
             return handleError(res, {
-                name: 'not_found',
+                code: 'not_found',
                 status: 'error',
                 message: 'Seller not found',
             });
         }
 
-        const product = await Product.findOne({ _id: req.params.productId, seller: seller._id });
+        const product = await Product.findOne({ _id: req.body.productId, seller: seller._id });
         if (!product) {
             return handleError(res, {
-                name: 'not_found',
+                code: 'not_found',
                 status: 'error',
                 message: 'Product not found',
             });
@@ -411,11 +430,14 @@ const updateProductForSeller = async (req, res) => {
         product.productName = req.body.productName;
         product.productDescription = req.body.productDescription;
         product.price = req.body.price;
+        product.discountedPrice = req.body.discountedPrice;
         product.quantity = req.body.quantity;
         product.category = req.body.category;
         product.imagesUrl = req.body.imagesUrl;
         product.thumbnailUrl = req.body.thumbnailUrl;
-        product.featured = req.body.featured || false;
+        product.tags = req.body.tags;
+        product.faqs = req.body.faqs;
+        product.keywords = req.body.keywords;
         product.updatedBy = {
             role: req.user.role,
             userId: req.user._id
@@ -431,34 +453,36 @@ const updateProductForSeller = async (req, res) => {
             }
         });
     } catch (error) {
-        return handleError(res, err);
+        return handleError(res, error);
     }
 };
 
 // DELETE a product of a seller
 const deleteProductForSeller = async (req, res) => {
     try {
-        const product = await Product.findOneAndDelete({ _id: req.params.id, seller: req.user._id });
+        console.log(req.body)
+        const product = await Product.findOneAndDelete({ _id: req.body._id, seller: req.seller._id });
         if (!product) {
             return handleError(res, {
-                name: 'not_found',
+                code: 'not_found',
                 status: 'error',
                 message: 'Product not found',
             });
         }
 
-        const data = {
-            username: product.businessUsername,
-            productName: product.productName,
-            subject: 'Product Deleted - SwiftMarket'
-        };
-
-        await sendEmail(product.businessEmail, data, './userActions/deletedProduct.hbs');
-
         res.status(200).json({
             status: 'success',
             message: 'Deleted the product'
         });
+
+        const data = {
+            username: product.seller.businessUsername,
+            productName: product.productName,
+            subject: 'Product Deleted - SwiftMarket'
+        };
+
+        await sendEmail(product.seller.businessEmail, data, './userActions/deletedProduct.hbs');
+
     } catch (err) {
         return handleError(res, err);
     }
@@ -467,15 +491,19 @@ const deleteProductForSeller = async (req, res) => {
 // get dashboard data
 const getDashboardData = async (req, res) => {
     const sellerId = req.user.seller;
+    const { from, to } = req.query;
+
     const today = new Date();
-    const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+    const startDate = from ? new Date(from) : new Date(today.getFullYear(), today.getMonth(), 2);
+    const endDate = to ? new Date(to) : new Date(today.getFullYear(), today.getMonth() + 1, 0);
+    endDate.setHours(23, 59, 59, 999);
 
     try {
         const orderTotal = await Order.aggregate([
             {
                 $match: {
                     seller: mongoose.Types.ObjectId(sellerId),
-                    createdAt: { $gte: firstDayOfMonth },
+                    createdAt: { $gte: startDate, $lte: endDate },
                 },
             },
             {
@@ -489,12 +517,12 @@ const getDashboardData = async (req, res) => {
 
         const newCustomers = await Order.distinct("customer", {
             seller: mongoose.Types.ObjectId(sellerId),
-            createdAt: { $gte: firstDayOfMonth },
+            createdAt: { $gte: startDate, $lte: endDate },
         });
 
         const returningCustomers = await Order.distinct("customer", {
             seller: mongoose.Types.ObjectId(sellerId),
-            createdAt: { $lt: firstDayOfMonth },
+            createdAt: { $lt: startDate },
         });
 
         const retentionRate =
@@ -504,7 +532,7 @@ const getDashboardData = async (req, res) => {
 
         const totalOrders = await Order.countDocuments({
             seller: mongoose.Types.ObjectId(sellerId),
-            createdAt: { $gte: firstDayOfMonth },
+            createdAt: { $gte: startDate, $lte: endDate },
         });
 
         const newCustomersThisMonth = newCustomers.filter(
@@ -527,7 +555,7 @@ const getDashboardData = async (req, res) => {
                     _id: null,
                     totalViews: { $sum: "$views" }
                 }
-            }
+            },
         ]);
 
         const conversionRate = (totalOrders > 0) ? ((totalOrders / productListings[0].totalViews) * 100).toFixed(2) : 0;
@@ -536,7 +564,7 @@ const getDashboardData = async (req, res) => {
             {
                 $match: {
                     seller: mongoose.Types.ObjectId(sellerId),
-                    createdAt: { $gte: firstDayOfMonth },
+                    createdAt: { $gte: startDate, $lte: endDate },
                 },
             },
             {
@@ -665,6 +693,7 @@ const getSalesData = async (req, res) => {
     }
 };
 
+// get orders
 const getOrders = async (req, res) => {
     try {
         const orders = await Order.find({ seller: req.user.seller })
@@ -677,4 +706,133 @@ const getOrders = async (req, res) => {
     }
 };
 
-module.exports = { loginSeller, getOrders, getSalesData, getDashboardData, getSellerProfile, updateSellerById, deleteSellerById, deleteProductForSeller, updateProductForSeller, createProductForSeller, applyForSellerAccount, verifySeller };
+const getOrdersById = async (req, res) => {
+    try {
+        const id = req.params.orderId;
+        const order = await Order.find({ orderId: id }).populate('products.product')
+            .sort({ createdAt: -1 });
+
+        res.status(200).json({ order });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Server Error" });
+    }
+};
+
+const updateOrderStatus = async (req, res) => {
+    const { _id, newStatus } = req.body;
+
+    try {
+        console.log(newStatus)
+        const updatedOrder = await Order.findByIdAndUpdate(_id, { orderStatus: newStatus }, { new: true }).populate('products.product');
+        console.log(updateOrderStatus)
+        if (!updatedOrder) {
+            return res.status(404).json({ message: 'Order not found' });
+        }
+
+        res.status(200).json({ message: 'Order status updated successfully', order: updatedOrder });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ message: 'Something went wrong' });
+    }
+};
+
+const acceptOrder = async (req, res) => {
+    const { _id } = req.body;
+
+    try {
+        const updatedOrder = await Order.findByIdAndUpdate(_id, { orderStatus: "Confirmed" }, { new: true }).populate(['customer', 'products.product']);
+        if (!updatedOrder) {
+            return res.status(404).json({ message: 'Order not found' });
+        }
+
+        const data = {
+            order: updatedOrder,
+            subject: 'Order Confirmed - SwiftMarket'
+        };
+
+        await sendEmail(updatedOrder.customer.email, data, './seller/confirmedOrder.hbs');
+
+        res.status(200).json({ message: 'Order accepted successfully', order: updatedOrder });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ message: 'Something went wrong' });
+    }
+}
+
+const cancelOrder = async (req, res) => {
+    const { _id, reason } = req.body;
+
+    try {
+        const updatedOrder = await Order.findByIdAndUpdate(_id, { orderStatus: "Cancelled", note: { cancelOrderReason: reason } }, { new: true }).populate('customer');
+        if (!updatedOrder) {
+            return res.status(404).json({ message: 'Order not found' });
+        }
+
+        const data = {
+            orderNumber: updatedOrder._id,
+            reason: reason,
+            subject: 'Order Cancelled - SwiftMarket'
+        };
+
+        await sendEmail(updatedOrder.customer.email, data, './seller/cancelOrder.hbs');
+
+        res.status(200).json({ message: 'Order cancelled successfully' });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ message: 'Something went wrong' });
+    }
+
+}
+
+const addTrackingDetails = async (req, res) => {
+    const { _id, carrierName, trackingNumber, trackingUrl, deliveryDate, deliveryStatus } = req.body;
+
+    try {
+        // Check if tracking details with given ID exists
+        const orderDetails = await Order.findById(_id).populate('products.product');
+        if (!orderDetails) {
+            return res.status(404).json({ error: 'Tracking details not found' });
+        }
+
+        // Update tracking details
+        orderDetails.trackingDetails.carrierName = carrierName || orderDetails.trackingDetails.carrierName;
+        orderDetails.trackingDetails.trackingNumber = trackingNumber || orderDetails.trackingDetails.trackingNumber;
+        orderDetails.trackingDetails.trackingUrl = trackingUrl || orderDetails.trackingDetails.trackingUrl;
+        orderDetails.trackingDetails.deliveryDate = deliveryDate || orderDetails.trackingDetails.deliveryDate;
+        orderDetails.trackingDetails.deliveryStatus = deliveryStatus || orderDetails.trackingDetails.deliveryStatus;
+
+        // Save updated tracking details to database
+        await orderDetails.save();
+
+        console.log(orderDetails)
+
+        return res.status(200).json({ message: 'Tracking details updated successfully', order: orderDetails });
+    } catch (err) {
+        console.error(err);
+        return res.status(500).json({ error: 'Server error' });
+    }
+};
+
+// GET a product by ID
+const getProductById = async (req, res, next) => {
+    try {
+        const product = await Product.findById(req.params.id);
+        if (!product) {
+            return handleError(res, {
+                code: "not_found",
+                status: "error",
+                message: "Product not found",
+            });
+        }
+        // Send the response to the client
+        res.status(200).json({
+            status: "success",
+            product: product,
+        });
+    } catch (err) {
+        return handleError(res, err);
+    }
+};
+
+module.exports = { checkVerificationCode, getProductById, getSellerProducts, acceptOrder, addTrackingDetails, cancelOrder, updateOrderStatus, getOrdersById, loginSeller, getOrders, getSalesData, getDashboardData, getSellerProfile, updateSellerById, deleteSellerById, deleteProductForSeller, updateProductForSeller, createProductForSeller, applyForSellerAccount, verifySeller };

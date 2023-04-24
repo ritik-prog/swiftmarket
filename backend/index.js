@@ -17,6 +17,7 @@ const productRouter = require('./Routes/product/productRouter');
 const superAdminRouter = require('./Routes/superadmin/superAdminRouter');
 const orderRoutes = require('./Routes/order/orderRoutes');
 const paymentRoutes = require('./Routes/payment/paymentRoutes')
+const payrollRoutes = require('./Routes/payroll/payrollRoutes')
 
 const rateLimiterMiddleware = require('./middleware/rateLimitermiddleware.js');
 
@@ -76,6 +77,7 @@ app.use('/api/product', csrfProtection, productRouter);
 app.use('/api/superadmin', csrfProtection, superAdminRouter);
 app.use('/api/order', csrfProtection, orderRoutes)
 app.use('/api/payment', csrfProtection, paymentRoutes)
+app.use('/api/payroll', csrfProtection, payrollRoutes)
 
 // Set up error handling middleware
 app.use((req, res, next) => {

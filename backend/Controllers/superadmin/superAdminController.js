@@ -22,7 +22,7 @@ const getAdminById = async (req, res) => {
         const admin = await Admin.findById(req.params.id);
         if (!admin) {
             return handleError(res, {
-                name: 'not_found',
+                code: 'not_found',
                 status: 'error',
                 message: 'Admin not found',
             });
@@ -39,7 +39,7 @@ const createAdmin = async (req, res) => {
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
             return handleError(res, {
-                name: 'CustomValidationError',
+                code: 'CustomValidationError',
                 status: 'error',
                 errors: errors.array()
             });
@@ -55,7 +55,7 @@ const createAdmin = async (req, res) => {
         const existingAdmin = await Admin.findOne({ email });
         if (existingAdmin) {
             return handleError(res, {
-                name: 'already_exists',
+                code: 'already_exists',
                 status: 'error',
                 message: 'Admin already exists',
             });
@@ -88,7 +88,7 @@ const updateAdmin = async (req, res) => {
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
             return handleError(res, {
-                name: 'CustomValidationError',
+                code: 'CustomValidationError',
                 status: 'error',
                 errors: errors.array()
             });
@@ -107,7 +107,7 @@ const updateAdmin = async (req, res) => {
         const admin = await Admin.findOne({ _id: ObjectId(adminId) });
         if (!admin) {
             return handleError(res, {
-                name: 'not_found',
+                code: 'not_found',
                 status: 'error',
                 message: 'Admin not found',
             });
@@ -140,7 +140,7 @@ const deleteAdmin = async (req, res) => {
         const admin = await Admin.findById(req.params.id);
         if (!admin) {
             return handleError(res, {
-                name: 'not_found',
+                code: 'not_found',
                 status: 'error',
                 message: 'Admin not found',
             });
