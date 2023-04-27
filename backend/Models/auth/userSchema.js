@@ -21,7 +21,6 @@ const userSchema = new mongoose.Schema({
     number: {
         type: String,
         trim: true,
-        unique: true,
     },
     email: {
         type: String,
@@ -49,7 +48,7 @@ const userSchema = new mongoose.Schema({
     },
     role: {
         type: String,
-        enum: ['user', 'seller', 'tickethandler', 'admin', 'superadmin', 'root'],
+        enum: ['user', 'seller', 'ticketmaster', 'admin', 'superadmin', 'root'],
         default: 'user',
     },
     cart: [{

@@ -125,13 +125,14 @@ exports.login = async (req, res) => {
 
                 res.status(200).json({
                     user: {
-                        id: user.id,
+                        id: user._id,
                         name: user.name,
                         email: user.email,
                         username: user.username,
                         address: user.address,
                         verificationStatus: user.verificationStatus,
-                        role: user.role
+                        role: user.role,
+                        number: user.number
                     },
                     status: 'success'
                 });
@@ -180,7 +181,18 @@ exports.getUser = async (req, res) => {
             });
         }
 
-        res.status(200).json({ user, status: 'success', });
+        res.status(200).json({
+            user: {
+                id: user._id,
+                name: user.name,
+                email: user.email,
+                username: user.username,
+                address: user.address,
+                verificationStatus: user.verificationStatus,
+                role: user.role,
+                number: user.number
+            }, status: 'success',
+        });
     } catch (err) {
         return handleError(res, err);
     }
@@ -206,28 +218,39 @@ exports.updateProfile = async (req, res) => {
             });
         }
 
-        const { username, name, email, address, paymentDetails } = req.body;
+        const { username, name, email, number, address } = req.body;
 
         user.username = username || user.username;
         user.name = name || user.name;
         user.email = email || user.email;
+        user.number = number || user.number;
         user.address = address || user.address;
-        user.paymentDetails = paymentDetails || user.paymentDetails;
 
         await user.save();
 
+        res.status(200).json({
+            user: {
+                id: user._id,
+                name: user.name,
+                email: user.email,
+                username: user.username,
+                address: user.address,
+                verificationStatus: user.verificationStatus,
+                role: user.role,
+                number: user.number
+            }, status: 'success',
+        });
+
         const data = {
             userUpdated: {
-                code: user.name,
-                email: user.email,
-                role: user.role
+                name: user.name,
+                email: user.email
             },
             subject: 'Account Updated - SwiftMarket'
         };
 
         await sendEmail(user.email, data, './userActions/userAccountChange.hbs');
 
-        res.status(200).json({ user, status: 'success', });
     } catch (err) {
         return handleError(res, err);
     }
@@ -264,19 +287,26 @@ exports.updatePassword = async (req, res) => {
         // Generate and save new auth token
         const token = await user.generateAuthToken();
 
+        // Set token in cookies
+        res.cookie('token', token, {
+            httpOnly: true, // cookie cannot be accessed from client-side scripts
+            secure: process.env.NODE_ENV === 'production', // cookie should only be sent over HTTPS in production
+            sameSite: 'strict', // cookie should only be sent for same-site requests
+            maxAge: 5 * 60 * 60 * 1000 // 5hr
+        });
+
+        res.status(200).json({ message: 'Password updated successfully', status: 'success', });
+
         const data = {
             passwordUpdated: {
                 code: user.name,
                 email: user.email,
-                role: user.role
             },
             subject: 'Password Updated - SwiftMarket'
         };
 
-        await sendEmail(user.email, data, './userAction/userAccountChange.hbs');
+        await sendEmail(user.email, data, './userActions/userAccountChange.hbs');
 
-
-        res.status(200).json({ message: 'Password updated successfully', token: token, status: 'success', });
     } catch (err) {
         return handleError(res, err);
     }
@@ -306,6 +336,7 @@ exports.deleteAccount = async (req, res) => {
     try {
         const token = req.cookies.token;
         const { password } = req.body;
+        console.log(req.body)
         const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
         const user = await User.findOne({
             _id: decodedToken._id,
@@ -323,9 +354,9 @@ exports.deleteAccount = async (req, res) => {
 
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) {
-            return handleError(res, {
-                message: 'Invalid Credentials',
-                code: 401
+            return res.status(499).json({
+                status: 'error',
+                message: 'Invalid Credentials'
             });
         }
 
@@ -334,7 +365,6 @@ exports.deleteAccount = async (req, res) => {
             userDeleted: {
                 code: user.name,
                 email: user.email,
-                role: user.role,
                 deletedAt: new Date()
             },
             subject: 'Account Deleted - SwiftMarket'

@@ -71,8 +71,7 @@ const applyForSellerAccount = async (req, res, next) => {
 
         res.status(200).json({
             status: 'success',
-            message: 'successfully applied for seller account',
-            data: savedSeller,
+            message: 'successfully applied for seller account'
         });
     } catch (error) {
         return handleError(res, error);
@@ -390,7 +389,7 @@ const createProductForSeller = async (req, res, next) => {
 // get seller products
 const getSellerProducts = async (req, res) => {
     try {
-        const products = await Product.find({ seller: req.seller._id });
+        const products = await Product.find({ seller: req.seller._id }).sort({ views: -1 });
         res.status(200).json({ status: 'success', products: products });
     } catch (err) {
         return handleError(res, err);
@@ -746,6 +745,8 @@ const acceptOrder = async (req, res) => {
             return res.status(404).json({ message: 'Order not found' });
         }
 
+        res.status(200).json({ message: 'Order accepted successfully', order: updatedOrder });
+
         const data = {
             order: updatedOrder,
             subject: 'Order Confirmed - SwiftMarket'
@@ -753,7 +754,6 @@ const acceptOrder = async (req, res) => {
 
         await sendEmail(updatedOrder.customer.email, data, './seller/confirmedOrder.hbs');
 
-        res.status(200).json({ message: 'Order accepted successfully', order: updatedOrder });
     } catch (error) {
         console.log(error);
         res.status(500).json({ message: 'Something went wrong' });

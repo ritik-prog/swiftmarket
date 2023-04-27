@@ -26,8 +26,8 @@ const Features = () => {
               Secured Payments
             </h3>
             <p className="mt-4 text-sm text-gray-600 dark:text-gray-300">
-              Amet minim mollit non deserunt ullamco est sit aliqua dolor do
-              amet sint. Velit officia consequat duis enim velit mollit.
+              Our marketplace ensures safe and secure payment transactions for
+              both buyers and sellers.
             </p>
           </div>
 
@@ -52,8 +52,8 @@ const Features = () => {
               Fast & Easy to Load
             </h3>
             <p className="mt-4 text-sm text-gray-600 dark:text-gray-300">
-              Amet minim mollit non deserunt ullamco est sit aliqua dolor do
-              amet sint. Velit officia consequat duis enim velit mollit.
+              Our platform is optimized for quick loading times, ensuring a
+              seamless experience for users.
             </p>
           </div>
 
@@ -78,8 +78,8 @@ const Features = () => {
               Light & Dark Version
             </h3>
             <p className="mt-4 text-sm text-gray-600 dark:text-gray-300">
-              Amet minim mollit non deserunt ullamco est sit aliqua dolor do
-              amet sint. Velit officia consequat duis enim velit mollit.
+              Choose between our light and dark theme options to suit your
+              personal preference and enhance your selling experience.
             </p>
           </div>
 
@@ -101,11 +101,11 @@ const Features = () => {
               </svg>
             </div>
             <h3 className="mt-8 text-lg font-semibold text-black dark:text-white">
-              Filter Blocks
+              Advanced Search Functionality
             </h3>
             <p className="mt-4 text-sm text-gray-600 dark:text-gray-300">
-              Amet minim mollit non deserunt ullamco est sit aliqua dolor do
-              amet sint. Velit officia consequat duis enim velit mollit.
+              Our platform offers advanced search options, simplifying product
+              discovery for buyers and sellers alike.
             </p>
           </div>
         </div>

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { getTransactionsApi } from "../../../api/order";
 
 const Payments = () => {
-  const [transaction, setTransaction] = useState<any>();
+  const [transaction, setTransaction] = useState<any>([]);
   async function getTrasactions() {
     const results = await getTransactionsApi();
     setTransaction(results.transactions);
@@ -12,8 +12,8 @@ const Payments = () => {
     getTrasactions();
   }, []);
 
-  return (
-    <div className="mt-10">
+  return transaction.length > 0 ? (
+    <div className="mt-10 p-4">
       <header className="text-left">
         <h1 className="text-xl font-bold text-gray-900 sm:text-3xl">
           Previous Transactions
@@ -40,7 +40,11 @@ const Payments = () => {
                           <span className="text-gray-400 text-xs pl-4">
                             {new Date(transaction.createdAt).toLocaleDateString(
                               "en-US",
-                              { month: "long", day: "numeric", year: "numeric" }
+                              {
+                                month: "long",
+                                day: "numeric",
+                                year: "numeric",
+                              }
                             )}
                           </span>
                         </div>
@@ -75,6 +79,14 @@ const Payments = () => {
           </div>
         </section>
       </div>
+    </div>
+  ) : (
+    <div className="mt-10 p-4">
+      <header className="text-left">
+        <h1 className="text-xl font-bold text-gray-900 sm:text-3xl">
+          No Previous Transactions
+        </h1>
+      </header>
     </div>
   );
 };

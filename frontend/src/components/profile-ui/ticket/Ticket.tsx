@@ -1,76 +1,85 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { getTickets } from "../../../api/ticket";
+import NewTicket from "./NewTicket";
+import { useNavigate } from "react-router-dom";
 
 const TicketConsole = () => {
   const [activeTab, setActiveTab] = useState("all");
+  const [tickets, setTickets] = useState<any>([]);
+  const [newTicketModal, setNewTicketModal] = useState(false);
+  const navigate = useNavigate();
 
   const tabs = [
     { id: "all", name: "All" },
-    { id: "open", name: "Open" },
-    { id: "pending", name: "Pending" },
-    { id: "closed", name: "Closed" },
+    { id: "Open", name: "Open" },
+    { id: "Pending", name: "Pending" },
+    { id: "Closed", name: "Closed" },
   ];
 
-  const tickets = [
-    {
-      id: 1,
-      title: "Ticket #1",
-      status: "open",
-      date: "2023-04-09T08:00:00.000Z",
-      description: "This is the description of ticket #1",
-    },
-    {
-      id: 2,
-      title: "Ticket #2",
-      status: "pending",
-      date: "2023-04-08T13:00:00.000Z",
-      description: "This is the description of ticket #2",
-    },
-    {
-      id: 3,
-      title: "Ticket #3",
-      status: "closed",
-      date: "2023-04-07T10:00:00.000Z",
-      description: "This is the description of ticket #3",
-    },
-  ];
+  async function fetchData() {
+    try {
+      const result = await getTickets();
+      setTickets(result.tickets);
+    } catch (error) {}
+  }
+
+  useEffect(() => {
+    fetchData();
+  }, []);
 
   const filteredTickets =
     activeTab === "all"
       ? tickets
-      : tickets.filter((ticket) => ticket.status === activeTab);
+      : tickets.filter((ticket: any) => ticket.status === activeTab);
 
   return (
-    <div className="container mx-auto my-8">
-      <div className="flex justify-between items-center mb-8">
+    <div className="container mx-auto mt-10 p-4">
+      <div className="flex justify-between items-center mb-8 relative">
         <h1 className="text-2xl font-bold text-gray-800">Help Center</h1>
         <div className="flex gap-4">
-          {tabs.map((tab) => (
-            <button
-              key={tab.id}
-              className={`px-4 py-2 rounded-md text-sm font-medium text-white ${
-                activeTab === tab.id ? "bg-blue-500" : "bg-gray-500"
-              }`}
-              onClick={() => setActiveTab(tab.id)}
-            >
-              {tab.name}
-            </button>
-          ))}
+          {tickets?.length > 0 && (
+            <>
+              {tabs.map((tab) => (
+                <>
+                  <button
+                    key={tab.id}
+                    className={`px-4 py-2 rounded-md text-sm font-medium text-white ${
+                      activeTab === tab.id ? "bg-blue-500" : "bg-gray-500"
+                    }`}
+                    onClick={() => setActiveTab(tab.id)}
+                  >
+                    {tab.name}
+                  </button>
+                </>
+              ))}
+            </>
+          )}
+
+          <button
+            className={`px-4 py-2 rounded-md text-sm font-medium text-white bg-green-500 hover:bg-green-400`}
+            onClick={() => setNewTicketModal(true)}
+          >
+            New Ticket
+          </button>
         </div>
       </div>
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-        {filteredTickets.map((ticket) => (
+        {filteredTickets.map((ticket: any) => (
           <div
-            key={ticket.id}
-            className="bg-white shadow-md rounded-md p-4 flex flex-col justify-between"
+            key={ticket._id}
+            className="cursor-pointer bg-white shadow-md rounded-md p-4 flex flex-col justify-between"
+            onClick={() => navigate(`/ticket/${ticket._id}`)}
           >
             <div>
               <h2 className="text-lg font-medium text-gray-800">
-                {ticket.title}
+                {ticket.subject}
               </h2>
               <p className="text-gray-500 text-sm mt-1">
-                {new Date(ticket.date).toLocaleDateString()}
+                {new Date(ticket.createdAt).toLocaleDateString()}
               </p>
-              <p className="text-gray-600 mt-2">{ticket.description}</p>
+              <p className="text-gray-600 mt-2">
+                {ticket.description.substring(0, 25)}...
+              </p>
             </div>
             <div className="mt-4">
               <span
@@ -88,6 +97,11 @@ const TicketConsole = () => {
           </div>
         ))}
       </div>
+      <NewTicket
+        isOpen={newTicketModal}
+        closeModal={() => setNewTicketModal(false)}
+        fetchData={fetchData}
+      />
     </div>
   );
 };

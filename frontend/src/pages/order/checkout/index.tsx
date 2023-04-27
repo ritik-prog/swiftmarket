@@ -67,9 +67,16 @@ const Checkout = () => {
           paymentMethod: "blockchain",
         };
         const result = await createTransaction(data);
-        console.log(result);
-        if (result._id) {
-          navigate(`/order/checkout/stripe/${result._id}`);
+        console.log(result.transaction.trans_id);
+        if (result.transaction.trans_id) {
+          navigate(`/order/checkout/metamask/${result.transaction.trans_id}`, {
+            state: {
+              address: values.address,
+              number: values.number,
+              fullname: values.fullname,
+            },
+            replace: true,
+          });
         }
       } catch (error) {
         CreateToast("tryagain", "Try again after sometime", "error");

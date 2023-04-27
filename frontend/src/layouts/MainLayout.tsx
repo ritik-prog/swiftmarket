@@ -3,7 +3,11 @@ import { Navigate, Outlet } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { RootState } from "../redux/rootReducer";
 import instance from "../utils/Axios";
-import { logoutSuccess, banRemoved } from "../redux/user/userSlice";
+import {
+  logoutSuccess,
+  banRemoved,
+  loginSuccess,
+} from "../redux/user/userSlice";
 import { useDispatch } from "react-redux";
 import IpBanned from "../pages/error/IpBanned";
 import HomeLayout from "./Homelayout";
@@ -25,17 +29,20 @@ const MainLayout = ({ children }: Props) => {
   );
   const dispatch = useDispatch();
 
-  useEffect(() => {
-    async function checkAuth() {
-      const response: any = await instance.get<any>("/auth/check");
-      return response;
+  const checkAuth = async () => {
+    const response = await instance.get("/auth/check");
+    console.log(response.data);
+    if (response.data.status === "success") {
+      dispatch(loginSuccess(response.data));
+    } else {
+      dispatch(logoutSuccess());
     }
+    return response;
+  };
 
+  useEffect(() => {
     try {
-      const response: any = checkAuth();
-      if (response.data.status !== "success") {
-        dispatch(logoutSuccess());
-      }
+      checkAuth();
     } catch (err) {
       // dispatch(logoutSuccess());
     }
@@ -45,9 +52,7 @@ const MainLayout = ({ children }: Props) => {
     return <IpBanned />;
   }
 
-  if (isAuthenticated && user.verificationStatus) {
-    return <Navigate to="/shop" />;
-  } else if (isAuthenticated && !user.verificationStatus) {
+  if (isAuthenticated && !user.verificationStatus) {
     return <Navigate to="/verification" />;
   }
 

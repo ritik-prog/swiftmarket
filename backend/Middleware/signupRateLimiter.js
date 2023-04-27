@@ -1,8 +1,7 @@
 const Ip = require('../models/auth/ipSchema');
-const rateLimit = require('express-rate-limit');
 const moment = require('moment');
 
-const MAX_SIGNUPS_PER_DAY = 5;
+const MAX_SIGNUPS_PER_DAY = 10;
 const BAN_DURATION = 7 * 24 * 60 * 60 * 1000; // 7 days in milliseconds
 
 const signupRateLimiter = async (req, res, next) => {
@@ -38,6 +37,11 @@ const signupRateLimiter = async (req, res, next) => {
             await newIp.save();
         } else {
             existingIp.signupCount += 1;
+            if (Date.now() - existingIp.lastSignupAt > 24 * 60 * 60 * 1000) {
+                existingIp.signupCount = 1;
+                existingIp.lastSignupAt = Date.now();
+                next();
+            }
             existingIp.lastSignupAt = Date.now();
             await existingIp.save();
             if (existingIp.signupCount >= MAX_SIGNUPS_PER_DAY) {

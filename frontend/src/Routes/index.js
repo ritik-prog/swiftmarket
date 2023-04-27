@@ -8,11 +8,14 @@ import { RestrictedLayoutRoutes } from "./RestrictedLayout";
 import CheckoutLayout from "../pages/order/checkout/index";
 import MetaMask from "../pages/order/checkout/MetaMask";
 import StripeLayout from "../pages/order/checkout/StripeLayout";
+import Login from "../pages/auth/SignIn";
+import { ProfileLayoutRoutes } from "./ProfileLayoutRoutes";
 
 const routes = [
     MainLayoutRoutes,
     SecuredLayoutRoutes,
     RestrictedLayoutRoutes,
+    ProfileLayoutRoutes,
     // Profile using withAuth
     {
         path: "profile",
@@ -40,9 +43,14 @@ const routes = [
         element: <StripeLayout />,
     },
     {
+        path: "/signin",
+        element: <Login />,
+    },
+    {
         path: "*",
         element: <Error404 />,
     },
+
 ];
 
 export default createBrowserRouter(routes);

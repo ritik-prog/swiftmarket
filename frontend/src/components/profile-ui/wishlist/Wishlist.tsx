@@ -17,7 +17,6 @@ interface WishlistState {
 }
 
 const WishlistComponent = () => {
-
   const navigate = useNavigate();
 
   const dispatch = useDispatch();
@@ -34,8 +33,8 @@ const WishlistComponent = () => {
   };
 
   return (
-    <>
-      <div className="flex flex-col jusitfy-start items-start">
+    <div className="p-4 mt-10">
+      <div className="flex flex-col jusitfy-start items-start w-fit">
         <div>
           <p className="text-sm leading-4 text-gray-600 dark:text-white">
             Home
@@ -83,7 +82,7 @@ const WishlistComponent = () => {
           </div>
         )}
       </div>
-    </>
+    </div>
   );
 };
 

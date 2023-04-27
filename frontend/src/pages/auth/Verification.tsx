@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React, { useRef, useState } from "react";
 import { useNavigate, Navigate } from "react-router-dom";
 import { CreateToast } from "../../utils/Toast";
 import { ResendVerificationMail, verifyApi } from "../../api/auth";
@@ -6,9 +6,11 @@ import { RootState } from "../../redux/rootReducer";
 import { useSelector } from "react-redux";
 import { useDispatch } from "react-redux";
 import { updateVerificationStatus } from "../../redux/user/userSlice";
+import { ClipLoader } from "react-spinners";
 
 function Verification() {
   const inputRefs = useRef<HTMLInputElement[]>([]);
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
@@ -60,9 +62,11 @@ function Verification() {
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    setLoading(true);
     const code = inputRefs.current.map((input) => input.value).join("");
     verifyApi(code)
       .then((res) => {
+        setLoading(false);
         CreateToast("Emailverified", "Email verified!", "success");
         dispatch(updateVerificationStatus({ verificationStatus: true }));
         navigate("/shop");
@@ -70,6 +74,7 @@ function Verification() {
       .catch((err) => {
         CreateToast("verifyInvalidcode", "Invalid code!", "error");
       });
+    setLoading(false);
   };
 
   const renderInputs = () => {
@@ -103,7 +108,7 @@ function Verification() {
   if (!user.isAuthenticated) {
     return <Navigate to="/signin" />;
   } else if (user.user.verificationStatus) {
-    return <Navigate to="/shop" />;
+    return <Navigate to="/" />;
   } else {
     return (
       <div className="relative flex min-h-screen flex-col justify-center overflow-hidden bg-gray-50 dark:bg-gray-900 py-12">
@@ -114,7 +119,10 @@ function Verification() {
                 <p>Email Verification</p>
               </div>
               <div className="flex flex-row text-sm font-medium text-gray-400 dark:text-gray-300">
-                <p>We have sent a code to your email ba**@dipainhouse.com</p>
+                <p>
+                  We have sent a code to your email{" "}
+                  {`${user.user.email?.substring(0, 2)}**@gmail.com`}
+                </p>
               </div>
             </div>
 
@@ -127,8 +135,9 @@ function Verification() {
                   <button
                     className="w-full py-3 text-white bg-blue-700 rounded-xl hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-700 focus:ring-opacity-50"
                     onClick={(e) => handleSubmit}
+                    disabled={loading}
                   >
-                    Verify
+                    {loading ? <ClipLoader color="#fff" /> : <>Verify</>}
                   </button>
                 </div>
               </form>

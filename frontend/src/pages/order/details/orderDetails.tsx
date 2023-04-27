@@ -16,7 +16,7 @@ export function OrderDetails() {
     getData();
   }, []);
 
-  return orders ? (
+  return orders.length > 0 ? (
     <div
       dir="ltr"
       className="mx-auto flex w-full max-w-1920 flex-col items-start bg-light py-10 px-2 dark:bg-gray-900 lg:bg-gray-100 xl:flex-row xl:py-14 xl:px-8 2xl:px-14"
@@ -41,9 +41,7 @@ export function OrderDetails() {
                       <div className="flex items-center justify-between border-b py-3 px-5 md:px-3 lg:px-5 ">
                         <span className="flex shrink-0 text-sm font-bold text-heading ltr:mr-4 rtl:ml-4 lg:text-base">
                           Order
-                          <span className="font-normal">
-                            #{index+1}
-                          </span>
+                          <span className="font-normal">#{index + 1}</span>
                         </span>
                         <span
                           className={`max-w-full truncate whitespace-nowrap rounded px-3 py-2 text-sm text-white ${

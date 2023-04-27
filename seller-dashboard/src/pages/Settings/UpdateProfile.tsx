@@ -339,7 +339,7 @@ const UpdateProfile = () => {
             <div className="pl-4">
               <label
                 htmlFor="reset-password"
-                className="block text-gray-700 dark:text-gray-400 font-medium mb-1"
+                className="cursor-pointer block text-gray-700 dark:text-gray-400 font-medium mb-1"
               >
                 Delete Account
               </label>

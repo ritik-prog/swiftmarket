@@ -1,6 +1,12 @@
 const mongoose = require('mongoose');
 
 const ticketSchema = new mongoose.Schema({
+    type: {
+        type: String,
+        required: true,
+        enum: ['Query', 'Complaint', 'Support', 'Feedback', 'Bug Report', 'Feature Request', 'Account Issue'],
+        default: 'Query'
+    },
     subject: {
         type: String,
         required: true,
@@ -67,6 +73,10 @@ const ticketSchema = new mongoose.Schema({
             user_id: {
                 type: mongoose.Schema.Types.ObjectId,
                 ref: 'User',
+            },
+            time: {
+                type: Date,
+                default: Date.now,
             }
         },
     ],

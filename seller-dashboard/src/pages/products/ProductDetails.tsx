@@ -7,6 +7,7 @@ import {
 import { useNavigate, useParams } from "react-router-dom";
 import { categories } from "../../data/categories";
 import { CreateToast } from "../../utils/Toast";
+import FullPageLoading from "../loading/FullPageLoading";
 
 const ProductDetails = () => {
   const { id } = useParams();
@@ -578,7 +579,7 @@ const ProductDetails = () => {
       </form>
     </div>
   ) : (
-    <p>not found</p>
+    <FullPageLoading />
   );
 };
 

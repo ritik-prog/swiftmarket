@@ -3,10 +3,7 @@ import { banImposed, logoutSuccess } from "../redux/user/userSlice";
 import { store } from "../redux/store";
 import { CreateToast } from "./Toast";
 
-const HandleError = async (
-  e: Error | AxiosError,
-  onError: (error: any) => void
-) => {
+const HandleError = async (e: any, onError: (error: any) => void) => {
   const error = e as AxiosError;
   const data = error.response?.data as { code: string };
   const message = error.response?.data as { message: string };
@@ -17,15 +14,20 @@ const HandleError = async (
   }
   switch (error.response?.status) {
     case 400:
-      switch (data.code) {
+      switch (e.response.data.error) {
         case "CustomValidationError":
-          CreateToast("ValidationError", "Validation Error", "error");
+          const errorMessages = e.response.data.message.map(
+            (err: any) => err.msg
+          );
+          CreateToast("ValidationError", errorMessages.join(", "), "error");
           break;
         case "missing_fields":
           CreateToast("Missingfields", "Missing fields", "error");
+          console.log("Missing fields error occurred.");
           break;
         default:
-          CreateToast("Unknown", "Invalid Value", "error");
+          CreateToast("Unknown", "Unknown error", "error");
+          console.log("Unknown 400 error occurred.");
           break;
       }
       break;

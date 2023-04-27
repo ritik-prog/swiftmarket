@@ -6,11 +6,12 @@ const About = () => {
       <div className="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
         <div className="max-w-xl mx-auto text-center">
           <p className="text-sm font-semibold tracking-widest text-indigo-600 uppercase">
-            100+ Tailwind Components
+            About Our Marketplace
           </p>
 
-          <h2 className="mt-6 text-3xl font-bold leading-tight text-black dark:text-white sm:text-4xl lg:text-5xl">
-            DevUI makes it easy to build beautiful websites
+          <h2 className="mt-6 text-2xl font-bold leading-tight text-black dark:text-white sm:text-3xl lg:text-4xl">
+            Connecting Buyers and Sellers
+            <span className="block text-lg text-gray-600">for Success</span>
           </h2>
         </div>
 
@@ -34,11 +35,12 @@ const About = () => {
 
               <div className="ml-5">
                 <h3 className="text-xl font-semibold text-black dark:text-white">
-                  Simply Copy & Paste
+                  Wide Range of High-Quality Products
                 </h3>
                 <p className="mt-3 text-base text-gray-600 dark:text-gray-300">
-                  Amet minim mollit non deserunt ullamco est sit aliqua dolor do
-                  amet sint.
+                  Our marketplace offers diverse and quality products from
+                  reputable sellers committed to honesty, transparency, and
+                  exceptional service.
                 </p>
               </div>
             </div>
@@ -61,11 +63,12 @@ const About = () => {
 
               <div className="ml-5">
                 <h3 className="text-xl font-semibold text-black dark:text-white">
-                  Easy to Customize
+                  User-Friendly Platform
                 </h3>
                 <p className="mt-3 text-base text-gray-600 dark:text-gray-300">
-                  Amet minim mollit non deserunt ullamco est sit aliqua dolor do
-                  amet sint.
+                  Our platform is designed to simplify buying and selling in
+                  bulk. It has intuitive search functions, easy-to-use filters,
+                  and a streamlined checkout process.
                 </p>
               </div>
             </div>
@@ -88,11 +91,12 @@ const About = () => {
 
               <div className="ml-5">
                 <h3 className="text-xl font-semibold text-black dark:text-white">
-                  Made with TailwindCSS
+                  Trusted and Secure
                 </h3>
                 <p className="mt-3 text-base text-gray-600 dark:text-gray-300">
-                  Amet minim mollit non deserunt ullamco est sit aliqua dolor do
-                  amet sint.
+                  We prioritize trust and security. Our encryption technology
+                  safeguards transactions and sensitive info. Our rating system
+                  promotes transparency and informed decision-making.
                 </p>
               </div>
             </div>

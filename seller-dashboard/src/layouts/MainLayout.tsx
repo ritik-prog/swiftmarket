@@ -58,5 +58,5 @@ const MainLayout = () => {
   );
 };
 
-// export default withAuth(MainLayout);
-export default MainLayout;
+export default withAuth(MainLayout);
+// export default MainLayout;

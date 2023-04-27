@@ -36,7 +36,7 @@ router.post(
 );
 
 // check if user is logged in
-router.get('/check', [checkBanMiddleware, authenticateMiddleware], (req, res) => res.status(200).json({ status: 'success', message: 'User is logged in' }));
+router.get('/check', [checkBanMiddleware, authenticateMiddleware], (req, res) => res.status(200).json({ status: 'success', message: 'User is logged in', user: req.user }));
 
 // Email Verification
 router.post('/sendVerificationCodeAgain',
@@ -89,10 +89,11 @@ router.put(
     [
         checkBanMiddleware,
         authenticateMiddleware, checkVerificationMiddleware,
-        check('username', 'Username is required').notEmpty().trim().escape(),
-        check('name', 'Name is required').notEmpty().trim().escape(),
+        check('username', 'Username is required').notEmpty().trim(),
+        check('name', 'Name is required').notEmpty().trim(),
         check('email', 'Please enter a valid email address').isEmail().normalizeEmail(),
-        check('address', 'Address is required').notEmpty().trim().escape(),
+        check('address', 'Address is required').notEmpty().trim(),
+        check('number', 'Address is required').notEmpty().trim(),
     ],
     authController.updateProfile
 );
@@ -111,7 +112,7 @@ router.put(
 );
 
 // Delete account
-router.delete('/deleteaccount', [checkBanMiddleware, authenticateMiddleware,
+router.put('/deleteaccount', [checkBanMiddleware, authenticateMiddleware,
     checkVerificationMiddleware,], authController.deleteAccount);
 
 // Logout route

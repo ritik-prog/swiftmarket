@@ -22,7 +22,6 @@ const Login = () => {
       return <Navigate to={"error"} replace />;
     }
     const res = await instance.get(`/seller/checkloginstatus/${email}`);
-    console.log(res)
     if (res.data.status !== "allow") {
       navigate("/error");
     }

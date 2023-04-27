@@ -8,10 +8,6 @@ export const RestrictedLayoutRoutes =
     element: <EmptyLayout />,
     children: [
         {
-            path: "/signin",
-            element: <Login />,
-        },
-        {
             path: "/signup",
             element: <SignUp />,
         },

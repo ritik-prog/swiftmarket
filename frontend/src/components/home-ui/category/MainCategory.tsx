@@ -1,6 +1,8 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 
 const MainCategory = () => {
+  const navigate = useNavigate();
   return (
     <section>
       <div className="max-w-screen-xl px-4 py-8 mx-auto sm:py-12 sm:px-6 lg:px-8">
@@ -18,12 +20,12 @@ const MainCategory = () => {
                 </p>
               </header>
 
-              <a
-                href="#"
+              <span
+                onClick={() => navigate(`/search?category=Watches`)}
                 className="inline-block px-12 py-3 mt-8 text-sm font-medium text-white transition bg-gray-900 border border-gray-900 rounded hover:shadow focus:outline-none focus:ring"
               >
                 Shop All
-              </a>
+              </span>
             </div>
           </div>
 

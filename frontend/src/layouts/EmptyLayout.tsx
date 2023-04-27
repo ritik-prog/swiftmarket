@@ -3,7 +3,7 @@ import { Navigate, Outlet } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { RootState } from "../redux/rootReducer";
 import instance from "../utils/Axios";
-import { logoutSuccess } from "../redux/user/userSlice";
+import { loginSuccess, logoutSuccess } from "../redux/user/userSlice";
 import { useDispatch } from "react-redux";
 import IpBanned from "../pages/error/IpBanned";
 import FloatingButton from "../components/common/FloatingButton";
@@ -19,21 +19,23 @@ const EmptyLayout = ({ children }: Props) => {
   );
   const dispatch = useDispatch();
 
-  useEffect(() => {
-    async function checkAuth() {
-      const response: any = await instance.get<any>("/auth/check");
-      return response;
+  const checkAuth = async () => {
+    const response = await instance.get("/auth/check");
+    console.log(response.data);
+    if (response.data.status === "success") {
+      dispatch(loginSuccess(response.data));
+    } else {
+      dispatch(logoutSuccess());
     }
-    // if (isAuthenticated) {
+    return response;
+  };
+
+  useEffect(() => {
     try {
-      const response: any = checkAuth();
-      if (response.data.status !== "success") {
-        dispatch(logoutSuccess());
-      }
+      checkAuth();
     } catch (err) {
       // dispatch(logoutSuccess());
     }
-    // }
   }, []);
 
   if (ban?.status) {

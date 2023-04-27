@@ -146,11 +146,11 @@ orderSchema.pre('save', async function (next) {
                 sellerName: seller.businessName,
                 subject: 'New Order - SwiftMarket'
             };
-            
+
             let payroll = await Payroll.findOne({ user: seller._id });
             if (!payroll) {
-                payroll = new Payroll({ user: seller._id, role: 'seller', amount:this.orderTotal });
-            }else{
+                payroll = new Payroll({ user: seller._id, role: 'seller', amount: this.orderTotal });
+            } else {
                 payroll.amount += this.orderTotal;
             }
             await payroll.save();
@@ -196,18 +196,30 @@ orderSchema.pre('save', async function (next) {
             next(error);
         }
     }
-
-    if (this.orderStatus === "Delivered") {
-        this.trackingDetails.deliveryStatus = "Delivered"
-        const customer = await User.findById(this.customer);
-        const data = {
-            customerName: customer.name,
-            totalCost: this.orderTotal,
-            subject: 'Order Delivered - SwiftMarket'
-        };
-        // Send email
-        sendEmail(customer.email, data, './order/orderDelivered.hbs');
-    }
 });
+
+// Update order status
+orderSchema.pre('save', async function (next) {
+    if (this.isModified('orderStatus') || this.isModified('trackingDetails.deliveryStatus')) {
+        try {
+            if (this.orderStatus === "Delivered") {
+                this.trackingDetails.deliveryStatus = "Delivered"
+                const customer = await User.findById(this.customer);
+                const data = {
+                    customerName: customer.name,
+                    totalCost: this.orderTotal,
+                    subject: 'Order Delivered - SwiftMarket'
+                };
+                // Send email
+                sendEmail(customer.email, data, './order/orderDelivered.hbs');
+            }
+        }
+        catch (error) {
+            next(error);
+        }
+    }
+    next();
+});
+
 
 module.exports = mongoose.model('Order', orderSchema);

@@ -1,18 +1,15 @@
 const express = require('express');
-const router = express.Router();
-const Ticket = require('../models/ticket/ticketSchema');
-const authorizeMiddleware = require("../../middleware/authorizeMiddleware");
+const Ticket = require('../../models/ticket/ticketSchema');
+const authenticateMiddleware = require("../../middleware/authenticateMiddleware");
 const ticketController = require('../../controllers/ticket/ticketController');
+const { check } = require('express-validator');
+
+const router = express.Router();
 
 // GET tickets
-router.get('/', authorizeMiddleware, async (req, res) => {
+router.get('/', authenticateMiddleware, async (req, res) => {
     try {
-        const tickets = await Ticket.find({ customer_id: req.user._id })
-            .populate({
-                path: 'messages.user_id',
-                select: 'username',
-            })
-            .exec();
+        const tickets = await Ticket.find({ customer_id: req.user._id });
 
         res.status(200).json({ tickets, status: 200 });
     } catch (err) {
@@ -22,7 +19,7 @@ router.get('/', authorizeMiddleware, async (req, res) => {
 });
 
 // GET ticket by id
-router.get('/:id', authorizeMiddleware, async (req, res) => {
+router.get('/:id', authenticateMiddleware, async (req, res) => {
     try {
         const { id } = req.params;
         const ticket = await Ticket.findById({ _id: id, customer_id: req.user._id })
@@ -30,7 +27,7 @@ router.get('/:id', authorizeMiddleware, async (req, res) => {
                 path: 'messages.user_id',
                 select: 'username'
             });
-        res.json(ticket);
+        res.json({ status: "success", ticket });
     } catch (error) {
         console.error(error.message);
         res.status(500).send('Server Error');
@@ -38,7 +35,7 @@ router.get('/:id', authorizeMiddleware, async (req, res) => {
 });
 
 // CREATE one ticket
-router.post('/', [authorizeMiddleware, check('subject').not().isEmpty().withMessage('Subject is required'),
+router.post('/', [authenticateMiddleware, check('subject').not().isEmpty().withMessage('Subject is required'),
     check('description')
         .not()
         .isEmpty()
@@ -46,7 +43,7 @@ router.post('/', [authorizeMiddleware, check('subject').not().isEmpty().withMess
     check('order').not().isEmpty().withMessage('Order is required')], ticketController.createTicket);
 
 // ADD message to ticket
-router.post('/:id/message', [authorizeMiddleware, check('message')
+router.post('/add/message', [authenticateMiddleware, check('message')
     .isLength({ min: 6 })
     .withMessage('Message must be at least 6 characters long')], ticketController.addMessage);
 

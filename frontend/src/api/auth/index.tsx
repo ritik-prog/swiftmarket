@@ -9,7 +9,7 @@ export const signUpApi = async (email: any, password: any, username: any) => {
   return response;
 };
 
-export const signInpApi = async (email: any, password: any) => {
+export const signInApi = async (email: any, password: any) => {
   const response = await instance.post("/auth/login", {
     email,
     password,
@@ -27,4 +27,29 @@ export const verifyApi = async (code: any) => {
 export const ResendVerificationMail = async () => {
   const response = await instance.post("/auth/sendVerificationCodeAgain");
   return response;
+};
+
+// logout
+export const logoutApi = async () => {
+  const response = await instance.post("/auth/logout");
+  return response;
+};
+
+// update profile
+export const updateProfileApi = async (data: any) => {
+  const response = await instance.put("/auth/updateprofile", data);
+  return response;
+};
+
+// update password
+export const updatePasswordApi = async (data: any) => {
+  const response = await instance.put("/auth/updatepassword", data);
+  return response.data;
+};
+
+// delete account
+export const deleteAccountApi = async (data: any) => {
+  console.log(data);
+  const response = await instance.put("/auth/deleteaccount", data);
+  return response.data;
 };

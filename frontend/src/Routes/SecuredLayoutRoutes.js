@@ -1,8 +1,6 @@
 import SecuredLayout from "../layouts/SecuredLayout";
 import { ShoppingCart } from "../pages/order/cart";
-import Wishlist from "../components/profile-ui/wishlist/Wishlist";
 import { OrderConfirmed } from "../pages/order/confirmed";
-import { OrderDetails } from "../pages/order/details/orderDetails";
 
 // Secured Layout
 export const SecuredLayoutRoutes = {
@@ -10,33 +8,12 @@ export const SecuredLayoutRoutes = {
     element: <SecuredLayout />,
     children: [
         {
-            path: "cart",
-            element: (
-                <>
-                    {" "}
-                    <ShoppingCart />
-                </>
-            ),
-        },
-        {
-            path: "wishlist",
-            element: (
-                <>
-                    <Wishlist />
-                </>
-            ),
-        }, 
-        {
-            path: "orders",
-            element: (
-                <>
-                    <OrderDetails />
-                </>
-            ),
-        },
-        {
             path: "order/confirmed/:cart_id",
             element: <OrderConfirmed />,
+        },
+        {
+            path: "cart",
+            element: <ShoppingCart />,
         },
     ],
 }

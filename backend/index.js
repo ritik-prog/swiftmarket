@@ -18,6 +18,8 @@ const superAdminRouter = require('./Routes/superadmin/superAdminRouter');
 const orderRoutes = require('./Routes/order/orderRoutes');
 const paymentRoutes = require('./Routes/payment/paymentRoutes')
 const payrollRoutes = require('./Routes/payroll/payrollRoutes')
+const ticketRoutes = require('./Routes/ticket/ticketRouter')
+const ticketMasterRoutes = require('./Routes/ticketmaster/ticketMasterRoutes')
 
 const rateLimiterMiddleware = require('./middleware/rateLimitermiddleware.js');
 
@@ -78,6 +80,8 @@ app.use('/api/superadmin', csrfProtection, superAdminRouter);
 app.use('/api/order', csrfProtection, orderRoutes)
 app.use('/api/payment', csrfProtection, paymentRoutes)
 app.use('/api/payroll', csrfProtection, payrollRoutes)
+app.use('/api/ticket', csrfProtection, ticketRoutes)
+app.use('/api/ticketmaster', csrfProtection, ticketMasterRoutes)
 
 // Set up error handling middleware
 app.use((req, res, next) => {

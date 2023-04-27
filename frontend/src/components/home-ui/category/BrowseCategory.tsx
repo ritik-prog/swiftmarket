@@ -43,7 +43,7 @@ const BrowseCategory = () => {
           <h2 className="text-3xl font-medium">Popular Categories</h2>
           <div className="mt-2">Choose from variety of items</div>
         </div>
-        <div className="md:flex hidden items-center uppercase text-gray-500">
+        {/* <div className="md:flex hidden items-center uppercase text-gray-500">
           All Categories
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -59,7 +59,7 @@ const BrowseCategory = () => {
               d="M8.25 4.5l7.5 7.5-7.5 7.5"
             />
           </svg>
-        </div>
+        </div> */}
       </div>
       <div className="my-10">
         <div className="grid gap-6 grid-cols-2 sm:grid-cols-3 lg:grid-cols-6">
@@ -80,7 +80,7 @@ const BrowseCategory = () => {
         </div>
       </div>
 
-      <div className="md:hidden flex items-center justify-center mt-8 font-medium uppercase text-gray-500">
+      {/* <div className="md:hidden flex items-center justify-center mt-8 font-medium uppercase text-gray-500">
         All Categories
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -96,7 +96,7 @@ const BrowseCategory = () => {
             d="M8.25 4.5l7.5 7.5-7.5 7.5"
           />
         </svg>
-      </div>
+      </div> */}
     </div>
   );
 };

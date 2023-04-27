@@ -14,9 +14,8 @@ const Pricing = ({ isOpen, openModal }: PricingProps) => {
         </h1>
 
         <p className="max-w-2xl mx-auto mt-4 text-center text-gray-500 xl:mt-6 dark:text-gray-300">
-          Lorem ipsum, dolor sit amet consectetur adipisicing elit. Alias quas
-          magni libero consequuntur voluptatum velit amet id repudiandae ea,
-          deleniti laborum in neque eveniet.
+          We offer a free pricing plan that includes all the features you need
+          to get started.
         </p>
 
         <div className="grid grid-cols-1 gap-8 mt-6 xl:mt-12 xl:gap-12 md:grid-cols-1 lg:grid-cols-1">

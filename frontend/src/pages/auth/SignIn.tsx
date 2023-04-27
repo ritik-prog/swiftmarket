@@ -6,7 +6,7 @@ import { useSelector } from "react-redux";
 import { RootState } from "../../redux/rootReducer";
 import { useFormik } from "formik";
 import { loginSchema } from "../../schemas";
-import { signInpApi } from "../../api/auth";
+import { signInApi } from "../../api/auth";
 import { errorClass, noErrorClass } from "../../utils/StyleClasses";
 import { CreateToast } from "../../utils/Toast";
 import { ClipLoader } from "react-spinners";
@@ -33,7 +33,7 @@ const Login = () => {
       onSubmit: async (values, action) => {
         try {
           setLoading(true);
-          const response = await signInpApi(values.email, values.password);
+          const response = await signInApi(values.email, values.password);
           if (response.data.role === "seller") {
             CreateToast("login", response.data.message, "success");
             setLoading(false);
@@ -57,7 +57,7 @@ const Login = () => {
     });
 
   if (isAuthenticated) {
-    return <Navigate to={"/"} replace />;
+    return <Navigate to={"/shop"} replace />;
   } else {
     return (
       <section className="bg-white dark:bg-gray-900">
@@ -266,6 +266,7 @@ const Login = () => {
                     <button
                       className="w-full inline-flex items-center justify-center rounded-md bg-indigo-600 px-3.5 py-2.5 text-base font-semibold leading-7 text-white hover:bg-indigo-500"
                       type="submit"
+                      disabled={loading}
                     >
                       {loading ? (
                         <ClipLoader color="#fff" />

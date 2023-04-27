@@ -1,9 +1,76 @@
-const Ticket = require('../models/Ticket');
+const handleError = require('../../utils/errorHandler');
+const Ticket = require('../../models/ticket/ticketSchema');
+const { validationResult } = require('express-validator');
+const User = require('../../models/auth/userSchema');
+const { ObjectId } = require('mongodb');
+
+// ticket master login
+const ticketMasterLogin = async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return handleError(res, {
+            code: 'CustomValidationError',
+            status: 'error',
+            errors: errors.array()
+        });
+    }
+
+    const { email, password } = req.body;
+
+    try {
+        User.findByCredentials(email, password).then(async ({ token, user }) => {
+
+            if (!user) {
+                return handleError(res, {
+                    message: 'Invalid Credentials',
+                    status: 401,
+                    code: 'authentication_failed'
+                });
+            }
+            if (user.role === "ticketmaster") {
+                res.cookie('token', token, {
+                    httpOnly: true, // cookie cannot be accessed from client-side scripts
+                    secure: process.env.NODE_ENV === 'production', // cookie should only be sent over HTTPS in production
+                    sameSite: 'strict', // cookie should only be sent for same-site requests
+                    maxAge: 5 * 60 * 60 * 1000 // 5hr
+                });
+
+                res.status(200).json({
+                    user: {
+                        id: user._id,
+                        name: user.name,
+                        email: user.email,
+                        username: user.username,
+                        address: user.address,
+                        verificationStatus: user.verificationStatus,
+                        role: user.role,
+                        number: user.number
+                    },
+                    status: 'success'
+                });
+            } else {
+                return handleError(res, {
+                    message: 'Invalid Credentials',
+                    status: 401,
+                    code: 'authentication_failed'
+                });
+            }
+        }).catch((err) => {
+            throw err;
+        });
+    } catch (err) {
+        return handleError(res, {
+            message: 'Invalid Credentials',
+            status: 401,
+            code: 'authentication_failed'
+        });
+    }
+};
 
 // get all tickets
 const getAllTickets = async (req, res) => {
     try {
-        const tickets = await Ticket.find({ agent_id: null, status: 'Open' })
+        const tickets = await Ticket.find({ agent_id: null, status: { $in: ['Open', 'Transfer to Another Agent'] } })
             .populate({
                 path: 'messages.user_id',
                 select: 'username'
@@ -11,7 +78,7 @@ const getAllTickets = async (req, res) => {
             .populate('order');
         res.json(tickets);
     } catch (err) {
-        console.error(err);
+        console.log(err);
         res.status(500).json({ error: 'Server error' });
     }
 };
@@ -27,7 +94,7 @@ const ticketJoin = async (req, res) => {
         }
 
         // Assign current user as agent for ticket
-        ticket.agent_id = req.user._id;
+        ticket.agent_id = new ObjectId(req.user._id);
         await ticket.save();
 
         res.json({ message: 'You have joined the ticket as an agent' });
@@ -53,7 +120,7 @@ const reassignTicket = async (req, res) => {
         // update the ticket with the new agent and status
         await Ticket.updateOne(
             { _id: ticketId },
-            { $unset: { agent_id: '' }, $set: { status: 'Open', priority: priority } }
+            { $unset: { agent_id: null }, $set: { status: 'Transfer to Another Agent', priority: priority } }
         );
 
         res.json({ message: 'Ticket reassigned successfully' });
@@ -81,7 +148,7 @@ const addMessage = async (req, res) => {
             user_id: req.user._id
         });
         await ticket.save();
-        res.json(ticket);
+        res.status(200).json({ status: "success", ticket });
     } catch (err) {
         console.error(err);
         res.status(500).json({ error: 'Server error' });
@@ -132,4 +199,4 @@ const changeTicketPriority = async (req, res) => {
     }
 };
 
-module.exports = { addMessage, getAllTickets, changeTicketPriority, changeTicketStatus, ticketJoin, reassignTicket };
+module.exports = { ticketMasterLogin, addMessage, getAllTickets, changeTicketPriority, changeTicketStatus, ticketJoin, reassignTicket };

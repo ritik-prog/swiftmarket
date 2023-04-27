@@ -32,7 +32,6 @@ router.get('/search', searchProductsByKeywords);
 // Search products by keywords
 router.get('/search/category/:category', searchProductsByCategory);
 
-
 // Search products by history
 router.get('/recommendations', getRecommendations)
 
