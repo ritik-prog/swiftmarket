@@ -5,6 +5,7 @@ import Login from "../pages/login/login";
 import Error404 from "../error/Error404";
 import Tickets from "../pages/tickets/Tickets";
 import TicketDetails from "../pages/tickets/TicketDetails";
+import Assigned from "../pages/tickets/Assigned";
 const routes = [
     {
         path: "/",
@@ -12,6 +13,7 @@ const routes = [
         children: [
             { path: "/", element: <><Tickets /></> },
             { path: "/ticket/:id", element: <><TicketDetails /></> },
+            { path: "/assigned", element: <><Assigned /></> },
         ]
     },
     {

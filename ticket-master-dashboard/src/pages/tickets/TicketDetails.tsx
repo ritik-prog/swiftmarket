@@ -1,70 +1,86 @@
 import { useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
+import { addMessageToTicket, getTicketById } from "../../api/ticket";
+import OrderDetails from "./Order";
+
+interface Ticket {
+  _id: string;
+  type: string;
+  subject: string;
+  order: {
+    _id: string;
+    fullname: string;
+    cartId: string;
+    seller: {
+      _id: string;
+      businessUsername: string;
+      user: {
+        _id: string;
+        email: string;
+      };
+    };
+    shippingAddress: string;
+    number: string;
+    customer: {
+      _id: string;
+      username: string;
+    };
+    products: {
+      product: {
+        _id: string;
+        seller: {
+          _id: string;
+          businessEmail: string;
+          businessName: string;
+          businessUsername: string;
+          user: {
+            _id: string;
+            email: string;
+          };
+          businessLogo: string;
+        };
+        productName: string;
+        id: string;
+      };
+      quantity: number;
+      price: number;
+      discountedPrice: number;
+      _id: string;
+    }[];
+    orderStatus: string;
+    transactionId: string;
+    orderAmount: number;
+    totalDiscount: number;
+    orderTotal: number;
+    orderDate: string;
+    createdAt: string;
+    updatedAt: string;
+    orderId: string;
+    __v: number;
+  };
+  description: string;
+  status: string;
+  priority: string;
+  customer_id: string;
+  messages: {
+    message: string;
+    user_id: {
+      _id: string;
+      username: string;
+    };
+    _id: string;
+    time: string;
+  }[];
+  createdAt: string;
+  updatedAt: string;
+  __v: number;
+  agent_id: string;
+}
 
 const TicketDetails = () => {
   const [message, setMessage] = useState("");
   const { id } = useParams();
-  const [ticket, setTicket] = useState<any>({
-    id: "23fds43214afa31ds",
-    type: "Query",
-    subject: "Need help with my order",
-    order: "613a4f08d9c3d66bf034235c",
-    description:
-      "I received my order but it was missing an item, can you help me with that?",
-    status: "Open",
-    priority: "Medium",
-    customer_id: "613a4d1ed9c3d66bf0342359",
-    agent_id: null,
-    messages: [
-      {
-        message: "Hello, I am having an issue with my order",
-        user_id: "613a4d1ed9c3d66bf0342359",
-        time: "2023-04-26T10:00:00.000Z",
-      },
-      {
-        message: "Sure, can you give me your order number?",
-        user_id: "613a4f43d9c3d66bf034235d",
-        time: "2023-04-26T11:00:00.000Z",
-      },
-      {
-        message: "Yes, my order number is 123456",
-        user_id: "613a4d1ed9c3d66bf0342359",
-        time: "2023-04-26T11:30:00.000Z",
-      },
-      {
-        message: "Thank you, let me check that for you",
-        user_id: "613a4f43d9c3d66bf034235d",
-        time: "2023-04-26T12:00:00.000Z",
-      },
-      {
-        message: "Thank you, let me check that for you",
-        user_id: "613a4f43d9c3d66bf034235d",
-        time: "2023-04-26T12:00:00.000Z",
-      },
-      {
-        message: "Thank you, let me check that for you",
-        user_id: "613a4f43d9c3d66bf034235d",
-        time: "2023-04-26T12:00:00.000Z",
-      },
-      {
-        message: "Thank you, let me check that for you",
-        user_id: "613a4f43d9c3d66bf034235d",
-        time: "2023-04-26T12:00:00.000Z",
-      },
-      {
-        message: "Thank you, let me check that for you",
-        user_id: "613a4f43d9c3d66bf034235d",
-        time: "2023-04-26T12:00:00.000Z",
-      },
-      {
-        message: "Thank you, let me check that for you",
-        user_id: "613a4f43d9c3d66bf034235d",
-        time: "2023-04-26T12:00:00.000Z",
-      },
-    ],
-    createdAt: "2023-04-26T12:00:00.000Z",
-    updatedAt: "2023-04-26T12:00:00.000Z",
-  });
+  const [ticket, setTicket] = useState<Ticket | any>({});
   const bottomRef = useRef<HTMLDivElement>(null);
 
   const handleInputChange = (event: any) => {
@@ -74,32 +90,30 @@ const TicketDetails = () => {
   const handleSubmit = async (event: any) => {
     event.preventDefault();
     // TODO: Add message to ticket
+    if (message === "") {
+      return;
+    }
     try {
-      const data = {
-        id: id,
-        message: message,
-      };
-      //   const response = await addMessage(data);
-      //   setTicket(response.ticket);
+      await addMessageToTicket(id, message);
+      fetchData();
     } catch (error) {}
     setMessage("");
   };
 
   const fetchData = async () => {
     try {
-      const data = {
-        _id: id,
-      };
-      //   const result = await getTicketById(data);
-      //   setTicket(result.ticket);
-      bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+      const result = await getTicketById(id);
+      setTicket(result.ticket);
+      setTimeout(() => {
+        bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+      }, 0);
     } catch (error) {}
   };
 
   useEffect(() => {
     fetchData();
   }, []);
-
+  console.log(ticket);
   return (
     JSON.stringify(ticket) !== "{}" && (
       <div className="px-4 sm:px-6 lg:px-8 mt-10 flex space-x-5">
@@ -137,7 +151,9 @@ const TicketDetails = () => {
                 </div>
                 <div className="sm:col-span-1">
                   <dt className="text-sm font-medium text-gray-500">Order</dt>
-                  <dd className="mt-1 text-sm text-gray-900">{ticket.order}</dd>
+                  <dd className="mt-1 text-sm text-gray-900">
+                    {ticket.order._id}
+                  </dd>
                 </div>
               </dl>
             </div>
@@ -147,6 +163,7 @@ const TicketDetails = () => {
               <h2 className="text-xl font-medium text-gray-900 mb-4">
                 Order Details
               </h2>
+              <OrderDetails order={ticket.order} />
             </div>
           </div>
         </div>
@@ -174,54 +191,53 @@ const TicketDetails = () => {
                 <div ref={bottomRef} />
               </ul>
             </div>
-            <form onSubmit={handleSubmit} className="mt-8">
-              <div>
-                <label
-                  htmlFor="message"
-                  className="block text-sm font-medium text-gray-700"
-                >
-                  Add Message
-                </label>
-                <div className="mt-1">
-                  <textarea
-                    id="message"
-                    name="message"
-                    rows={3}
-                    className="p-4 shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md"
-                    value={message}
-                    onChange={handleInputChange}
-                  ></textarea>
-                </div>
+            <div className="mt-8">
+              <label
+                htmlFor="message"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Add Message
+              </label>
+              <div className="mt-1">
+                <textarea
+                  id="message"
+                  name="message"
+                  rows={3}
+                  required
+                  className="p-4 shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md"
+                  value={message}
+                  onChange={handleInputChange}
+                ></textarea>
               </div>
-              <div className="mt-5 space-y-3">
-                <div className="space-x-3">
-                  <button
-                    type="submit"
-                    className="inline-flex items-center px-4 py-2 border border-transparent text-base font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
-                  >
-                    Add
-                  </button>
-                  <button
-                    type="submit"
-                    className="inline-flex items-center px-4 py-2 border border-transparent text-base font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
-                  >
-                    Re-Assign
-                  </button>
-                  <button
-                    type="submit"
-                    className="inline-flex items-center px-4 py-2 border border-transparent text-base font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
-                  >
-                    Change Status
-                  </button>
-                </div>
-                <button
-                  type="submit"
-                  className="inline-flex items-center px-4 py-2 border border-transparent text-base font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
-                >
-                  Change Priority
-                </button>
-              </div>
-            </form>
+            </div>
+
+            <div className="mt-5 flex flex-wrap">
+              <button
+                type="button"
+                onClick={(e) => handleSubmit(e)}
+                className="m-2 inline-flex items-center px-4 py-2 border border-transparent text-base font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+              >
+                Add
+              </button>
+              <button
+                type="submit"
+                className="m-2 inline-flex items-center px-4 py-2 border border-transparent text-base font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+              >
+                Re-Assign
+              </button>
+              <button
+                type="submit"
+                className="m-2 inline-flex items-center px-4 py-2 border border-transparent text-base font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+              >
+                Change Status
+              </button>
+              <button
+                type="submit"
+                className="m-2 inline-flex items-center px-4 py-2 border border-transparent text-base font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+              >
+                Change Priority
+              </button>
+            </div>
           </div>
         </div>
       </div>

@@ -6,7 +6,6 @@ import instance from "../utils/Axios";
 import { loginSuccess, logoutSuccess } from "../redux/user/userSlice";
 import { useDispatch } from "react-redux";
 import IpBanned from "../pages/error/IpBanned";
-import FloatingButton from "../components/common/FloatingButton";
 
 interface Props {
   children: React.ReactNode;

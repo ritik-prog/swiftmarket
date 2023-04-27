@@ -22,17 +22,16 @@ router.post(
 router.get('/tickets', [authenticateMiddleware, authorizeMiddleware(['ticketmaster'])], ticketController.getAllTickets);
 
 // POST join ticket as agent
-router.post('ticket/:id/join', [authenticateMiddleware, authorizeMiddleware(['ticketmaster'])], ticketController.ticketJoin);
+router.post('/ticket/:id/join', [authenticateMiddleware, authorizeMiddleware(['ticketmaster'])], ticketController.ticketJoin);
 
 // Get tickets assigned to current ticketmaster
-router.get('/assigned', [authorizeMiddleware(['ticketmaster'])], async (req, res) => {
+router.get('/tickets/assigned', [authenticateMiddleware, authorizeMiddleware(['ticketmaster'])], async (req, res) => {
     try {
         const tickets = await Ticket.find({ agent_id: req.user._id })
             .populate({
                 path: 'messages.user_id',
                 select: 'username'
             })
-            .populate('order');
         res.json(tickets);
     } catch (err) {
         console.error(err);
@@ -43,8 +42,32 @@ router.get('/assigned', [authorizeMiddleware(['ticketmaster'])], async (req, res
 // Route to reassign a ticket to another agent
 router.put('ticket/:id/reassign', [authenticateMiddleware, authorizeMiddleware(['ticketmaster'])], ticketController.reassignTicket);
 
+// GET ticket by id
+router.get('/ticket/:id', authenticateMiddleware, async (req, res) => {
+    try {
+        const { id } = req.params;
+        const ticket = await Ticket.findById({ _id: id, agent_id: req.user._id })
+            .populate({
+                path: 'messages.user_id',
+                select: 'username'
+            })
+            .populate({
+                path: 'order',
+                populate: [
+                    { path: 'seller', select: 'businessUsername' },
+                    { path: 'customer', select: 'username' },
+                    { path: 'products.product', select: 'productName' },
+                ]
+            });
+        res.json({ status: "success", ticket });
+    } catch (error) {
+        console.error(error.message);
+        res.status(500).send('Server Error');
+    }
+});
+
 // Add message to ticket
-router.post('/ticket/:id/messages', [authenticateMiddleware, authorizeMiddleware(['ticketmaster'])], ticketController.addMessage);
+router.post('/ticket/:id/message', [authenticateMiddleware, authorizeMiddleware(['ticketmaster'])], ticketController.addMessage);
 
 // Change ticket status
 router.put('/ticket/:id/status', [authenticateMiddleware, authorizeMiddleware(['ticketmaster'])], ticketController.changeTicketStatus);

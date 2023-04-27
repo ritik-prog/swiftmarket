@@ -2,9 +2,11 @@ import React from "react";
 import { logoutApi } from "../../api/auth";
 import { useNavigate } from "react-router-dom";
 import { logoutSuccess } from "../../redux/user/userSlice";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "../../redux/rootReducer";
 
 const Sidebar = () => {
+  const { user } = useSelector((state: RootState) => state.user);
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const handleLogout = async () => {
@@ -52,9 +54,9 @@ const Sidebar = () => {
 
       <div className="flex flex-col justify-between flex-1 mt-6">
         <nav>
-          <a
-            className="flex items-center px-4 py-2 text-gray-600 transition-colors duration-300 transform rounded-md dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 dark:hover:text-gray-200 hover:text-gray-700"
-            href="#"
+          <span
+            className="cursor-pointer flex items-center px-4 py-2 text-gray-600 transition-colors duration-300 transform rounded-md dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 dark:hover:text-gray-200 hover:text-gray-700"
+            onClick={() => navigate("/")}
           >
             <svg
               className="w-5 h-5"
@@ -72,11 +74,11 @@ const Sidebar = () => {
             </svg>
 
             <span className="mx-4 font-medium">Tickets</span>
-          </a>
+          </span>
 
-          <a
-            className="flex items-center px-4 py-2 mt-5 text-gray-600 transition-colors duration-300 transform rounded-md dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 dark:hover:text-gray-200 hover:text-gray-700"
-            href="#"
+          <span
+            className="cursor-pointer flex items-center px-4 py-2 mt-5 text-gray-600 transition-colors duration-300 transform rounded-md dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 dark:hover:text-gray-200 hover:text-gray-700"
+            onClick={() => navigate("/assigned")}
           >
             <svg
               className="w-5 h-5"
@@ -101,11 +103,11 @@ const Sidebar = () => {
             </svg>
 
             <span className="mx-4 font-medium">Assigned</span>
-          </a>
+          </span>
 
           <span
             className="cursor-pointer flex items-center px-4 py-2 mt-5 text-gray-600 transition-colors duration-300 transform rounded-md dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 dark:hover:text-gray-200 hover:text-gray-700"
-            onClick={handleLogout}
+            onClick={() => handleLogout}
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -129,11 +131,11 @@ const Sidebar = () => {
         <a href="#" className="flex items-center px-4 -mx-2">
           <img
             className="object-cover mx-2 rounded-full h-9 w-9"
-            src="https://images.unsplash.com/photo-1531427186611-ecfd6d936c79?ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=634&q=80"
+            src={`https://ui-avatars.com/api/?name=${user.username}`}
             alt="avatar"
           />
           <span className="mx-2 font-medium text-gray-800 dark:text-gray-200">
-            John Doe
+            {user.username}
           </span>
         </a>
       </div>

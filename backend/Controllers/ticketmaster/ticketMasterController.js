@@ -97,7 +97,7 @@ const ticketJoin = async (req, res) => {
         ticket.agent_id = new ObjectId(req.user._id);
         await ticket.save();
 
-        res.json({ message: 'You have joined the ticket as an agent' });
+        res.status(200).json({ status: "success", message: 'You have joined the ticket as an agent' });
     } catch (err) {
         console.error(err);
         res.status(500).json({ error: 'Server error' });
@@ -133,14 +133,14 @@ const reassignTicket = async (req, res) => {
 // Add message to ticket
 const addMessage = async (req, res) => {
     try {
-        const ticket = await Ticket.findById(req.params.id);
+        const ticket = await Ticket.findById({ _id: req.params.id, agent_id: req.user._id });
         if (!ticket) {
             return res.status(404).json({ error: 'Ticket not found' });
         }
 
         // Check if ticket master is the agent assigned to the ticket
         if (ticket.agent_id.toString() !== req.user._id.toString()) {
-            return res.status(401).json({ error: 'You are not authorized to add a message to this ticket' });
+            return res.status(499).json({ error: 'You are not authorized to add a message to this ticket' });
         }
 
         ticket.messages.push({
@@ -148,7 +148,7 @@ const addMessage = async (req, res) => {
             user_id: req.user._id
         });
         await ticket.save();
-        res.status(200).json({ status: "success", ticket });
+        res.status(200).json({ status: "success" });
     } catch (err) {
         console.error(err);
         res.status(500).json({ error: 'Server error' });

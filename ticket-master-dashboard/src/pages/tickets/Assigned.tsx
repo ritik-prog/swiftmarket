@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { getAllTickets, joinTicket } from "../../api/ticket";
-import { CreateToast } from "../../utils/Toast";
-const Tickets = () => {
+import { getAssignedTickets } from "../../api/ticket";
+import { useNavigate } from "react-router-dom";
+const Assigned = () => {
+  const navigate = useNavigate();
   const [tickets, setTickets] = useState([
     {
-      _id: "23fds43214afa31ds",
+      id: "23fds43214afa31ds",
       type: "Query",
       subject: "Need help with my order",
       order: "613a4f08d9c3d66bf034235c",
@@ -41,40 +42,20 @@ const Tickets = () => {
     },
   ]);
 
-  const fetchTickets = async () => {
-    const res = await getAllTickets();
-    setTickets(res);
-  };
-
   // fetch data
   useEffect(() => {
+    const fetchTickets = async () => {
+      const res = await getAssignedTickets();
+      setTickets(res);
+    };
     fetchTickets();
   }, []);
-
-  // handle join ticket
-  const handleJoinTicket = async (ticketId: string) => {
-    try {
-      const result = await joinTicket(ticketId);
-      if (result.status === "success") {
-        CreateToast("Joinedsuccess", result.message, "success");
-        fetchTickets();
-      }
-    } catch (error) {}
-  };
 
   return (
     <div>
       <section className="container px-4 mx-auto">
-        <div className="flex flex-col mt-8">
-          <h1 className="text-3xl font-bold text-gray-900">
-            Ticket Master Dashboard
-          </h1>
-          <p className="text-lg text-gray-500 w-8/12 text-justify">
-            Welcome to the Ticket Master dashboard. Here, you can view all the
-            tickets that have been submitted by customers, and manage them
-            accordingly. Use the navigation bar on the left to access different
-            features of the dashboard.
-          </p>
+        <div className="flex flex-col mt-10">
+          <h1 className="text-3xl font-bold text-gray-900">Assigned Tickets</h1>
         </div>
         <div className="flex flex-col mt-4">
           <div className="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
@@ -126,7 +107,7 @@ const Tickets = () => {
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200 dark:divide-gray-700 dark:bg-gray-900">
                     {tickets.map((item: any) => (
-                      <tr key={item._id}>
+                      <tr key={item.id}>
                         <td className="px-4 py-4 text-sm text-gray-500 dark:text-gray-300 whitespace-nowrap">
                           {new Date(item.createdAt).toLocaleDateString(
                             "en-US",
@@ -150,10 +131,10 @@ const Tickets = () => {
                         </td>
                         <td className="px-4 py-4 text-sm whitespace-nowrap">
                           <button
-                            onClick={() => handleJoinTicket(item._id)}
-                            className="flex items-center gap-x-2 px-3 py-2 bg-green-500 rounded-md text-white transition-colors duration-200 hover:bg-green-600 focus:outline-none"
+                            onClick={() => navigate(`/ticket/${item._id}`)}
+                            className="flex items-center gap-x-2 px-3 py-2 bg-yellow-500 rounded-md text-white transition-colors duration-200 hover:bg-yellow-600 focus:outline-none"
                           >
-                            <span>Join</span>
+                            <span>View</span>
                           </button>
                         </td>
                       </tr>
@@ -169,4 +150,4 @@ const Tickets = () => {
   );
 };
 
-export default Tickets;
+export default Assigned;
