@@ -32,6 +32,22 @@ const TicketConsole = () => {
       ? tickets
       : tickets.filter((ticket: any) => ticket.status === activeTab);
 
+  const getStatusColor = (status: any) => {
+    switch (status) {
+      case "Open":
+        return "bg-red-500";
+      case "Pending":
+        return "bg-yellow-500";
+      case "Closed":
+      case "Resolved":
+      case "Completed":
+      case "Approved":
+        return "bg-green-500";
+      default:
+        return "bg-gray-500";
+    }
+  };
+
   return (
     <div className="container mx-auto mt-10 p-4">
       <div className="flex justify-between items-center mb-8 relative">
@@ -83,13 +99,9 @@ const TicketConsole = () => {
             </div>
             <div className="mt-4">
               <span
-                className={`px-2 py-1 rounded-full text-xs font-medium text-white ${
-                  ticket.status === "open"
-                    ? "bg-red-500"
-                    : ticket.status === "pending"
-                    ? "bg-yellow-500"
-                    : "bg-green-500"
-                }`}
+                className={`px-2 py-1 rounded-full text-xs font-medium text-white ${getStatusColor(
+                  ticket.status
+                )}`}
               >
                 {ticket.status.toUpperCase()}
               </span>

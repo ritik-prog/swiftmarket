@@ -39,9 +39,6 @@ router.get('/tickets/assigned', [authenticateMiddleware, authorizeMiddleware(['t
     }
 });
 
-// Route to reassign a ticket to another agent
-router.put('ticket/:id/reassign', [authenticateMiddleware, authorizeMiddleware(['ticketmaster'])], ticketController.reassignTicket);
-
 // GET ticket by id
 router.get('/ticket/:id', authenticateMiddleware, async (req, res) => {
     try {
@@ -69,10 +66,10 @@ router.get('/ticket/:id', authenticateMiddleware, async (req, res) => {
 // Add message to ticket
 router.post('/ticket/:id/message', [authenticateMiddleware, authorizeMiddleware(['ticketmaster'])], ticketController.addMessage);
 
-// Change ticket status
-router.put('/ticket/:id/status', [authenticateMiddleware, authorizeMiddleware(['ticketmaster'])], ticketController.changeTicketStatus);
-
 // Change ticket priority
-router.put('/ticket/:id/priority', [authenticateMiddleware, authorizeMiddleware(['ticketmaster'])], ticketController.changeTicketPriority);
+router.put('/ticket/:id/update', [authenticateMiddleware, authorizeMiddleware(['ticketmaster'])], ticketController.changeTicketStatus);
+
+// Route to reassign a ticket to another agent
+router.put('/ticket/:id/reassign', [authenticateMiddleware, authorizeMiddleware(['ticketmaster'])], ticketController.reassignTicket);
 
 module.exports = router;

@@ -16,5 +16,20 @@ export const logoutApi = async () => {
   return response;
 };
 
+// update status
+export const updateStatusApi = async (id: any, data: any) => {
+  const response = await instance.put(
+    `/ticketmaster/ticket/${id}/update`,
+    data
+  );
+  return response.data;
+};
 
-
+// ressign ticket
+export const reassignTicketApi = async (id: any, data: any) => {
+  const response = await instance.put(
+    `/ticketmaster/ticket/${id}/reassign`,
+    data
+  );
+  return response.data;
+};

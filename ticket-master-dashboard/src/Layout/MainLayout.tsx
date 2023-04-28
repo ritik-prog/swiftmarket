@@ -20,17 +20,15 @@ const MainLayout = () => {
     return response;
   };
 
-   useEffect(() => {
-     const authenticate = async () => {
-       try {
-         await checkAuth();
-       } catch (err) {
-         dispatch(logoutSuccess());
-       }
-     };
-     authenticate();
-   }, [dispatch]);
-  
+  useEffect(() => {
+    const authenticate = async () => {
+      try {
+        await checkAuth();
+      } catch (err) {}
+    };
+    authenticate();
+  }, []);
+
   return (
     <div>
       <div className="flex h-screen">

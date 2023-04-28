@@ -110,7 +110,7 @@ const Overview = () => {
       thumbnailUrl: product.thumbnailUrl,
     };
     dispatch(addItem(wishlistItem));
-    navigate("/profile");
+    navigate("/wishlist");
   };
 
   return (

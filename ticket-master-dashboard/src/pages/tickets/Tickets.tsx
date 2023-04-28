@@ -142,8 +142,15 @@ const Tickets = () => {
                         <td className="px-4 py-4 text-sm text-gray-500 dark:text-gray-300 whitespace-nowrap">
                           {item.description}
                         </td>
-                        <td className="px-4 py-4 text-sm text-gray-500 dark:text-gray-300 whitespace-nowrap">
+                        <td
+                          className="px-4 py-4 text-sm text-gray-500 dark:text-gray-300 whitespace-nowrap"
+                          style={{ wordBreak: "break-all" }}
+                        >
                           {item.status}
+                          <br />
+                          {" Reason:-"}
+                          {item.status === "Transfer to Another Agent" &&
+                            item.reason}
                         </td>
                         <td className="px-4 py-4 text-sm text-gray-500 dark:text-gray-300">
                           {item.priority}

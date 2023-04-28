@@ -25,18 +25,18 @@ const ticketSchema = new mongoose.Schema({
         enum: [
             'Open',
             'Pending',
-            'Closed',
             'In Progress',
+            'Closed',
+            'Waiting for Customer',
+            'Waiting for Third Party',
+            'Spam',
             'Resolved',
             'Reopened',
-            'Waiting on Customer',
-            'Waiting on Agent',
             'On Hold',
             'Escalated',
             'Cancelled',
             'Deferred',
             'Duplicate',
-            'Spam',
             'Not Reproducible',
             'More Information Needed',
             'In Review',
@@ -44,8 +44,6 @@ const ticketSchema = new mongoose.Schema({
             'Completed',
             'Approved',
             'Rejected',
-            'Waiting for Customer',
-            'Waiting for Third Party',
             'Blocked',
             'Transfer to Another Agent'
         ],
@@ -80,6 +78,10 @@ const ticketSchema = new mongoose.Schema({
             }
         },
     ],
+    reason: {
+        type: String,
+        default: '',
+    },
     createdAt: {
         type: Date,
         default: Date.now,

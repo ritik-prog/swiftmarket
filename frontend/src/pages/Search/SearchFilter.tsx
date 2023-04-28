@@ -190,6 +190,7 @@ const SearchFilter = () => {
       );
     }
   }, [popularitySort, priceSort, availabilitySort]);
+  console.log(sellers);
 
   function handlePopularityChange(event: React.ChangeEvent<HTMLSelectElement>) {
     setPopularitySort(event.target.value);
@@ -374,9 +375,6 @@ const SearchFilter = () => {
                       >
                         <p className="text-lg font-medium text-gray-800">
                           {seller.businessName}
-                        </p>
-                        <p className="text-gray-600">
-                          {seller.businessAddress}
                         </p>
                         <p className="text-gray-600">{seller.businessType}</p>
                         <p className="text-gray-600">

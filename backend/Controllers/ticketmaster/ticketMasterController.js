@@ -104,32 +104,6 @@ const ticketJoin = async (req, res) => {
     }
 };
 
-// Controller to reassign a ticket to another agent
-const reassignTicket = async (req, res) => {
-    try {
-        const { ticketId } = req.params;
-        const { priority } = req.body;
-
-        // find the current agent's ticket
-        const ticket = await Ticket.findOne({ _id: ticketId, agent_id: req.user._id });
-
-        if (!ticket) {
-            return res.status(404).json({ error: 'Ticket not found' });
-        }
-
-        // update the ticket with the new agent and status
-        await Ticket.updateOne(
-            { _id: ticketId },
-            { $unset: { agent_id: null }, $set: { status: 'Transfer to Another Agent', priority: priority } }
-        );
-
-        res.json({ message: 'Ticket reassigned successfully' });
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ error: 'Server error' });
-    }
-};
-
 // Add message to ticket
 const addMessage = async (req, res) => {
     try {
@@ -155,32 +129,21 @@ const addMessage = async (req, res) => {
     }
 };
 
-// Change ticket status
+// Change ticket priority
 const changeTicketStatus = async (req, res) => {
     try {
-        const ticket = await Ticket.findById(req.params.id);
-        if (!ticket) {
-            return res.status(404).json({ error: 'Ticket not found' });
-        }
-
-        // Check if ticket master is the agent assigned to the ticket
-        if (ticket.agent_id.toString() !== req.user._id.toString()) {
-            return res.status(401).json({ error: 'You are not authorized to change the status of this ticket' });
-        }
-
-        ticket.status = req.body.status;
-        await ticket.save();
-        res.json(ticket);
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ error: 'Server error' });
-    }
-};
-
-// Change ticket priority
-const changeTicketPriority = async (req, res) => {
-    try {
-        const ticket = await Ticket.findById(req.params.id);
+        const ticket = await Ticket.findById(req.params.id).populate({
+            path: 'messages.user_id',
+            select: 'username'
+        })
+            .populate({
+                path: 'order',
+                populate: [
+                    { path: 'seller', select: 'businessUsername' },
+                    { path: 'customer', select: 'username' },
+                    { path: 'products.product', select: 'productName' },
+                ]
+            });
         if (!ticket) {
             return res.status(404).json({ error: 'Ticket not found' });
         }
@@ -191,12 +154,41 @@ const changeTicketPriority = async (req, res) => {
         }
 
         ticket.priority = req.body.priority;
+        ticket.status = req.body.status;
+        ticket.type = req.body.type;
         await ticket.save();
-        res.json(ticket);
+        res.status(200).json({ status: "success", ticket: ticket });
     } catch (err) {
         console.error(err);
         res.status(500).json({ error: 'Server error' });
     }
 };
 
-module.exports = { ticketMasterLogin, addMessage, getAllTickets, changeTicketPriority, changeTicketStatus, ticketJoin, reassignTicket };
+// Controller to reassign a ticket to another agent
+const reassignTicket = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { priority, reason } = req.body;
+
+        // find the current agent's ticket
+        const ticket = await Ticket.findOne({ _id: id, agent_id: req.user._id });
+
+        console.log(ticket)
+        if (!ticket) {
+            return res.status(404).json({ error: 'Ticket not found' });
+        }
+
+        // update the ticket with the new agent and status
+        await Ticket.updateOne(
+            { _id: id },
+            { $unset: { agent_id: null }, $set: { status: 'Transfer to Another Agent', priority: priority, reason: reason } }
+        );
+
+        res.status(200).json({ status: 'success', message: 'Ticket reassigned successfully' });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Server error' });
+    }
+};
+
+module.exports = { ticketMasterLogin, addMessage, getAllTickets, changeTicketStatus, ticketJoin, reassignTicket };

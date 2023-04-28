@@ -7,8 +7,14 @@ const OrderDetails = ({ order }: any) => {
         <div className="flex flex-wrap sm:flex-row mb-6">
           <div className="sm:w-2/5 mb-2 sm:mb-0">
             <h4 className="font-semibold text-gray-600 text-lg">Order ID:</h4>
-            <p className="font-medium text-gray-800">{order.orderId}</p>
+            <p
+              className="font-medium text-gray-800 text-sm"
+              style={{ wordBreak: "break-all" }}
+            >
+              {order.orderId}
+            </p>
           </div>
+
           <div className="sm:w-2/5 mb-2 sm:mb-0">
             <h4 className="font-semibold text-gray-600 text-lg">Order Date:</h4>
             <p className="font-medium text-gray-800">
@@ -33,7 +39,12 @@ const OrderDetails = ({ order }: any) => {
             <h4 className="font-semibold text-gray-600 text-lg">
               Shipping Address:
             </h4>
-            <p className="font-medium text-gray-800">{order.shippingAddress}</p>
+            <p
+              className="font-medium text-gray-800 text-sm"
+              style={{ wordBreak: "break-all" }}
+            >
+              {order.shippingAddress}
+            </p>
           </div>
           <div className="sm:w-1/5 mb-2 sm:mb-0">
             <h4 className="font-semibold text-gray-600 text-lg">Phone:</h4>
@@ -63,7 +74,12 @@ const OrderDetails = ({ order }: any) => {
         <div className="flex flex-wrap sm:flex-row mb-6">
           <div className="sm:w-2/5 mb-2 sm:mb-0">
             <h4 className="font-semibold text-gray-600 text-lg">Cart ID:</h4>
-            <p className="font-medium text-gray-800">{order.cartId}</p>
+            <p
+              className="font-medium text-gray-800 text-sm"
+              style={{ wordBreak: "break-all" }}
+            >
+              {order.cartId}
+            </p>
           </div>
           <div className="sm:w-2/5 mb-2 sm:mb-0">
             <h4 className="font-semibold text-gray-600 text-lg">Seller:</h4>
@@ -83,7 +99,12 @@ const OrderDetails = ({ order }: any) => {
             <h4 className="font-semibold text-gray-600 text-lg">
               Transaction ID:
             </h4>
-            <p className="font-medium text-gray-800">{order.transactionId}</p>
+            <p
+              className="font-medium text-gray-800 text-sm"
+              style={{ wordBreak: "break-all" }}
+            >
+              {order.transactionId}
+            </p>
           </div>
           <div className="sm:w-2/5 mb-2 sm:mb-0">
             <h4 className="font-semibold text-gray-600 text-lg">Created At:</h4>

@@ -2,6 +2,8 @@ import { useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import { addMessageToTicket, getTicketById } from "../../api/ticket";
 import OrderDetails from "./Order";
+import ReAssign from "./modals/ReAssign";
+import ChangeStatus from "./modals/ChangeStatus";
 
 interface Ticket {
   _id: string;
@@ -83,6 +85,13 @@ const TicketDetails = () => {
   const [ticket, setTicket] = useState<Ticket | any>({});
   const bottomRef = useRef<HTMLDivElement>(null);
 
+  // modals
+  const [showReAssignModal, setShowReAssignModal] = useState(false);
+  // ChangeStatus modal
+  const [showChangeStatusModal, setShowChangeStatusModal] = useState(false);
+  // change priority
+  const [showChangePriorityModal, setShowChangePriorityModal] = useState(false);
+
   const handleInputChange = (event: any) => {
     setMessage(event.target.value);
   };
@@ -113,10 +122,10 @@ const TicketDetails = () => {
   useEffect(() => {
     fetchData();
   }, []);
-  console.log(ticket);
+
   return (
     JSON.stringify(ticket) !== "{}" && (
-      <div className="px-4 sm:px-6 lg:px-8 mt-10 flex space-x-5">
+      <div className="px-4 sm:px-6 lg:px-8 mt-10 flex space-x-5 mb-4">
         <div>
           <div className="bg-white shadow overflow-hidden rounded-md">
             <div className="px-4 py-5 sm:p-6">
@@ -150,7 +159,9 @@ const TicketDetails = () => {
                   </dd>
                 </div>
                 <div className="sm:col-span-1">
-                  <dt className="text-sm font-medium text-gray-500">Order</dt>
+                  <dt className="text-sm font-medium text-gray-500">
+                    Internal Order Reference
+                  </dt>
                   <dd className="mt-1 text-sm text-gray-900">
                     {ticket.order._id}
                   </dd>
@@ -221,22 +232,30 @@ const TicketDetails = () => {
               </button>
               <button
                 type="submit"
+                onClick={() => setShowChangeStatusModal(true)}
                 className="m-2 inline-flex items-center px-4 py-2 border border-transparent text-base font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
               >
-                Re-Assign
+                Update Ticket Status
               </button>
+              <ChangeStatus
+                isOpen={showChangeStatusModal}
+                closeModal={() => setShowChangeStatusModal(false)}
+                ticket={ticket}
+                setTicket={setTicket}
+              />
+
               <button
                 type="submit"
                 className="m-2 inline-flex items-center px-4 py-2 border border-transparent text-base font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+                onClick={() => setShowReAssignModal(true)}
               >
-                Change Status
+                Re-Assign to another ticket master
               </button>
-              <button
-                type="submit"
-                className="m-2 inline-flex items-center px-4 py-2 border border-transparent text-base font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
-              >
-                Change Priority
-              </button>
+              <ReAssign
+                isOpen={showReAssignModal}
+                closeModal={() => setShowReAssignModal(false)}
+                ticket={ticket}
+              />
             </div>
           </div>
         </div>
