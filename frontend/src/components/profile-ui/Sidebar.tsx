@@ -4,16 +4,19 @@ import { useSelector } from "react-redux";
 import { RootState } from "../../redux/rootReducer";
 import { useDispatch } from "react-redux";
 import { logoutApi } from "../../api/auth";
+import { logoutSuccess } from "../../redux/user/userSlice";
 
 const Sidebar = () => {
   const navigate = useNavigate();
   const user = useSelector((state: RootState) => state.user.user);
   const [searchQuery, setSearchQuery] = useState("");
+  const dispatch = useDispatch();
 
   const handleLogout = async () => {
     try {
       await logoutApi();
       navigate("/shop");
+      dispatch(logoutSuccess());
     } catch (error) {
       console.log(error);
     }

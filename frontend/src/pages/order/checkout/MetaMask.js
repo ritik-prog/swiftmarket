@@ -4,56 +4,98 @@ import {
   w3mProvider,
 } from "@web3modal/ethereum";
 import { Web3Button, Web3Modal } from "@web3modal/react";
-import { configureChains, createClient, useAccount, WagmiConfig } from "wagmi";
+import {
+  configureChains,
+  createClient,
+  useAccount,
+  useNetwork,
+  WagmiConfig,
+} from "wagmi";
 // import { arbitrum, mainnet, polygon, goerli } from "wagmi/chains";
 import { sepoliaTestnet } from "./sepolia";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../redux/rootReducer";
-import { useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { BeatLoader } from "react-spinners";
-import { useState } from "react";
+import React, { useState } from "react";
+import { ExchangeRate } from "../../../utils/ExchangeRate";
+import { utils } from "ethers";
+import { alchemyProvider } from 'wagmi/providers/alchemy'
 
 const chains = [sepoliaTestnet];
-const projectId = "a2fa3d81ffd44bbf887ace58ad8aaee0";
+const projectId = "xuCodMdDHfH8wPYEdIfT-KwuMLlcngHS";
 
-const { provider } = configureChains(chains, [w3mProvider({ projectId })]);
+const { provider, webSocketProvider } = configureChains(chains, [w3mProvider({ projectId })]);
+
 const wagmiClient = createClient({
   autoConnect: true,
   connectors: w3mConnectors({ projectId, version: 1, chains }),
   provider,
+  webSocketProvider
 });
+
 const ethereumClient = new EthereumClient(wagmiClient, chains);
 
 function MetaMask() {
-  const cartItems = useSelector((state: RootState) => state.cart);
+  const cartItems = useSelector((state) => state.cart);
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [loading, setLoading] = useState(false);
   const { state } = useLocation();
   const { address, isConnected } = useAccount();
+  const { chain } = useNetwork();
 
-  const handleSubmit = async (event: any) => {
+  const provider = wagmiClient.getProvider()
+  console.log(provider)
+
+  const handleSubmit = async (event) => {
     event.preventDefault();
-    console.log(state);
-    // if (result?.paymentIntent?.status === "succeeded") {
-    //   await updateTransaction(transactionId);
-    //   const products = cartItems.items.map((item) => ({
-    //     id: item._id,
-    //     quantity: item.quantity,
-    //   }));
+    try {
+      setLoading(true);
+      const result = await ExchangeRate();
+      console.log(result);
 
-    //   const { cart_id } = await placeOrderApi({
-    //     shippingAddress: state.address,
-    //     number: state.number,
-    //     fullname: state.fullname,
-    //     products: products,
-    //     transactionId: transactionId,
-    //   });
-    //   navigate(`/orders`, { replace: true });
-    //   dispatch(clearCart());
-    //   CreateToast("payment", "Payment Successful", "success");
-    // }
+      const usd = 1.466;
+
+      const transaction = {
+        to: "0x7B302F62c57faBC332052B482f673f6716d80A01",
+        value: utils.parseEther(usd.toString()),
+        gasLimit: 10000000,
+      };
+
+      const provider = await wagmiClient.getProvider();
+      const signer = await provider.getSigner();
+      console.log(signer)
+      const signedTransaction = await signer.provider.request("eth_signTransaction", transaction);
+      const transactionResponse = await provider.sendTransaction(signedTransaction);
+      // const txResponse = await provider.sendTransaction(transaction);
+      console.log(transactionResponse);
+      setLoading(false);
+
+      // if (result?.paymentIntent?.status === "succeeded") {
+      //   await updateTransaction(transactionId);
+      //   const products = cartItems.items.map((item) => ({
+      //     id: item._id,
+      //     quantity: item.quantity,
+      //   }));
+
+      //   const { cart_id } = await placeOrderApi({
+      //     shippingAddress: state.address,
+      //     number: state.number,
+      //     fullname: state.fullname,
+      //     products: products,
+      //     transactionId: transactionId,
+      //   });
+      //   navigate(`/orders`, { replace: true });
+      //   dispatch(clearCart());
+      //   CreateToast("payment", "Payment Successful", "success");
+      // }
+    } catch (error) {
+      console.log(error);
+      setLoading(false);
+    }
+
   };
 
   return (
@@ -75,12 +117,13 @@ function MetaMask() {
                   />
                   <p className="mt-10 text-center text-sm font-semibold text-gray-500">
                     By placing this order you agree to the{" "}
-                    <span
-                      onClick={() => navigate("/termsandconditions")}
+                    <Link
+                      to="/termsandconditions"
+                      target="_blank"
                       className="cursor-pointer whitespace-nowrap text-teal-400 underline hover:text-teal-600"
                     >
                       Terms and Conditions
-                    </span>
+                    </Link>
                   </p>
                   <button
                     type="submit"
@@ -88,7 +131,7 @@ function MetaMask() {
                     onClick={(e) => handleSubmit(e)}
                     disabled={loading || !isConnected}
                   >
-                    {address ? (
+                    {isConnected ? (
                       <>
                         {!loading ? "Place Order" : <BeatLoader color="#fff" />}
                       </>
@@ -173,21 +216,10 @@ function MetaMask() {
   );
 }
 
-export default MetaMask;
+function MetaMaskWrapper() {
+  return (
+    <MetaMask />
+  );
+}
 
-var myHeaders = new Headers();
-myHeaders.append("apikey", "4sCvqsIE6SywuiZPwdAyGbU8IJh454d4");
-
-// var requestOptions = {
-//   method: "GET",
-//   redirect: "follow",
-//   headers: myHeaders,
-// };
-
-// fetch(
-//   "https://api.apilayer.com/exchangerates_data/convert?to=USD&from=INR&amount=1199",
-//   requestOptions
-// )
-//   .then((response) => response.text())
-//   .then((result) => console.log(result))
-//   .catch((error) => console.log("error", error));
+export default MetaMaskWrapper;

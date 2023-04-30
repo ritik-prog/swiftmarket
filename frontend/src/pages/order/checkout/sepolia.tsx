@@ -10,8 +10,8 @@ export const sepoliaTestnet = {
     symbol: "SETH",
   },
   rpcUrls: {
-    public: { http: ["https://eth-sepolia.g.alchemy.com/v2/[YOUR-API-KEY]"] },
-    default: { http: ["https://eth-sepolia.g.alchemy.com/v2/[YOUR-API-KEY]"] },
+    public: { http: ["https://eth-sepolia.g.alchemy.com/v2/xuCodMdDHfH8wPYEdIfT-KwuMLlcngHS"] },
+    default: { http: ["https://eth-sepolia.g.alchemy.com/v2/xuCodMdDHfH8wPYEdIfT-KwuMLlcngHS"] },
   },
   blockExplorers: {
     etherscan: {
