@@ -1,11 +1,17 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import CheckIcon from "@heroicons/react/24/outline/CheckIcon";
 import { getOrderApi } from "../../../api/order";
 import { useNavigate } from "react-router-dom";
+import RatingModel from "./RatingModel";
+import { CreateToast } from "../../../utils/Toast";
 
 export function OrderDetails() {
-  const [orders, setOrders] = useState<any>([]);
+  const [orders, setOrders] = useState<any>(null);
   const [activeOrder, setActiveOrder] = useState<any>();
+
+  const topRef = useRef<HTMLDivElement>(null);
+  // rating model
+  const [isOpen, setIsOpen] = useState(false);
   const navigate = useNavigate();
   async function getData() {
     const res = await getOrderApi();
@@ -16,11 +22,21 @@ export function OrderDetails() {
     getData();
   }, []);
 
-  return orders.length > 0 ? (
+  // set active order
+  function handleOrder(order: any) {
+    setActiveOrder(order);
+
+    setTimeout(() => {
+      topRef.current?.scrollIntoView({ behavior: "smooth" });
+    }, 0);
+  }
+
+  return orders !== null ? (
     <div
       dir="ltr"
       className="mx-auto flex w-full max-w-1920 flex-col items-start bg-light py-10 px-2 dark:bg-gray-900 lg:bg-gray-100 xl:flex-row xl:py-14 xl:px-8 2xl:px-14"
     >
+      <div ref={topRef} />
       <div className="w-full overflow-hidden lg:flex">
         <div className="w-full pr:0 lg:w-1/3 md:shrink-0 lg:pr-8">
           <div className="flex h-full flex-col bg-white dark:bg-gray-600 pb-5 md:border dark:border-gray-400 ">
@@ -32,7 +48,7 @@ export function OrderDetails() {
                 {orders &&
                   orders.map((order: any, index: any) => (
                     <div
-                      onClick={() => setActiveOrder(order)}
+                      onClick={() => handleOrder(order)}
                       role="button"
                       className={`mb-4 flex w-full shrink-0 cursor-pointer flex-col overflow-hidden rounded border-2 bg-gray-100 dark:bg-gray-700 dark:text-white last:mb-0 ${
                         activeOrder._id === order._id && "border-green-600"
@@ -475,6 +491,24 @@ export function OrderDetails() {
                                 </p>
                               </div>
                             </div>
+                            {activeOrder.orderStatus === "Completed" && (
+                              <>
+                                <div className="flex items-end justify-end flex-col">
+                                  <button
+                                    type="button"
+                                    onClick={() => setIsOpen(true)}
+                                    className="focus:outline-none text-white bg-yellow-400 hover:bg-yellow-500 focus:ring-4 focus:ring-yellow-300 font-medium rounded-lg text-sm px-5 py-2.5 dark:focus:ring-yellow-900"
+                                  >
+                                    Rate Product
+                                  </button>
+                                </div>
+                              </>
+                            )}
+                            <RatingModel
+                              isOpen={isOpen}
+                              closeModal={() => setIsOpen(false)}
+                              product={product}
+                            />
                           </div>
                         </div>
                       </li>

@@ -38,3 +38,21 @@ export const searchProductsByCategory = async (category: any) => {
   const { data } = await instance.get(`/product/search/category/${category}`);
   return data;
 };
+
+// get ratings data of product
+export const getRatingsOverViewData = async (id: string) => {
+  const { data } = await instance.get(`product/ratings/${id}`);
+  return data;
+};
+
+// like a product
+export const likeProduct = async (id: any) => {
+  const response = await instance.post(`product/like/${id}`);
+  return response.data;
+};
+
+// get liked product
+export const getLikedProduct = async (id: any) => {
+  const response = await instance.get(`product/liked/${id}`);
+  return response.data;
+};

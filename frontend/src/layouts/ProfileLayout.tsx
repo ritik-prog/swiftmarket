@@ -7,12 +7,14 @@ import { RootState } from "../redux/rootReducer";
 import withAuth from "../hoc/withAuth";
 import instance from "../utils/Axios";
 import Sidebar from "../components/profile-ui/Sidebar";
+import FloatingButton from "../components/common/FloatingButton";
 
 const ProfileLayout = () => {
   const ban = useSelector((state: RootState) => state.user.ban);
   const { isAuthenticated, user } = useSelector(
     (state: RootState) => state.user
   );
+
   const dispatch = useDispatch();
 
   const checkAuth = async () => {
@@ -23,14 +25,13 @@ const ProfileLayout = () => {
     } else {
       dispatch(logoutSuccess());
     }
-    return response;
   };
 
   useEffect(() => {
     try {
       checkAuth();
     } catch (err) {
-      // dispatch(logoutSuccess());
+      dispatch(logoutSuccess());
     }
   }, []);
 
@@ -48,6 +49,7 @@ const ProfileLayout = () => {
         <span className="overflow-scroll w-full">
           <Outlet />
         </span>
+        <FloatingButton />
       </div>
     </div>
   );

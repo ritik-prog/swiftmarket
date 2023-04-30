@@ -41,3 +41,16 @@ export const getOrderApi = async () => {
     return { success: false, message: "Network error" };
   }
 };
+
+// get review rating did by user
+export const getReviewRating = async (id: string) => {
+  const response = await instance.get(`order/rating/${id}`);
+  return response.data;
+};
+
+// save review and rating
+export const createReviewRating = async (id: any, data: any) => {
+  const response = await instance.post(`order/rating/${id}/give`, data);
+  return response.data;
+};
+

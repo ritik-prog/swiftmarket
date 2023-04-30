@@ -21,7 +21,7 @@ export function CreateToast(
     toast.info(message, {
       toastId: toastId,
       position: "bottom-right",
-      autoClose: false,
+      autoClose: 3000,
       hideProgressBar: false,
       closeOnClick: true,
       pauseOnHover: true,

@@ -10,20 +10,14 @@ export default function CustomersPurchased() {
 
   async function getProducts() {
     const response = await getRecommendedProducts();
-    console.log(response);
     setProducts(response.products);
   }
 
   useEffect(() => {
-    // Only call getProducts() if the component has mounted
-    if (isMountedRef.current) {
-      if (products.length === 0) {
-        getProducts();
-      }
-    } else {
-      isMountedRef.current = true;
-    }
+    getProducts();
   }, []);
+
+  console.log(products);
 
   return products.length !== 0 ? (
     <div className="bg-white">

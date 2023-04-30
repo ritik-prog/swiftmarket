@@ -16,6 +16,7 @@ const SecuredLayout = () => {
   const { isAuthenticated, user } = useSelector(
     (state: RootState) => state.user
   );
+
   const dispatch = useDispatch();
 
   const checkAuth = async () => {
@@ -26,7 +27,6 @@ const SecuredLayout = () => {
     } else {
       dispatch(logoutSuccess());
     }
-    return response;
   };
 
   useEffect(() => {

@@ -74,7 +74,13 @@ exports.getSellerProduct = async (req, res, next) => {
 // GET a product by ID
 exports.getProductById = async (req, res, next) => {
     try {
-        const product = await Product.findById(req.params.id);
+        const product = await Product.findById(req.params.id).populate({
+            path: 'ratings',
+            populate: {
+                path: 'user',
+                select: 'username'
+            }
+        });
         if (!product) {
             return handleError(res, {
                 code: "not_found",
@@ -82,6 +88,7 @@ exports.getProductById = async (req, res, next) => {
                 message: "Product not found",
             });
         }
+        
         // Send the response to the client
         res.status(200).json({
             status: "success",
@@ -295,34 +302,30 @@ exports.getRecommendations = async (req, res) => {
 
         let searchQuery;
         // Get the user's search history
-        if (!userId && !sessionId) {
-            return res.status(200).json({ products: [] });
-        } else if (req.cookies.uid) {
-            searchQuery = { sessionId: sessionId };
+        if (req.cookies.uid) {
+            searchQuery = { sessionId: sessionId, query: { $exists: true } };
         } else if (userId) {
             searchQuery = {
                 userId: userId,
+                query: { $exists: true }
             };
         } else {
             searchQuery = {
-                $or: [{ sessionId: sessionId }, { userId: userId }],
+                $or: [{ sessionId: sessionId, query: { $exists: true } }, { userId: userId, query: { $exists: true } }],
             };
         }
-        const searches = await Search.find({
-            query: { $exists: true }
-        })
+        const searches = await Search.find(searchQuery)
             .sort({ timestamp: -1 })
-            .limit(1);
+            .limit(20);
 
         if (searches.length === 0) {
             return res.status(200).json({ products: [] });
         }
 
-
         // Get all the products that match any of the user's search queries
-        const query = searches[0].query;
-        console.log(searches)
-        console.log(query);
+        const query = searches.reduce((prev, curr) => {
+            return prev + (prev.length > 0 ? " " : "") + curr.query;
+        }, "");
         const tokenizer = new natural.WordTokenizer();
         let stemmedQuery = tokenizer
             .tokenize(query.toLowerCase())
@@ -330,12 +333,6 @@ exports.getRecommendations = async (req, res) => {
             .join(" ");
         let tokens = tokenizer.tokenize(query);
         let products;
-        const sellerQuery = {
-            $text: { $search: stemmedQuery },
-        };
-        const sellers = await Seller.find(sellerQuery).sort({
-            ratingsAvg: -1,
-        });
         const dbquery = { isAvailable: true };
 
         if (query) {
@@ -384,7 +381,7 @@ exports.getRecommendations = async (req, res) => {
 };
 
 // multiple searches from the database and suggest different types
-/* exports.getRecommendations = async (req, res) => {
+// exports.getRecommendations = async (req, res) => {
 //     try {
 //         // Get the user's id from the session or request
 //         const userId = req.user?._id || "";
@@ -396,19 +393,21 @@ exports.getRecommendations = async (req, res) => {
 //         if (!userId && !sessionId) {
 //             return res.status(200).json({ products: [] });
 //         } else if (req.cookies.uid) {
-//             searchQuery = { sessionId: sessionId };
+//             searchQuery = { sessionId: sessionId, query: { $exists: true } };
 //         } else if (userId) {
 //             searchQuery = {
 //                 userId: userId,
+//                 query: { $exists: true }
 //             };
 //         } else {
 //             searchQuery = {
-//                 $or: [{ sessionId: sessionId }, { userId: userId }],
+//                 $or: [{ sessionId: sessionId, query: { $exists: true } }, { userId: userId, query: { $exists: true } }],
 //             };
 //         }
+
 //         const searches = await Search.find(searchQuery)
 //             .sort({ timestamp: -1 })
-//             .limit(10); // Increase the limit to fetch multiple search queries
+//             .limit(20); // Increase the limit to fetch multiple search queries
 
 //         let products = [];
 //         let categories = [];
@@ -484,7 +483,7 @@ exports.getRecommendations = async (req, res) => {
 //         console.error(error);
 //         res.status(500).json({ message: "Server error" });
 //     }
-// }; */
+// };
 
 // get products by category
 exports.searchProductsByCategory = async (req, res, next) => {

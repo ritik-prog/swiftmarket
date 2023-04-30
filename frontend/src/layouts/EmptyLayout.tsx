@@ -16,26 +16,6 @@ const EmptyLayout = ({ children }: Props) => {
   const { isAuthenticated, user } = useSelector(
     (state: RootState) => state.user
   );
-  const dispatch = useDispatch();
-
-  const checkAuth = async () => {
-    const response = await instance.get("/auth/check");
-    console.log(response.data);
-    if (response.data.status === "success") {
-      dispatch(loginSuccess(response.data));
-    } else {
-      dispatch(logoutSuccess());
-    }
-    return response;
-  };
-
-  useEffect(() => {
-    try {
-      checkAuth();
-    } catch (err) {
-      // dispatch(logoutSuccess());
-    }
-  }, []);
 
   if (ban?.status) {
     return <IpBanned />;

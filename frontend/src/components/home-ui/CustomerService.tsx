@@ -2,7 +2,7 @@ import { FaShippingFast, FaUser, FaSyncAlt } from "react-icons/fa";
 
 export default function CustomerService() {
   return (
-    <div>
+    <div className="mx-auto max-w-2xl px-4 py-0 sm:px-6 sm:py-0 lg:max-w-7xl lg:px-8">
       <h2 className="text-2xl font-bold">
         We build our business on customer service
       </h2>

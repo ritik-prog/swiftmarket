@@ -9,6 +9,7 @@ const { v4: uuidv4 } = require("uuid");
 const authenticateMiddleware = require("../../middleware/authenticateMiddleware");
 const { check, validationResult } = require("express-validator");
 const { ObjectId } = require("mongodb");
+const { default: mongoose } = require("mongoose");
 
 // Create a place order
 router.post(
@@ -138,13 +139,62 @@ router.get("/all-orders", authenticateMiddleware, async (req, res) => {
         const orders = await Order.find({ customer: req.user._id })
             .populate({
                 path: 'products.product',
-                select: '-_id -__v',
+                select: '-__v',
             })
             .populate('transactionId')
             .sort({ createdAt: -1 });
         res.status(200).send({ orders: orders, status: 200 });
     } catch (error) {
         res.status(500).send({ error: error.message });
+    }
+});
+
+// Get ratings given by user for a specific product
+router.get('/rating/:productId', authenticateMiddleware, async (req, res) => {
+    try {
+        const { productId } = req.params;
+        const product = await Product.findById(productId).populate({
+            path: 'ratings.user',
+            match: { _id: req.user._id }, // only return ratings of req.user._id
+            select: 'username'
+        });
+        const ratings = product?.ratings.filter(rating => rating.user); // remove any ratings where user is not found
+        if (ratings === undefined) {
+            res.status(200).json({ ratings: [] });
+        } else {
+            res.status(200).json({ ratings });
+        }
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+});
+
+// save rating into product 
+router.post('/rating/:productId/give', authenticateMiddleware, async (req, res) => {
+    try {
+        const { productId } = req.params;
+        const { rating, review } = req.body;
+        const objectId = mongoose.Types.ObjectId(productId);
+        const updatedProduct = await Product.findByIdAndUpdate(
+            objectId,
+            {
+                $push: {
+                    ratings: {
+                        user: req.user._id,
+                        rating: rating,
+                        review: review
+                    }
+                }
+            },
+            { new: true }
+        );
+
+        res.status(200).json(updatedProduct);
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Internal server error' });
     }
 });
 

@@ -200,24 +200,23 @@ orderSchema.pre('save', async function (next) {
 
 // Update order status
 orderSchema.pre('save', async function (next) {
-    if (this.isModified('orderStatus') || this.isModified('trackingDetails.deliveryStatus')) {
-        try {
-            if (this.orderStatus === "Delivered") {
-                this.trackingDetails.deliveryStatus = "Delivered"
-                const customer = await User.findById(this.customer);
-                const data = {
-                    customerName: customer.name,
-                    totalCost: this.orderTotal,
-                    subject: 'Order Delivered - SwiftMarket'
-                };
-                // Send email
-                sendEmail(customer.email, data, './order/orderDelivered.hbs');
-            }
-        }
-        catch (error) {
-            next(error);
+    try {
+        if (this.orderStatus === "Delivered") {
+            this.trackingDetails.deliveryStatus = "Delivered"
+            const customer = await User.findById(this.customer);
+            const data = {
+                customerName: customer.name,
+                totalCost: this.orderTotal,
+                subject: 'Order Delivered - SwiftMarket'
+            };
+            // Send email
+            sendEmail(customer.email, data, './order/orderDelivered.hbs');
         }
     }
+    catch (error) {
+        next(error);
+    }
+
     next();
 });
 
