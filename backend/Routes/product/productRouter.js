@@ -174,6 +174,7 @@ router.get('/liked/:productId', async (req, res) => {
                     message: "Product not found",
                 });
             }
+            console.log(product.likes)
             if (product.likes.length > 0) {
                 const isLiked = user?._id && product.likes?.some(like => like.toString() === user?._id.toString() || false);
                 res.status(200).json({ isLiked });

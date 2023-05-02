@@ -179,53 +179,62 @@ const OrderDetails = () => {
       </div>
       {order.orderStatus !== "Cancelled" && (
         <div className="mt-6 flex justify-end space-x-3">
-          {order.orderStatus !== "Delivered" && (
+          {order.orderStatus !== "Completed" && (
             <>
-              {order.orderStatus !== "Placed" ? (
+              {order.orderStatus !== "Delivered" && (
                 <>
-                  {order.orderStatus === "Placed" ||
-                    order.orderStatus === "Confirmed" ||
-                    (order.orderStatus === "Shipped" && (
+                  {order.orderStatus !== "Placed" ? (
+                    <>
+                      {order.orderStatus === "Placed" ||
+                        order.orderStatus === "Confirmed" ||
+                        (order.orderStatus === "Shipped" && (
+                          <button
+                            className="rounded-md bg-yellow-600 px-3.5 py-1.5 text-base font-semibold leading-7 text-white hover:bg-yellow-500"
+                            onClick={() => (
+                              setShowModal(true),
+                              setModalTitle("Add Tracking Details")
+                            )}
+                          >
+                            {order.trackingDetails !== undefined
+                              ? "Update Tracking Details"
+                              : "Add Tracking Details"}
+                          </button>
+                        ))}
                       <button
-                        className="rounded-md bg-yellow-600 px-3.5 py-1.5 text-base font-semibold leading-7 text-white hover:bg-yellow-500"
+                        className="rounded-md bg-green-600 px-3.5 py-1.5 text-base font-semibold leading-7 text-white hover:bg-green-500"
                         onClick={() => (
                           setShowModal(true),
-                          setModalTitle("Add Tracking Details")
+                          setModalTitle("Update Order Status")
                         )}
                       >
-                        {order.trackingDetails !== undefined
-                          ? "Update Tracking Details"
-                          : "Add Tracking Details"}
+                        Update Order Status
                       </button>
-                    ))}
-                  <button
-                    className="rounded-md bg-green-600 px-3.5 py-1.5 text-base font-semibold leading-7 text-white hover:bg-green-500"
-                    onClick={() => (
-                      setShowModal(true), setModalTitle("Update Order Status")
-                    )}
-                  >
-                    Update Order Status
-                  </button>
+                    </>
+                  ) : (
+                    <button
+                      className="rounded-md bg-green-600 px-3.5 py-1.5 text-base font-semibold leading-7 text-white hover:bg-green-500"
+                      onClick={handleAcceptOrder}
+                    >
+                      Accept Order
+                    </button>
+                  )}
                 </>
-              ) : (
-                <button
-                  className="rounded-md bg-green-600 px-3.5 py-1.5 text-base font-semibold leading-7 text-white hover:bg-green-500"
-                  onClick={handleAcceptOrder}
-                >
-                  Accept Order
-                </button>
               )}
             </>
           )}
-          {order.orderStatus !== "Delivered" && (
-            <button
-              className="rounded-md bg-red-600 px-3.5 py-1.5 text-base font-semibold leading-7 text-white hover:bg-red-500"
-              onClick={() => (
-                setShowModal(true), setModalTitle("Cancel Order")
+          {order.orderStatus !== "Completed" && (
+            <>
+              {order.orderStatus !== "Delivered" && (
+                <button
+                  className="rounded-md bg-red-600 px-3.5 py-1.5 text-base font-semibold leading-7 text-white hover:bg-red-500"
+                  onClick={() => (
+                    setShowModal(true), setModalTitle("Cancel Order")
+                  )}
+                >
+                  Cancel Order
+                </button>
               )}
-            >
-              Cancel Order
-            </button>
+            </>
           )}
         </div>
       )}

@@ -4,7 +4,7 @@ const OrderDetails = ({ order }: any) => {
   return (
     <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="flex flex-col">
-        <div className="flex flex-wrap sm:flex-row mb-6">
+        <div className="flex flex-wrap sm:flex-row mb-2">
           <div className="sm:w-2/5 mb-2 sm:mb-0">
             <h4 className="font-semibold text-gray-600 text-lg">Order ID:</h4>
             <p

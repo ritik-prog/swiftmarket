@@ -18,7 +18,8 @@ function RatingModel({ isOpen, closeModal, product }: ModalProps) {
     try {
       const result = await getReviewRating(product.product.id);
       setRating(result);
-      if (result.ratings.length !== 0) {
+      console.log(result.ratings.length);
+      if (result.ratings.length !== 0 || result.ratings.length !== null) {
         setReview(result.ratings[0].review);
         setRating(result.ratings[0].rating);
         setAlreadyRated(true);
@@ -30,7 +31,7 @@ function RatingModel({ isOpen, closeModal, product }: ModalProps) {
   }, []);
 
   const handleClick = (value: any) => {
-    if (!setAlreadyRated) setRating(value);
+    if (!alreadyRated) setRating(value);
   };
 
   // handle submit review
@@ -41,7 +42,8 @@ function RatingModel({ isOpen, closeModal, product }: ModalProps) {
         review,
         rating,
       });
-      console.log(result);
+      closeModal();
+      setAlreadyRated(true);
     } catch (err) {}
   };
 
@@ -78,7 +80,7 @@ function RatingModel({ isOpen, closeModal, product }: ModalProps) {
                     name="review"
                     placeholder="......"
                     value={review}
-                    onChange={(e) => !setAlreadyRated && setReview(e.target.value)}
+                    onChange={(e) => !alreadyRated && setReview(e.target.value)}
                   />
                 </div>
                 <div className="grid w-full max-w-sm items-center gap-1.5 mt-4">

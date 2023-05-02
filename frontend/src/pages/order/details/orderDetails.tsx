@@ -451,46 +451,51 @@ export function OrderDetails() {
                   {activeOrder.products.map((product: any) => (
                     <div key={product._id} className="px-4">
                       <li className="flex py-6 sm:py-6 ">
-                        <div className="flex-shrink-0">
-                          <img
-                            src={product.product.thumbnailUrl}
-                            alt={product.product.productName}
-                            className="h-24 w-24 rounded-md object-contain object-center sm:h-38 sm:w-38"
-                          />
-                        </div>
+                        {product?.product !== null && (
+                          <div className="flex-shrink-0">
+                            <img
+                              src={product?.product.thumbnailUrl}
+                              alt={product?.product.productName}
+                              className="h-24 w-24 rounded-md object-contain object-center sm:h-38 sm:w-38"
+                            />
+                          </div>
+                        )}
 
                         <div className="ml-4 flex flex-1 flex-col justify-between sm:ml-6">
                           <div className="relative pr-9 sm:grid sm:grid-cols-2 sm:gap-x-6 sm:pr-0">
                             <div>
                               <div className="flex justify-between">
-                                <h3 className="text-sm">
-                                  <span className="font-medium text-lg text-gray-700 dark:text-white">
-                                    {product.product.productName}
-                                  </span>
-                                </h3>
+                                {product?.product !== null && (
+                                  <h3 className="text-sm">
+                                    <span className="font-medium text-lg text-gray-700 dark:text-white">
+                                      {product?.product.productName}
+                                    </span>
+                                  </h3>
+                                )}
                               </div>
 
                               <div className="mt-1 flex text-sm">
                                 <p className="text-gray-500 dark:text-gray-200">
                                   Quantity:{" "}
                                   <span className="font-bold">
-                                    {product.quantity}
+                                    {product?.quantity}
                                   </span>
                                 </p>
                               </div>
                               <div className="mt-1 flex items-end">
                                 <p className="text-xs line-through font-medium text-gray-500 dark:text-gray-100">
-                                  ₹{product.price}
+                                  ₹{product?.price}
                                 </p>
                                 <p className="text-sm font-medium text-gray-900 dark:text-white">
-                                  &nbsp;&nbsp;₹{product.discountedPrice}
+                                  &nbsp;&nbsp;₹{product?.discountedPrice}
                                 </p>
                                 &nbsp;&nbsp;
                                 <p className="text-sm font-medium text-green-500">
-                                  ₹{product.price - product.discountedPrice}
+                                  ₹{product?.price - product?.discountedPrice}
                                 </p>
                               </div>
                             </div>
+
                             {activeOrder.orderStatus === "Completed" && (
                               <>
                                 <div className="flex items-end justify-end flex-col">

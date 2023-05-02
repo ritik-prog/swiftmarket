@@ -10,6 +10,7 @@ const handleError = require('../../utils/errorHandler');
 const { default: mongoose } = require('mongoose');
 const User = require('../../models/auth/userSchema');
 const bcrypt = require('bcryptjs');
+const RefundRequest = require('../../models/transaction/refundRequestSchema');
 
 // Apply for seller account
 const applyForSellerAccount = async (req, res, next) => {
@@ -768,6 +769,17 @@ const cancelOrder = async (req, res) => {
         if (!updatedOrder) {
             return res.status(404).json({ message: 'Order not found' });
         }
+
+        // Create and save a new refund request
+        const refundRequest = new RefundRequest({
+            transactionId: updatedOrder.transactionId,
+            reason: reason,
+            amount: updatedOrder.totalAmount,
+            seller: updatedOrder.seller,
+            customer: updatedOrder.customer,
+            status: 'Pending'
+        });
+        await refundRequest.save();
 
         const data = {
             orderNumber: updatedOrder._id,

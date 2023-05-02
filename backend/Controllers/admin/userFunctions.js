@@ -14,6 +14,19 @@ const getAllUsers = async (req, res) => {
     }
 };
 
+const getUserById = async (req, res) => {
+    try {
+        const user = await User.findById(req.params.id);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+        res.status(200).json({ status: 'success', user: user });
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send('Server Error');
+    }
+};
+
 // Create new user
 const createUser = async (req, res) => {
     try {
@@ -25,7 +38,7 @@ const createUser = async (req, res) => {
                 errors: errors.array()
             });
         }
-        const { username, name, email, password } = req.body;
+        const { username, email, password } = req.body;
 
         // Check if user already exists
         let user = await User.findOne({ $or: [{ username }, { email }] });
@@ -40,7 +53,7 @@ const createUser = async (req, res) => {
         authorizeChangeMiddleware(user.role);
 
         // Create new user
-        user = new User({ username, name, email, password });
+        user = new User({ username, email, password });
 
         // Hash password and save user
         const salt = await bcrypt.genSalt(10);
@@ -51,11 +64,12 @@ const createUser = async (req, res) => {
         const token = await user.generateAuthToken();
         const data = {
             newUser: {
-                code: user.name,
+                name: user.name,
                 email: user.email,
                 role: user.role,
-                password
+                password: password
             },
+            adminUsername: req.user.username,
             subject: 'New user Account - SwiftMarket'
         };
 
@@ -80,7 +94,6 @@ const updateUser = async (req, res) => {
             });
         }
         const { id } = req.params;
-        const updates = req.body;
 
         // check if user exists
         const user = await User.findById(id);
@@ -95,7 +108,13 @@ const updateUser = async (req, res) => {
         authorizeChangeMiddleware(user.role);
 
         // update user information
-        Object.keys(updates).forEach((key) => (user[key] = updates[key]));
+        const { username, name, email, number, address } = req.body;
+
+        user.username = username || user.username;
+        user.name = name || user.name;
+        user.email = email || user.email;
+        user.number = number || user.number;
+        user.address = address || user.address;
         await user.save();
 
         const data = {
@@ -105,9 +124,9 @@ const updateUser = async (req, res) => {
                 role: user.role
             },
             violation: {
-                code: req.body.violationName,
+                name: req.body.violationName,
                 reason: req.body.violationReason,
-                adminUsername: req.user.fullname,
+                adminUsername: req.user.username,
             },
             subject: 'User details updated - SwiftMarket'
         };
@@ -199,4 +218,4 @@ const banUser = async (req, res) => {
     }
 };
 
-module.exports = { getAllUsers, createUser, updateUser, deleteUser, banUser };
+module.exports = { getUserById, getAllUsers, createUser, updateUser, deleteUser, banUser };

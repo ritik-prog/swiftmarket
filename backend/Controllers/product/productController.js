@@ -96,7 +96,7 @@ exports.getProductById = async (req, res, next) => {
         });
 
         // Increment the views count for the product
-        await Product.findByIdAndUpdate(req.params.id, { $inc: { views: 1 } });
+        Product.findByIdAndUpdate(req.params.id, { $inc: { views: 1 } });
 
         const searchQuery = new Search({
             category: product.category || '',
@@ -107,7 +107,7 @@ exports.getProductById = async (req, res, next) => {
             timestamp: Date.now(),
         });
 
-        await searchQuery
+        searchQuery
             .save()
             .then(() => {
                 console.log("Search query saved successfully");

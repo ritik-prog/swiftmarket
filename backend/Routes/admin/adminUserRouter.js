@@ -9,6 +9,9 @@ const router = express.Router();
 // Display all users
 router.get("/users", [authenticateMiddleware, authorizeMiddleware(["admin", "superadmin", "root"]), checkVerificationMiddleware], adminController.getAllUsers);
 
+// Get user by ID
+router.get('/user/:id', [authenticateMiddleware, authorizeMiddleware(["admin", "superadmin", "root"]), checkVerificationMiddleware], adminController.getUserById);
+
 // Create a new user
 router.post(
     "/newuser",
@@ -16,8 +19,7 @@ router.post(
         authenticateMiddleware,
         authorizeMiddleware(["admin", "superadmin", "root"]),
         checkVerificationMiddleware,
-        check("username").isLength({ min: 4, max: 20 }),
-        check("name").isLength({ min: 2, max: 50 }),
+        check("username").isLength({ min: 4, max: 25 }),
         check("email").isEmail().normalizeEmail(),
         check("password").isLength({ min: 6, max: 100 })
     ],
@@ -31,29 +33,6 @@ router.put(
         authenticateMiddleware,
         authorizeMiddleware(["admin", "superadmin", "root"]),
         checkVerificationMiddleware,
-        check("username")
-            .notEmpty()
-            .withMessage("Username is required")
-            .isLength({ min: 4, max: 20 })
-            .withMessage("Username must be between 4 and 20 characters long"),
-        check("name")
-            .notEmpty()
-            .withMessage("Name is required")
-            .isLength({ min: 2, max: 50 })
-            .withMessage("Name must be between 2 and 50 characters long"),
-        check("email")
-            .notEmpty()
-            .withMessage("Email is required")
-            .isEmail()
-            .withMessage("Please enter a valid email address"),
-        check("password")
-            .notEmpty()
-            .withMessage("Password is required")
-            .isLength({ min: 6, max: 100 })
-            .withMessage("Password must be between 6 and 100 characters long"),
-        check("address")
-            .isLength({ max: 100 })
-            .withMessage("Address must be at most 100 characters long"),
     ],
     adminController.updateUser
 );

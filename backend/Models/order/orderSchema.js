@@ -201,8 +201,9 @@ orderSchema.pre('save', async function (next) {
 // Update order status
 orderSchema.pre('save', async function (next) {
     try {
-        if (this.orderStatus === "Delivered") {
+        if (this.orderStatus === "Delivered" || this.trackingDetails.deliveryStatus === "Delivered") {
             this.trackingDetails.deliveryStatus = "Delivered"
+            this.orderStatus = "Delivered"
             const customer = await User.findById(this.customer);
             const data = {
                 customerName: customer.name,
@@ -216,7 +217,6 @@ orderSchema.pre('save', async function (next) {
     catch (error) {
         next(error);
     }
-
     next();
 });
 

@@ -148,9 +148,8 @@ const Tickets = () => {
                         >
                           {item.status}
                           <br />
-                          {" Reason:-"}
                           {item.status === "Transfer to Another Agent" &&
-                            item.reason}
+                           `Reason:- ${item.reason}`}
                         </td>
                         <td className="px-4 py-4 text-sm text-gray-500 dark:text-gray-300">
                           {item.priority}

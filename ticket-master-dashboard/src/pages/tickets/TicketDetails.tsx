@@ -125,8 +125,8 @@ const TicketDetails = () => {
 
   return (
     JSON.stringify(ticket) !== "{}" && (
-      <div className="px-4 sm:px-6 lg:px-8 mt-10 flex space-x-5 mb-4">
-        <div>
+      <div className="px-4 sm:px-6 lg:px-8 flex space-x-5 h-screen overflow-scroll">
+        <div className="h-screen overflow-scroll">
           <div className="bg-white shadow overflow-hidden rounded-md">
             <div className="px-4 py-5 sm:p-6">
               <h1 className="text-3xl font-bold text-gray-900 mb-4">
@@ -169,7 +169,7 @@ const TicketDetails = () => {
               </dl>
             </div>
           </div>
-          <div className="bg-white shadow overflow-hidden rounded-md mt-4">
+          <div className="bg-slate-200 shadow overflow-hidden rounded-md mt-4">
             <div className="px-4 py-5 sm:p-6">
               <h2 className="text-xl font-medium text-gray-900 mb-4">
                 Order Details
@@ -178,18 +178,19 @@ const TicketDetails = () => {
             </div>
           </div>
         </div>
-        <div className="bg-white shadow overflow-hidden rounded-md">
+        <div className="bg-white shadow overflow-hidden rounded-md h-fit">
           <div className="px-4 py-5 sm:p-6">
             <h2 className="text-xl font-medium text-gray-900 mb-4">Messages</h2>
             <div className="max-h-60 overflow-y-scroll">
               <ul className="divide-y divide-gray-200">
-                {ticket.messages.map((message: any) => (
+                {ticket.messages.map((message: any, index: any) => (
                   <li key={message._id} className="py-4">
                     <div className="flex space-x-3">
                       <div className="flex-1 space-y-2">
                         <div className="text-sm font-medium text-gray-900">
                           {message?.user_id?.username ||
-                            message?.agent_id?.username}
+                            message?.agent_id?.username}{" "}
+                          {ticket.messages.length} - {index}
                         </div>
                         <div className="text-sm text-gray-500">
                           {new Date(message.time).toLocaleString()}
@@ -199,7 +200,7 @@ const TicketDetails = () => {
                     </div>
                   </li>
                 ))}
-                <div ref={bottomRef} />
+                <div ref={bottomRef}></div>
               </ul>
             </div>
             <div className="mt-8">

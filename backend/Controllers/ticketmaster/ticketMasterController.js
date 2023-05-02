@@ -75,7 +75,7 @@ const getAllTickets = async (req, res) => {
                 path: 'messages.user_id',
                 select: 'username'
             })
-            .populate('order');
+            .populate('order').sort({ createdAt: -1 });
         res.json(tickets);
     } catch (err) {
         console.log(err);

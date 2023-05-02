@@ -61,8 +61,6 @@ const transactionSchema = new mongoose.Schema(
     }
 );
 
-
-
 transactionSchema.pre('save', function (next) {
     if (this.isNew) {
         // Set the createdAt field to the current date

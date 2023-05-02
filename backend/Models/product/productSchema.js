@@ -95,7 +95,7 @@ const productSchema = new mongoose.Schema(
         ],
         ratingsAvg: {
             type: Number,
-            default: 0
+            default: 0.0
         },
         faqs: [
             {
@@ -193,17 +193,21 @@ productSchema.post(['find', 'findOne', 'update', 'save', 'findOneAndUpdate', 'fi
 });
 
 // rating average
-productSchema.pre('save', function (next) {
-    const ratings = this.ratings;
-    let sum = 0, count = 0;
-    for (let i = 0; i < ratings.length; i++) {
-        sum += ratings[i].rating;
-        count++;
-    }
-    if (count > 0) {
-        this.ratingsAvg = sum / count;
-    } else {
-        this.ratingsAvg = 0;
+productSchema.post(['save', 'findOneAndUpdate'], async function (next) {
+    if (this?._update?.$push?.ratings) {
+        const updatedDoc = await Product.findOne({ _id: this.getQuery()._id });
+        if (updatedDoc && updatedDoc.ratings?.length > 0) {
+            const averageRating = await Product.aggregate([
+                { $match: { _id: mongoose.Types.ObjectId(this.getQuery()._id) } },
+                { $unwind: "$ratings" },
+                { $group: { _id: null, averageRating: { $avg: "$ratings.rating" } } },
+                { $project: { _id: 0, averageRating: { $round: ["$averageRating", 1] } } }
+            ]);
+            updatedDoc.ratingsAvg = averageRating[0].averageRating;
+            await updatedDoc.save();
+        } else {
+            this.ratingsAvg = 0;
+        }
     }
 
     // calculate popularity score
@@ -214,12 +218,12 @@ productSchema.pre('save', function (next) {
     const maxLikes = 100; // maximum likes value
     const maxViews = 1000; // maximum views value
     const decayConstant = 0.01; // decay constant for time decay
-    const timeElapsed = Date.now() - this.createdAt.getTime(); // time elapsed since product was created
+    const timeElapsed = Date.now() - this.createdAt; // time elapsed since product was created
 
     // calculate normalized scores
     const normalizedRating = this.ratingsAvg / maxRating;
-    const normalizedLikes = this.likes.length / maxLikes;
-    const normalizedViews = this.views / maxViews;
+    const normalizedLikes = this.likes?.length / maxLikes;
+    const normalizedViews = this?.views / maxViews;
 
     // apply time decay
     const decayFactor = Math.exp(-decayConstant * timeElapsed / (1000 * 60 * 60 * 24)); // time in days
@@ -232,8 +236,7 @@ productSchema.pre('save', function (next) {
         viewsWeight * decayedViews;
 
     this.popularityScore = popularityScore;
-
-    next();
+    await this.save();
 });
 
 

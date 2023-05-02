@@ -1,4 +1,4 @@
-const { getAllUsers, createUser, updateUser, deleteUser, banUser } = require('./userFunctions');
+const { getAllUsers, createUser, updateUser, deleteUser, banUser, getUserById } = require('./userFunctions');
 const { getAllApplySellers, acceptSeller, getAllSellers, createSeller, updateSeller, deleteSeller } = require('./sellerFunctions');
 const {
     getAllProducts,
@@ -11,7 +11,7 @@ const {
 module.exports = {
     getAllApplySellers, createSeller, acceptSeller, getAllUsers, createUser, updateUser, deleteUser, getAllSellers, updateSeller, deleteSeller, banUser, getAllProducts,
     getAllProductsOfSellerByUsername,
-    updateProduct,
+    updateProduct, getUserById,
     deleteProduct,
     getProductById
 };

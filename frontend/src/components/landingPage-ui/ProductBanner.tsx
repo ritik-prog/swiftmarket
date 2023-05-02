@@ -20,6 +20,7 @@ const ProductBanner = () => {
   const navigate = useNavigate();
   const isMountedRef = useRef(false);
 
+  console.log(products);
   async function getProducts() {
     const response = await getTrandingProductsThree();
     console.log(response);
@@ -132,7 +133,7 @@ const ProductBanner = () => {
                   <a
                     href="javascript:void(0)"
                     className="inline-block rounded-md border py-3 px-7 text-sm font-semibold text-body-color transition hover:border-blue-500 hover:bg-blue-500 hover:text-white"
-                    onClick={() => navigate(`/product?query=${product._id}&}`)}
+                    onClick={() => navigate(`/product?query=${product._id}`)}
                   >
                     View Details
                   </a>

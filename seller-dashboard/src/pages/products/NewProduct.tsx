@@ -119,8 +119,8 @@ const ProductDetails = () => {
       // api call
       const response = await createProduct(dataToSend);
       if (response.status === "success") {
-        CreateToast("created", "Product created successfully", "success");
         setLoading(false);
+        CreateToast("created", "Product created successfully", "success");
         navigate(`/product/${response._id}`);
       }
     } catch (err) {
