@@ -193,52 +193,55 @@ productSchema.post(['find', 'findOne', 'update', 'save', 'findOneAndUpdate', 'fi
 });
 
 // rating average
-productSchema.post(['save', 'findOneAndUpdate'], async function (next) {
-    if (this?._update?.$push?.ratings) {
-        const updatedDoc = await Product.findOne({ _id: this.getQuery()._id });
-        if (updatedDoc && updatedDoc.ratings?.length > 0) {
-            const averageRating = await Product.aggregate([
-                { $match: { _id: mongoose.Types.ObjectId(this.getQuery()._id) } },
-                { $unwind: "$ratings" },
-                { $group: { _id: null, averageRating: { $avg: "$ratings.rating" } } },
-                { $project: { _id: 0, averageRating: { $round: ["$averageRating", 1] } } }
-            ]);
-            updatedDoc.ratingsAvg = averageRating[0].averageRating;
-            await updatedDoc.save();
-        } else {
-            this.ratingsAvg = 0;
+productSchema.post(['findOneAndUpdate'], async function (next) {
+    try {
+        if (this?._update?.$push?.ratings) {
+            const updatedDoc = await Product.findOne({ _id: this.getQuery()._id });
+            if (updatedDoc && updatedDoc.ratings?.length > 0) {
+                const averageRating = await Product.aggregate([
+                    { $match: { _id: mongoose.Types.ObjectId(this.getQuery()._id) } },
+                    { $unwind: "$ratings" },
+                    { $group: { _id: null, averageRating: { $avg: "$ratings.rating" } } },
+                    { $project: { _id: 0, averageRating: { $round: ["$averageRating", 1] } } }
+                ]);
+                updatedDoc.ratingsAvg = averageRating[0].averageRating;
+                await updatedDoc.save();
+            } else {
+                this.ratingsAvg = 0;
+            }
         }
+        // calculate popularity score
+        const ratingWeight = 0.6;
+        const likesWeight = 0.2;
+        const viewsWeight = 0.2;
+        const maxRating = 5; // maximum rating value
+        const maxLikes = 100; // maximum likes value
+        const maxViews = 1000; // maximum views value
+        const decayConstant = 0.01; // decay constant for time decay
+        const timeElapsed = Date.now() - this.createdAt; // time elapsed since product was created
+
+        // calculate normalized scores
+        const normalizedRating = this.ratingsAvg / maxRating;
+        const normalizedLikes = this.likes?.length / maxLikes;
+        const normalizedViews = this?.views / maxViews;
+
+        // apply time decay
+        const decayFactor = Math.exp(-decayConstant * timeElapsed / (1000 * 60 * 60 * 24)); // time in days
+        const decayedLikes = normalizedLikes * decayFactor;
+        const decayedViews = normalizedViews * decayFactor;
+
+        // calculate weighted score
+        const popularityScore = ratingWeight * normalizedRating +
+            likesWeight * decayedLikes +
+            viewsWeight * decayedViews;
+
+        this.popularityScore = popularityScore;
+        this.save();
+        next();
     }
-
-    // calculate popularity score
-    const ratingWeight = 0.6;
-    const likesWeight = 0.2;
-    const viewsWeight = 0.2;
-    const maxRating = 5; // maximum rating value
-    const maxLikes = 100; // maximum likes value
-    const maxViews = 1000; // maximum views value
-    const decayConstant = 0.01; // decay constant for time decay
-    const timeElapsed = Date.now() - this.createdAt; // time elapsed since product was created
-
-    // calculate normalized scores
-    const normalizedRating = this.ratingsAvg / maxRating;
-    const normalizedLikes = this.likes?.length / maxLikes;
-    const normalizedViews = this?.views / maxViews;
-
-    // apply time decay
-    const decayFactor = Math.exp(-decayConstant * timeElapsed / (1000 * 60 * 60 * 24)); // time in days
-    const decayedLikes = normalizedLikes * decayFactor;
-    const decayedViews = normalizedViews * decayFactor;
-
-    // calculate weighted score
-    const popularityScore = ratingWeight * normalizedRating +
-        likesWeight * decayedLikes +
-        viewsWeight * decayedViews;
-
-    this.popularityScore = popularityScore;
-    await this.save();
+    catch (err) {
+    }
 });
-
 
 productSchema.pre('save', function (next) {
     if (this.isNew) {

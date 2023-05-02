@@ -135,9 +135,9 @@ userSchema.pre('save', async function (next) {
 
 userSchema.pre(['find', 'findOne', 'findOneAndUpdate', 'findOneAndDelete', 'update'], function (next) {
     if (this._conditions.hasOwnProperty('email') || this._conditions.hasOwnProperty('_id')) {
-        if (!this.field || !this.field.includes('password')) {
-            this.select('-tokens');
-        }
+        // if (!this.field || !this.field.includes('password')) {
+        //     this.select('-tokens');
+        // }
     } else {
         this.select('-password -tokens');
     }

@@ -78,7 +78,7 @@ router.post(
                             subOrderProducts.push({ product: product.product._id, quantity: product.quantity, price: product.product.price, discountedPrice: product.product.discountedPrice });
                         }
                     }
-                    await Order.create(
+                    const order = await Order.create(
                         {
                             seller: sellerId,
                             shippingAddress,
@@ -90,6 +90,7 @@ router.post(
                             fullname: fullname,
                         },
                     );
+                    await order.save();
                 }
 
                 foundTransaction.cartId = cartId;

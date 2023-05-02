@@ -21,15 +21,12 @@ const Login = () => {
     if (!isValidEmail(email || "")) {
       return <Navigate to={"error"} replace />;
     }
-    const res = await instance.get(`/seller/checkloginstatus/${email}`);
-    if (res.data.status !== "allow") {
+    try {
+      await instance.get(`/seller/checkloginstatus/${email}`);
+    } catch (error) {
       navigate("/error");
     }
   }
-
-  useEffect(() => {
-    checkEmail();
-  }, []);
 
   const [password, setPassword] = useState("");
   const inputRefs = useRef<HTMLInputElement[]>([]);
@@ -43,29 +40,37 @@ const Login = () => {
     const inputs = inputRefs.current;
     const input = inputs[index];
 
-    if (event.key === "Backspace") {
-      input.value = "";
-      if (index !== 0) inputs[index - 1].focus();
-    } else {
-      if (
-        index === inputs.length - 1 &&
-        input.value !== "" &&
-        event.key !== "Tab" // allow tabbing to next field if last field is filled
-      ) {
-        return true;
-      } else if (
-        event.key >= "0" &&
-        event.key <= "9" // numeric keys
-      ) {
-        input.value = event.key;
-        if (index !== inputs.length - 1) inputs[index + 1].focus();
-        event.preventDefault();
-      } else if (
-        (event.key >= "A" && event.key <= "Z") ||
-        (event.key >= "a" && event.key <= "z")
-      ) {
-        input.value = "";
-        return false;
+    switch (event.key) {
+      case "Backspace": {
+        if (input.value === "") {
+          if (index !== 0) {
+            inputs[index - 1].focus();
+          }
+        } else {
+          input.value = "";
+        }
+        break;
+      }
+      case "Tab": {
+        if (index === inputs.length - 1 && input.value !== "") {
+          return true;
+        }
+        break;
+      }
+      default: {
+        if (event.key >= "0" && event.key <= "9") {
+          input.value = event.key;
+          if (index !== inputs.length - 1) {
+            inputs[index + 1].focus();
+          }
+          event.preventDefault();
+        } else if (
+          (event.key >= "A" && event.key <= "Z") ||
+          (event.key >= "a" && event.key <= "z")
+        ) {
+          return false;
+        }
+        break;
       }
     }
   };
@@ -107,6 +112,27 @@ const Login = () => {
     } catch {}
   };
 
+  const passwordInputRef = useRef<HTMLInputElement>(null);
+
+  const handlePaste = (
+    index: number,
+    event: React.ClipboardEvent<HTMLInputElement>
+  ) => {
+    const inputs = inputRefs.current;
+    const pastedText = event.clipboardData.getData("text/plain");
+    if (pastedText.length !== 4) {
+      // Don't paste if the text is not exactly four characters
+      return;
+    }
+    for (let i = 0; i < 4; i++) {
+      inputs[i].value = pastedText[i] ?? "";
+    }
+    event.preventDefault();
+    // Move focus to the next input field
+    if (index !== inputs.length - 1) inputs[index + 1].focus();
+    passwordInputRef.current?.focus();
+  };
+
   const renderInputs = () => {
     const inputs = [];
     for (let i = 0; i < 4; i++) {
@@ -116,11 +142,12 @@ const Login = () => {
             ref={(ref) => (inputRefs.current[i] = ref as HTMLInputElement)}
             className="w-full h-full flex flex-col items-center justify-center text-center px-5 outline-none rounded-xl border dark:border-gray-700 text-lg bg-white dark:bg-gray-900 dark:text-white focus:bg-gray-50 focus:ring-1 ring-blue-700 dark:ring-blue-500"
             type="text"
-            name=""
-            id=""
+            name="twostep"
+            id="twostep"
             maxLength={1}
             onKeyDown={(event) => handleKeyDown(i, event)}
             onChange={(event) => handleInputChange(i, event)}
+            onPaste={(e) => handlePaste(i, e)}
             required
           />
         </div>
@@ -128,6 +155,11 @@ const Login = () => {
     }
     return inputs;
   };
+
+  useEffect(() => {
+    checkEmail();
+    inputRefs.current[0].focus();
+  }, []);
 
   if (state.user.isAuthenticated && state.seller.seller) {
     return <Navigate to={"/"} replace />;
@@ -168,6 +200,7 @@ const Login = () => {
                       placeholder="********"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
+                      ref={passwordInputRef}
                     />
                     <p className="text-sm text-gray-500">
                       Enter your password.

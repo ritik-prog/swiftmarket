@@ -35,19 +35,23 @@ const Login = () => {
           setLoading(true);
           const response = await signInApi(values.email, values.password);
           if (response.data.role === "seller") {
-            CreateToast("login", response.data.message, "success");
+            CreateToast("loginasseller", response.data.message, "info");
             setLoading(false);
+          }
+          console.log(response);
+          delete response.data.user.role;
+          dispatch(loginSuccess(response.data));
+          if (!response.data.user.verificationStatus) {
+            setLoading(false);
+            navigate("/verification");
           } else {
-            delete response.data.user.role;
-            dispatch(loginSuccess(response.data));
-            if (!response.data.user.verificationStatus) {
-              setLoading(false);
-              navigate("/verification");
-            } else {
-              setLoading(false);
-              CreateToast("login", "Logged in successfully", "success");
-              navigate("/");
-            }
+            setLoading(false);
+            CreateToast(
+              "loginsuccessfully",
+              "Logged in successfully",
+              "success"
+            );
+            navigate("/");
           }
           setLoading(false);
         } catch {

@@ -14,7 +14,7 @@ export const getProductById = async (id: any) => {
 // update product
 export const updateProduct = async (data: any) => {
   const response = await instance.put(`/seller/updateproduct`, data);
-  return response.data;
+  return response;
 };
 
 // Create product

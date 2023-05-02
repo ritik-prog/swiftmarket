@@ -21,7 +21,7 @@ export function CreateToast(
     toast.info(message, {
       toastId: toastId,
       position: "bottom-right",
-      autoClose: 3000,
+      autoClose: false,
       hideProgressBar: false,
       closeOnClick: true,
       pauseOnHover: true,
@@ -57,7 +57,7 @@ export function CreateToast(
     toast(message, {
       toastId: toastId,
       position: "bottom-right",
-      autoClose: 3000,
+      autoClose: false,
       hideProgressBar: false,
       closeOnClick: true,
       pauseOnHover: true,

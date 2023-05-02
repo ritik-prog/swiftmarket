@@ -113,8 +113,32 @@ exports.login = async (req, res) => {
 
                 await sendEmail(seller.businessEmail, data, './seller/loginVerification.hbs');
 
-                return res.status(200).json({ role: "seller", message: "Please check your email address for login instructions." });
+
+                // Set token in cookies
+                res.cookie('token', token, {
+                    httpOnly: true, // cookie cannot be accessed from client-side scripts
+                    secure: process.env.NODE_ENV === 'production', // cookie should only be sent over HTTPS in production
+                    sameSite: 'strict', // cookie should only be sent for same-site requests
+                    maxAge: 5 * 60 * 60 * 1000 // 5hr
+                });
+
+                return res.status(200).json({
+                    role: "seller", message: "Please check your email address for login as seller.",
+                    user: {
+                        id: user._id,
+                        name: user.name,
+                        email: user.email,
+                        username: user.username,
+                        address: user.address,
+                        verificationStatus: user.verificationStatus,
+                        role: user.role,
+                        number: user.number
+                    },
+                    status: 'success'
+                });
             } else {
+
+
                 // Set token in cookies
                 res.cookie('token', token, {
                     httpOnly: true, // cookie cannot be accessed from client-side scripts
@@ -137,6 +161,7 @@ exports.login = async (req, res) => {
                     status: 'success'
                 });
             }
+
         }).catch((err) => {
             throw err;
         });

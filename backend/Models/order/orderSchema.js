@@ -147,14 +147,6 @@ orderSchema.pre('save', async function (next) {
                 subject: 'New Order - SwiftMarket'
             };
 
-            let payroll = await Payroll.findOne({ user: seller._id });
-            if (!payroll) {
-                payroll = new Payroll({ user: seller._id, role: 'seller', amount: this.orderTotal });
-            } else {
-                payroll.amount += this.orderTotal;
-            }
-            await payroll.save();
-
             // Send email
             sendEmail(seller.businessEmail, data, './order/informSeller.hbs');
         }
