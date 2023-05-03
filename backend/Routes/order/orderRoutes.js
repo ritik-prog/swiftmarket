@@ -7,9 +7,11 @@ const Product = require("../../models/product/productSchema");
 const { v4: uuidv4 } = require("uuid");
 
 const authenticateMiddleware = require("../../middleware/authenticateMiddleware");
-const { check, validationResult } = require("express-validator");
+const { check, validationResult, body } = require("express-validator");
 const { ObjectId } = require("mongodb");
 const { default: mongoose } = require("mongoose");
+const RefundRequest = require("../../models/transaction/refundRequestSchema");
+const sendEmail = require("../../utils/sendEmail");
 
 // Create a place order
 router.post(
@@ -147,6 +149,52 @@ router.get("/all-orders", authenticateMiddleware, async (req, res) => {
         res.status(200).send({ orders: orders, status: 200 });
     } catch (error) {
         res.status(500).send({ error: error.message });
+    }
+});
+
+// refund
+router.post('/refund', [
+    body('orderId').notEmpty(),
+    body('reason').notEmpty(),
+], async (req, res) => {
+    try {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return res.status(400).json({ errors: errors.array() });
+        }
+
+        const { orderId, reason } = req.body;
+
+        const updatedOrder = await Order.findById(orderId).populate('customer');
+        if (!updatedOrder) {
+            return res.status(404).json({ message: 'Order not found' });
+        }
+        updatedOrder.orderStatus = "Cancelled"
+        updatedOrder.notes.cancelOrderReason = reason;
+        await updatedOrder.save();
+
+        const refundRequest = new RefundRequest({
+            transactionId: updatedOrder.transactionId,
+            orderId,
+            reason,
+            amount: updatedOrder.orderTotal,
+            seller: updatedOrder.seller,
+            customer: updatedOrder.customer
+        });
+
+        await refundRequest.save();
+
+        res.status(200).json({ status: 'success' });
+
+        const data = {
+            subject: 'Cancel Request Received - SwiftMarket'
+        };
+
+        await sendEmail(updatedOrder.customer.email, data, './order/orderRefund.hbs');
+
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Internal server error' });
     }
 });
 

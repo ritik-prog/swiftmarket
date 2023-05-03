@@ -9,6 +9,8 @@ const NavBar = () => {
     (state: RootState) => state.user.isAuthenticated
   );
 
+  const user = useSelector((state: RootState) => state.user.user);
+
   const [searchQuery, setSearchQuery] = useState("");
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
@@ -18,7 +20,6 @@ const NavBar = () => {
 
   const handleSearch: FormEventHandler<HTMLFormElement> = (e) => {
     // e.preventDefault();
-    console.log(searchQuery);
     navigate(`/search?query=${searchQuery}`);
   };
 
@@ -191,7 +192,7 @@ const NavBar = () => {
                   onClick={() => navigate("/profile")}
                 >
                   <img
-                    src="https://images.unsplash.com/photo-1517841905240-472988babdf9?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=334&q=80"
+                    src={`https://ui-avatars.com/api/?name=${user.username}`}
                     className="object-cover w-full h-full"
                     alt="avatar"
                   />

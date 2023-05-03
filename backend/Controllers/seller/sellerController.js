@@ -767,19 +767,22 @@ const cancelOrder = async (req, res) => {
     const { _id, reason } = req.body;
 
     try {
-        const updatedOrder = await Order.findByIdAndUpdate(_id, { orderStatus: "Cancelled", note: { cancelOrderReason: reason } }, { new: true }).populate('customer');
+        const updatedOrder = await Order.findById(_id).populate('customer');
         if (!updatedOrder) {
             return res.status(404).json({ message: 'Order not found' });
         }
-
+        updatedOrder.orderStatus = "Cancelled"
+        updatedOrder.notes.cancelOrderReason = reason;
+        await updatedOrder.save();
         // Create and save a new refund request
         const refundRequest = new RefundRequest({
             transactionId: updatedOrder.transactionId,
             reason: reason,
-            amount: updatedOrder.totalAmount,
+            amount: updatedOrder.orderTotal,
             seller: updatedOrder.seller,
             customer: updatedOrder.customer,
-            status: 'Pending'
+            status: 'Pending',
+            orderId: updatedOrder._id
         });
         await refundRequest.save();
 

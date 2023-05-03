@@ -54,3 +54,8 @@ export const createReviewRating = async (id: any, data: any) => {
   return response.data;
 };
 
+// order refund request
+export const orderRefundRequest = async (data: any) => {
+  const response = await instance.post(`order/refund/`, data);
+  return response.data;
+};

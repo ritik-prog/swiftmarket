@@ -21,7 +21,7 @@ const PayrollSchema = new Schema(
                 },
                 message: (props) => `Salary should be 0 for sellers`,
             },
-        }, // Monthly salary for non-sellers
+        },
         amount: {
             type: Number,
             default: 0,
@@ -34,6 +34,18 @@ const PayrollSchema = new Schema(
                 },
                 message: (props) => `Amount should be 0 for non-sellers`,
             },
+        },
+        paidAmount: {
+            type: Number,
+            default: 0,
+            validate: {
+                validator: function (v) {
+                    if (this.role !== "seller") {
+                        return v === 0;
+                    }
+                    return true;
+                }
+            }
         },
         transactions: [{
             transaction: {

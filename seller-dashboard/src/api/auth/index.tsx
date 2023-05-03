@@ -17,3 +17,9 @@ export const deleteSellerProfile = async () => {
   const result = await instance.delete(`/seller/deleteprofile`);
   return result.data;
 };
+
+// logout
+export const logoutApi = async () => {
+  const response = await instance.post("/auth/logout");
+  return response;
+};

@@ -220,22 +220,6 @@ const Sidebar = () => {
         </nav>
 
         <div className="mt-6">
-          {/* <div className="p-3 bg-gray-100 rounded-lg dark:bg-gray-800">
-                <h2 className="text-sm font-medium text-gray-800 dark:text-white">
-                  New feature availabel!
-                </h2>
-
-                <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                  Lorem ipsum dolor sit amet consectetur adipisicing elit. Natus
-                  harum officia eligendi velit.
-                </p>
-
-                <img
-                  className="object-cover w-full h-32 mt-2 rounded-lg"
-                  src="https://images.unsplash.com/photo-1658953229664-e8d5ebd039ba?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1374&h=1374&q=80"
-                  alt=""
-                />
-              </div> */}
 
           <div
             className={`flex mt-6 items-center ${

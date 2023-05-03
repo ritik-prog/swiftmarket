@@ -47,7 +47,7 @@ const WishlistComponent = () => {
         </div>
         <div className="mt-4">
           <p className="text-2xl tracking-tight leading-6 text-gray-600 dark:text-white">
-            03 items
+            {wishlistItems.items.length} items
           </p>
         </div>
       </div>

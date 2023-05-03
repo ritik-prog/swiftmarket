@@ -7,6 +7,12 @@ const refundRequestSchema = new Schema({
         ref: 'Transaction',
         required: true
     },
+    orderId: {
+        type: Schema.Types.ObjectId,
+        ref: 'Order',
+        required: true
+
+    },
     reason: {
         type: String,
         required: true
@@ -27,7 +33,7 @@ const refundRequestSchema = new Schema({
     },
     status: {
         type: String,
-        enum: ['Pending', 'Approved', 'Rejected'],
+        enum: ['Pending', 'Approved', 'Rejected', 'Seller Received Products', 'Refunded'],
         default: 'Pending'
     },
     createdAt: {
