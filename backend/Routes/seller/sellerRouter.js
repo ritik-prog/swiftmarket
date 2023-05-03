@@ -209,6 +209,39 @@ router.get(
     sellerController.getOrdersById
 );
 
+// get refund data
+router.get(
+    "/get-refund-data",
+    [
+        authenticateMiddleware,
+        authorizeMiddleware(["seller"]),
+        checkVerificationMiddleware,
+    ],
+    sellerController.getRefundRequest
+);
+
+// get refund data by id
+router.get(
+    "/get-refund-data/id/:refundId",
+    [
+        authenticateMiddleware,
+        authorizeMiddleware(["seller"]),
+        checkVerificationMiddleware,
+    ],
+    sellerController.getRefundRequestById
+);
+
+// update refund status
+router.put(
+    "/update-refund-status/:refundId",
+    [
+        authenticateMiddleware,
+        authorizeMiddleware(["seller"]),
+        checkVerificationMiddleware,
+    ],
+    sellerController.updateRefundRequestStatus
+);
+
 // update order status
 router.put(
     "/update-order-status",

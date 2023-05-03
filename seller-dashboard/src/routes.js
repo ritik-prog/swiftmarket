@@ -11,6 +11,8 @@ import OrderDetails from "./pages/orders/OrdersDetails";
 import ProductDetails from "./pages/products/ProductDetails";
 import NewProduct from "./pages/products/NewProduct";
 import PreviousRequests from "./pages/funds/PreviousRequests";
+import Refunds from "./pages/refund/Refunds";
+import RefundDetails from "./pages/refund/RefundDetails";
 
 const router = createBrowserRouter([
     {
@@ -56,6 +58,14 @@ const router = createBrowserRouter([
             {
                 path: "/order/:orderId",
                 element: <OrderDetails />,
+            },
+            {
+                path: "/refund",
+                element: <Refunds />,
+            },
+            {
+                path: "/refund/:refundId",
+                element: <RefundDetails />,
             }
         ],
     },

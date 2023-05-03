@@ -1,6 +1,7 @@
-import React from 'react'
-import { Outlet } from 'react-router-dom';
-import Sidebar from '../components/sidebar/Sidebar';
+import React from "react";
+import { Outlet } from "react-router-dom";
+import Sidebar from "../components/sidebar/Sidebar";
+import withAuth from "../hoc/withAuth";
 
 const MainLayout = () => {
   return (
@@ -13,6 +14,6 @@ const MainLayout = () => {
       </div>
     </div>
   );
-}
+};
 
-export default MainLayout
+export default withAuth(MainLayout);

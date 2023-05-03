@@ -1,7 +1,5 @@
 import instance from "../../utils/Axios";
 
-export {};
-
 export const signInApi = async (email: any, password: any) => {
   const response = await instance.post("/ticketmaster/login", {
     email,

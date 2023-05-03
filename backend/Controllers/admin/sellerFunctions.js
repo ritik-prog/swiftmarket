@@ -93,12 +93,12 @@ const acceptSeller = async (req, res, next) => {
 // Get All Verfied sellers
 const getAllSellers = async (req, res, next) => {
     try {
-        const sellers = await Seller.find().populate('user', 'fullName email'); // populate the user field with only fullName and email
+        const sellers = await Seller.find({}).populate('user', 'fullName email'); // populate the user field with only fullName and email
 
         res.status(200).json({
             success: true,
-            message: 'All apply sellers retrieved successfully',
-            data: sellers,
+            message: 'sellers retrieved successfully',
+            sellers: sellers,
         });
     } catch (error) {
         return handleError(res, err);

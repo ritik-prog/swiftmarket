@@ -21,6 +21,12 @@ const refundRequestSchema = new Schema({
         type: Number,
         required: true
     },
+    bankDetails: {
+        bankName: { type: String },
+        accountNumber: { type: String },
+        accountHolderName: { type: String },
+        ifscCode: { type: String },
+    },
     seller: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Seller',

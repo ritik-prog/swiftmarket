@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import ResetPassword from "./ResetPassword";
 import DeleteAccount from "./DeleteAccount";
 
@@ -7,6 +7,8 @@ const UpdateUser = () => {
   const [loading, setLoading] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const [deleteAccountModal, setDeleteAccountModal] = useState(false);
+
+  const { userId } = useParams();
 
   const [formData, setFormData] = useState({
     username: "",
@@ -31,11 +33,12 @@ const UpdateUser = () => {
 
   return (
     <div className="p-8 bg-white dark:bg-gray-900 lg:w-screen">
-
       {!loading ? (
         <div className="flex flex-wrap -mx-2 flex-col w-full">
           <div className="w-full md:w-1/2 px-2">
-            <h2 className="text-lg font-medium mb-4">Profile Information</h2>
+            <h2 className="text-lg font-medium mb-4">
+              Profile Information - {userId}
+            </h2>
 
             <div className="grid  gap-4">
               <div className="col-span-2 sm:col-span-1">

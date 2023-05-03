@@ -22,6 +22,7 @@ import TransactionsLayout from "../layouts/TransactionLayout";
 import WithdrawalRequestLayout from "../layouts/WithdrawalRequest";
 import WithdrawalRequest from "../pages/payroll/WithdrawalRequest";
 import Dashboard from "../pages/dashboard/Dashboard";
+import Login from "../pages/login/login";
 const routes = [
     {
         path: "/",
@@ -30,7 +31,7 @@ const routes = [
             { path: "/", element: <><Dashboard /></> },
             { path: "/user", element: <><UserLayout><Users /></UserLayout></> },
             { path: "/newuser", element: <><UserLayout><NewUser /></UserLayout></> },
-            { path: "/updateuser", element: <><UserLayout><UpdateUser /></UserLayout></> },
+            { path: "/updateuser/:userId", element: <><UserLayout><UpdateUser /></UserLayout></> },
             { path: "/seller", element: <><SellerLayout><Seller /></SellerLayout></> },
             { path: "/sellerrequests", element: <><SellerLayout><SellerRequests /></SellerLayout></> },
             { path: "/updateseller", element: <><SellerLayout><UpdateSeller /></SellerLayout></> },
@@ -46,6 +47,10 @@ const routes = [
                 element: <Error404 />,
             }
         ]
+    },
+    {
+        path: "/login",
+        element: <Login />,
     },
     {
         path: "*",

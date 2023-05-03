@@ -708,6 +708,93 @@ const getOrders = async (req, res) => {
     }
 };
 
+// get refund requests
+const getRefundRequest = async (req, res, next) => {
+    try {
+        const refundRequest = await RefundRequest.find({ seller: req.seller._id });
+        if (!refundRequest) {
+            return res.status(404).json({
+                message: `Refund request not found for seller ${req.seller._id}`,
+            });
+        }
+        res.status(200).json({ status: 'success', refundRequest });
+    } catch (error) {
+        res.status(500).json({ message: 'Something went wrong' });
+    }
+};
+
+// get refund request by id
+const getRefundRequestById = async (req, res, next) => {
+    try {
+        const refundId = req.params.refundId
+        const refundRequest = await RefundRequest.findById(refundId)
+            .populate('orderId')
+            .populate({
+                path: 'orderId',
+                populate: { path: 'products.product', select: '-__v' },
+            })
+            .populate('customer').select('-token -password -tickets')
+            .populate('transactionId');
+
+        if (!refundRequest) {
+            return res.status(404).json({
+                message: `Refund request not found for id ${refundId}`,
+            });
+        }
+        res.status(200).json({ status: 'success', refundRequest });
+    } catch (error) {
+        res.status(500).json({ message: 'Something went wrong' });
+    }
+};
+
+// update refund status
+
+const updateRefundRequestStatus = async (req, res) => {
+    try {
+        const { refundId } = req.params;
+        const { status } = req.body;
+
+        // Check if the status is valid
+        if (!['Approved', 'Rejected', 'Seller Received Products'].includes(status)) {
+            return res.status(499).json({ message: 'Invalid status' });
+        }
+
+        // Find the refund request by ID and update the status
+        const refundRequest = await RefundRequest.findByIdAndUpdate(
+            refundId,
+            { status },
+            { new: true }
+        ).populate('customer');
+
+        // Check if the refund request exists
+        if (!refundRequest) {
+            return res.status(404).json({ message: 'Refund request not found' });
+        }
+
+        // Return the updated refund request
+        res.json({
+            message: 'Refund request status updated successfully'
+        });
+
+        const data = {
+            customerName: refundRequest.customer.username,
+            transactionId: refundRequest.transactionId,
+            orderId: refundRequest.orderId,
+            status: refundRequest.status,
+            reason: refundRequest.reason,
+            amount: refundRequest.amount,
+            subject: 'Refund Request Update - SwiftMarket',
+            seller: req.seller.businessName
+        };
+
+        await sendEmail(refundRequest.customer.email, data, './order/refundStatusUpdate.hbs');
+
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Server error' });
+    }
+}
+
 const getOrdersById = async (req, res) => {
     try {
         const id = req.params.orderId;
@@ -758,7 +845,6 @@ const acceptOrder = async (req, res) => {
         await sendEmail(updatedOrder.customer.email, data, './seller/confirmedOrder.hbs');
 
     } catch (error) {
-        console.log(error);
         res.status(500).json({ message: 'Something went wrong' });
     }
 }
@@ -852,4 +938,4 @@ const getProductById = async (req, res, next) => {
     }
 };
 
-module.exports = { checkVerificationCode, getProductById, getSellerProducts, acceptOrder, addTrackingDetails, cancelOrder, updateOrderStatus, getOrdersById, loginSeller, getOrders, getSalesData, getDashboardData, getSellerProfile, updateSellerById, deleteSellerById, deleteProductForSeller, updateProductForSeller, createProductForSeller, applyForSellerAccount, verifySeller };
+module.exports = { updateRefundRequestStatus, getRefundRequestById, getRefundRequest, checkVerificationCode, getProductById, getSellerProducts, acceptOrder, addTrackingDetails, cancelOrder, updateOrderStatus, getOrdersById, loginSeller, getOrders, getSalesData, getDashboardData, getSellerProfile, updateSellerById, deleteSellerById, deleteProductForSeller, updateProductForSeller, createProductForSeller, applyForSellerAccount, verifySeller };

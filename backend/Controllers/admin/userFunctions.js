@@ -7,8 +7,8 @@ const handleError = require('../../utils/errorHandler');
 // Get all users
 const getAllUsers = async (req, res) => {
     try {
-        const users = await User.find({});
-        res.status(200).json({ status: 'success', message: 'Users retrieved successfully', data: users });
+        const usersAndSellers = await User.find({ role: { $in: ['user', 'seller'] } });
+        res.status(200).json({ status: 'success', message: 'Users retrieved successfully', users: usersAndSellers });
     } catch (err) {
         return handleError(res, err);
     }
@@ -117,6 +117,8 @@ const updateUser = async (req, res) => {
         user.address = address || user.address;
         await user.save();
 
+        res.status(200).json({ status: 'success', message: 'User updated successfully', data: user });
+
         const data = {
             userUpdated: {
                 code: user.name,
@@ -133,7 +135,6 @@ const updateUser = async (req, res) => {
 
         await sendEmail(user.email, data, './violationOfTerms/userTerms.hbs');
 
-        res.status(200).json({ status: 'success', message: 'User updated successfully', data: user });
     } catch (err) {
         return handleError(res, err);
     }
