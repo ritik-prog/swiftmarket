@@ -3,6 +3,7 @@ const Ticket = require('../../models/ticket/ticketSchema');
 const { validationResult } = require('express-validator');
 const User = require('../../models/auth/userSchema');
 const { ObjectId } = require('mongodb');
+const customLogger = require('../../utils/logHandler');
 
 // ticket master login
 const ticketMasterLogin = async (req, res) => {
@@ -14,6 +15,7 @@ const ticketMasterLogin = async (req, res) => {
             errors: errors.array()
         });
     }
+    customLogger("ticketmaster", "login", req)
 
     const { email, password } = req.body;
 
@@ -86,6 +88,7 @@ const getAllTickets = async (req, res) => {
 // Join ticket as agent
 const ticketJoin = async (req, res) => {
     try {
+        customLogger("ticketmaster", `ticket join:- ${req.params.id}`, req)
         const ticket = await Ticket.findById(req.params.id);
 
         // Check if ticket already has an agent assigned
@@ -132,6 +135,7 @@ const addMessage = async (req, res) => {
 // Change ticket priority
 const changeTicketStatus = async (req, res) => {
     try {
+        customLogger("ticketmaster", `ticket change status:- ${req.params.id}`, req)
         const ticket = await Ticket.findById(req.params.id).populate({
             path: 'messages.user_id',
             select: 'username'
@@ -169,6 +173,7 @@ const reassignTicket = async (req, res) => {
     try {
         const { id } = req.params;
         const { priority, reason } = req.body;
+        customLogger("ticketmaster", `ticket reassign:- ${req.params.id} - ${priority}`, req)
 
         // find the current agent's ticket
         const ticket = await Ticket.findOne({ _id: id, agent_id: req.user._id });

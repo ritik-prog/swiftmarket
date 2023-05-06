@@ -6,6 +6,7 @@ import Error404 from "../error/Error404";
 import Tickets from "../pages/tickets/Tickets";
 import TicketDetails from "../pages/tickets/TicketDetails";
 import Assigned from "../pages/tickets/Assigned";
+import Verification from "../pages/login/Verification";
 const routes = [
     {
         path: "/",
@@ -15,6 +16,11 @@ const routes = [
             { path: "/ticket/:id", element: <><TicketDetails /></> },
             { path: "/assigned", element: <><Assigned /></> },
         ]
+    },
+    // No Layout
+    {
+        path: "/verification",
+        element: <Verification />,
     },
     {
         path: "/login",

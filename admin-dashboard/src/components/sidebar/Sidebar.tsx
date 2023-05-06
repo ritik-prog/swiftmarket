@@ -1,15 +1,38 @@
 import React from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { RootState } from "../../redux/rootReducer";
+import { logoutApi } from "../../api/auth";
+import { logoutSuccess } from "../../redux/user/userSlice";
 
 const Sidebar = () => {
   const navigate = useNavigate();
   const user = useSelector((state: RootState) => state.user.user);
+  const dispatch = useDispatch();
+
+  const handleLogout = async () => {
+    try {
+      await logoutApi();
+      dispatch(logoutSuccess());
+      navigate("/login");
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   return (
     <div>
       <aside className="flex flex-col w-64 h-screen px-4 py-8 overflow-y-auto bg-white border-r rtl:border-r-0 rtl:border-l dark:bg-gray-900 dark:border-gray-700">
+        <a href="#" className="flex items-center px-4 -mx-2 mt-4">
+          <img
+            className="object-cover mx-2 rounded-full h-9 w-9"
+            src={`https://ui-avatars.com/api/?name=${user.username}`}
+            alt="avatar"
+          />
+          <span className="mx-2 font-medium text-gray-800 dark:text-gray-200">
+            {user.username}
+          </span>
+        </a>
         <div className="relative mt-6 bg-gray-100 text-gray-800 font-bold py-2 px-4 rounded-md">
           Logged in as {user.role.charAt(0).toUpperCase() + user.role.slice(1)}
         </div>
@@ -198,18 +221,82 @@ const Sidebar = () => {
 
               <span className="mx-4 font-medium">Transactions</span>
             </span>
-          </nav>
+            {user.role === "superadmin" || user.role === "root" ? (
+              <>
+                <hr className="my-6 border-gray-200 dark:border-gray-600" />
+                <span className="text-lg font-medium text-gray-900 uppercase tracking-wide">
+                  Superadmin Zone
+                </span>
+                <span
+                  className="cursor-pointer flex items-center px-4 py-2 mt-5 text-gray-600 transition-colors duration-300 transform rounded-md dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 dark:hover:text-gray-200 hover:text-gray-700"
+                  onClick={() => navigate("/databases")}
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke-width="1.5"
+                    stroke="currentColor"
+                    className="w-5 h-5"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      d="M20.25 6.375c0 2.278-3.694 4.125-8.25 4.125S3.75 8.653 3.75 6.375m16.5 0c0-2.278-3.694-4.125-8.25-4.125S3.75 4.097 3.75 6.375m16.5 0v11.25c0 2.278-3.694 4.125-8.25 4.125s-8.25-1.847-8.25-4.125V6.375m16.5 0v3.75m-16.5-3.75v3.75m16.5 0v3.75C20.25 16.153 16.556 18 12 18s-8.25-1.847-8.25-4.125v-3.75m16.5 0c0 2.278-3.694 4.125-8.25 4.125s-8.25-1.847-8.25-4.125"
+                    />
+                  </svg>
 
-          <a href="#" className="flex items-center px-4 -mx-2">
-            <img
-              className="object-cover mx-2 rounded-full h-9 w-9"
-              src={`https://ui-avatars.com/api/?name=${user.username}`}
-              alt="avatar"
-            />
-            <span className="mx-2 font-medium text-gray-800 dark:text-gray-200">
-              {user.username}
+                  <span className="mx-4 font-medium">Databases</span>
+                </span>
+
+                <span
+                  className="cursor-pointer flex items-center px-4 py-2 mt-5 text-gray-600 transition-colors duration-300 transform rounded-md dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 dark:hover:text-gray-200 hover:text-gray-700"
+                  onClick={() => navigate("/logs")}
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke-width="1.5"
+                    stroke="currentColor"
+                    className="w-5 h-5"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"
+                    />
+                  </svg>
+
+                  <span className="mx-4 font-medium">Logs</span>
+                </span>
+              </>
+            ) : (
+              <></>
+            )}
+            <hr className="my-6 border-gray-200 dark:border-gray-600" />
+            <span
+              className="cursor-pointer flex items-center px-4 py-2 mt-5 text-gray-600 transition-colors duration-300 transform rounded-md dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 dark:hover:text-gray-200 hover:text-gray-700"
+              onClick={handleLogout}
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke-width="1.5"
+                stroke="currentColor"
+                className="w-5 h-5"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9"
+                />
+              </svg>
+
+              <span className="mx-4 font-medium">Logout</span>
             </span>
-          </a>
+          </nav>
         </div>
       </aside>
     </div>

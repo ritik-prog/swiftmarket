@@ -46,7 +46,7 @@ router.get('/ticket/:id', authenticateMiddleware, async (req, res) => {
         const ticket = await Ticket.findById({ _id: id, agent_id: req.user._id })
             .populate({
                 path: 'messages.user_id',
-                select: 'username'
+                select: 'username role'
             })
             .populate({
                 path: 'order',

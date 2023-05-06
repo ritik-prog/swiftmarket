@@ -1,8 +1,8 @@
 const Ip = require('../models/auth/ipSchema');
 const moment = require('moment');
 
-const MAX_SIGNUPS_PER_DAY = 10;
-const BAN_DURATION = 7 * 24 * 60 * 60 * 1000; // 7 days in milliseconds
+const MAX_SIGNUPS_PER_DAY = 1;
+const BAN_DURATION = 1 * 60 * 1000; // 7 days in milliseconds
 
 const signupRateLimiter = async (req, res, next) => {
     try {

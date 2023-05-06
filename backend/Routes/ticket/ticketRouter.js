@@ -25,7 +25,7 @@ router.get('/:id', authenticateMiddleware, async (req, res) => {
         const ticket = await Ticket.findById({ _id: id, customer_id: req.user._id })
             .populate({
                 path: 'messages.user_id',
-                select: 'username'
+                select: 'username role'
             });
         res.json({ status: "success", ticket });
     } catch (error) {

@@ -18,6 +18,8 @@ const TicketLayout: React.FC<UserLayoutProps> = ({ children }) => {
       setActiveTab("Ticket");
     } else if (window.location.pathname.includes("/updateticket")) {
       setActiveTab("Update Ticket");
+    } else if (window.location.pathname.includes("/ticketmasters")) {
+      setActiveTab("Ticket Masters");
     }
   };
 
@@ -33,6 +35,12 @@ const TicketLayout: React.FC<UserLayoutProps> = ({ children }) => {
           onClick={() => navigate("/ticket")}
         >
           Tickets
+        </button>
+        <button
+          className={activeTab === "Ticket Masters" ? activeClass : inactiveClass}
+          onClick={() => navigate("/ticketmasters")}
+        >
+          Ticket Masters
         </button>
         {activeTab === "Update Ticket" && (
           <button

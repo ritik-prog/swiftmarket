@@ -199,7 +199,7 @@ sellerSchema.post('findOneAndUpdate', function (error, doc, next) {
 });
 
 sellerSchema.pre('findOneAndDelete', async function (next) {
-    const productIds = this.productListings.map((listing) => listing._id);
+    const productIds = this?.productListings?.map((listing) => listing._id);
     await mongoose.model('Product').deleteMany({ _id: { $in: productIds } });
     next();
 });

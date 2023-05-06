@@ -1,8 +1,13 @@
-import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { Link, useParams } from "react-router-dom";
 import { categories } from "./data/categories";
+import { getSellerById, updateSeller } from "../../api/seller";
+import { CreateToast } from "../../utils/Toast";
+import DeleteSeller from "./modal/DeleteSeller";
+import BanSeller from "./modal/BanSeller";
 
 const UpdateSeller = () => {
+  const { sellerId } = useParams();
   const seller = {
     businessEmail: "johndoe@example.com",
     businessNumber: "1234567890",
@@ -28,6 +33,8 @@ const UpdateSeller = () => {
     businessWebsite: seller?.businessWebsite || "",
     taxIDNumber: seller?.taxIDNumber || "",
     productCategories: seller?.productCategories || [],
+    violationName: "",
+    violationReason: "",
   });
 
   function handleChange(event: any) {
@@ -60,27 +67,41 @@ const UpdateSeller = () => {
     });
   };
 
+  const fetchData = async () => {
+    try {
+      const result = await getSellerById(sellerId);
+      setFormData(result.seller);
+    } catch (error) {}
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
   const handleSubmit = async () => {
     try {
+      const result = await updateSeller(sellerId, formData);
+      if (result.status === "success") {
+        CreateToast("successProfile", "Seller updated successfully", "success");
+        fetchData();
+      }
     } catch (error) {
       console.log(error);
     }
   };
 
-  // handle delete profile
-  const handleDeleteProfile = async () => {
-    try {
-    } catch (error) {
-      console.log(error);
-    }
-  };
+  // delete seller model
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  // ban seller model
+  const [showBanModal, setShowBanModal] = useState(false);
 
   return (
-    <div className="p-8 bg-white dark:bg-gray-900 lg:w-screen mt-10">
-      <h1 className="text-3xl font-semibold mb-6">Account Settings</h1>
+    <div className="p-8 bg-white dark:bg-gray-900 lg:w-screen">
       <div className="flex flex-wrap -mx-2 flex-col w-full">
         <div className="w-full md:w-1/2 px-2">
-          <h2 className="text-lg font-medium mb-4">Profile Information</h2>
+          <h2 className="text-lg font-medium mb-4">
+            Profile Information - {sellerId}
+          </h2>
           <div className="grid  gap-4 grid-cols-2">
             <div className="col-span-2 sm:col-span-1">
               <label
@@ -303,6 +324,42 @@ const UpdateSeller = () => {
               </div>
             </div>
           </div>
+          <div className="col-span-2 sm:col-span-1 mt-10">
+            <label
+              htmlFor="taxIDNumber"
+              className="block text-gray-700 dark:text-gray-400 font-medium mb-1"
+            >
+              Violation Name <span className="text-red-400">*</span>
+            </label>
+            <input
+              type="text"
+              name="violationName"
+              onChange={handleChange}
+              required
+              value={formData.violationName}
+              id="violationName"
+              placeholder="Violation Code for updating profile"
+              className="w-full bg-white dark:bg-gray-800 border border-gray-400 dark:border-gray-700 rounded py-2 px-3 mb-2 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
+            />
+          </div>
+          <div className="col-span-2 sm:col-span-1 mt-4">
+            <label
+              htmlFor="taxIDNumber"
+              className="block text-gray-700 dark:text-gray-400 font-medium mb-1"
+            >
+              Violation Reason <span className="text-red-400">*</span>
+            </label>
+            <input
+              type="url"
+              name="violationReason"
+              onChange={handleChange}
+              required
+              value={formData.violationReason}
+              placeholder="Violation Reason for updating profile"
+              id="violationReason"
+              className="w-full bg-white dark:bg-gray-800 border border-gray-400 dark:border-gray-700 rounded py-2 px-3 mb-2 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
+            />
+          </div>
         </div>
         <div className="w-full md:w-1/2 px-2 mt-4">
           <h2 className="text-lg font-medium mb-2">Profile Settings</h2>
@@ -325,30 +382,40 @@ const UpdateSeller = () => {
             <div className="pl-4">
               <label
                 htmlFor="reset-password"
-                className="cursor-pointer block text-gray-700 dark:text-gray-400 font-medium mb-1"
+                className="block text-gray-700 dark:text-gray-400 font-medium mb-1"
               >
                 Ban Account
               </label>
               <span
-                onClick={handleDeleteProfile}
-                className="inline-block bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded focus:outline-none focus:shadow-outline-red"
+                onClick={() => setShowBanModal(true)}
+                className="cursor-pointer inline-block bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded focus:outline-none focus:shadow-outline-red"
               >
                 Ban Account
               </span>
+              <BanSeller
+                isOpen={showBanModal}
+                closeModal={() => setShowBanModal(false)}
+                sellerId={sellerId}
+              />
             </div>
             <div className="pl-4">
               <label
                 htmlFor="reset-password"
-                className="cursor-pointer block text-gray-700 dark:text-gray-400 font-medium mb-1"
+                className="block text-gray-700 dark:text-gray-400 font-medium mb-1"
               >
                 Delete Account
               </label>
               <span
-                onClick={handleDeleteProfile}
-                className="inline-block bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded focus:outline-none focus:shadow-outline-red"
+                onClick={() => setShowDeleteModal(true)}
+                className="cursor-pointer inline-block bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded focus:outline-none focus:shadow-outline-red"
               >
                 Delete Account
               </span>
+              <DeleteSeller
+                isOpen={showDeleteModal}
+                closeModal={() => setShowDeleteModal(false)}
+                sellerId={sellerId}
+              />
             </div>
           </div>
         </div>

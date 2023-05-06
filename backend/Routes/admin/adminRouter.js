@@ -3,9 +3,15 @@ const express = require("express");
 const adminProductRouter = require("./adminProductRouter");
 const adminSellerRouter = require("./adminSellerRouter");
 const adminUserRouter = require("./adminUserRouter");
+const adminTransactionRouter = require("./adminTransactionRouter");
+const adminTicketRouter = require("./adminTicketRouter");
+const adminOrderRouter = require("./adminOrderRouter");
+const adminPayrollRouter = require("./adminPayrollRouter");
+
 const { check, validationResult } = require("express-validator");
 const handleError = require("../../utils/errorHandler");
 const User = require("../../models/auth/userSchema");
+const customLogger = require("../../utils/logHandler");
 
 const router = express.Router();
 
@@ -24,7 +30,7 @@ router.post("/login", [
     }
 
     const { email, password } = req.body;
-    
+
     try {
         User.findByCredentials(email, password).then(async ({ token, user }) => {
 
@@ -35,7 +41,7 @@ router.post("/login", [
                     code: 'authentication_failed'
                 });
             }
-            
+
             if (user.role === "admin" || user.role === "superadmin" || user.role === "root") {
                 res.cookie('token', token, {
                     httpOnly: true, // cookie cannot be accessed from client-side scripts
@@ -43,7 +49,7 @@ router.post("/login", [
                     sameSite: 'strict', // cookie should only be sent for same-site requests
                     maxAge: 5 * 60 * 60 * 1000 // 5hr
                 });
-
+                
                 res.status(200).json({
                     user: {
                         id: user._id,
@@ -57,6 +63,9 @@ router.post("/login", [
                     },
                     status: 'success'
                 });
+
+                customLogger(user.role, "login", req)
+
             } else {
                 return handleError(res, {
                     message: 'Invalid Credentials',
@@ -79,5 +88,9 @@ router.post("/login", [
 router.use('/product', adminProductRouter);
 router.use('/seller', adminSellerRouter);
 router.use('/user', adminUserRouter);
+router.use('/transaction', adminTransactionRouter);
+router.use('/ticket', adminTicketRouter);
+router.use('/order', adminOrderRouter);
+router.use('/payroll', adminPayrollRouter);
 
 module.exports = router;

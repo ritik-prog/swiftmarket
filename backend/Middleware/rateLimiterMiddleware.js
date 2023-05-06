@@ -42,7 +42,7 @@ const rateLimitermiddleware = rateLimit({
                     const statusCode = 419;
                     const time = moment(req.ipBanned.banDuration).fromNow().replace(/^in\s+/, '');
                     const message = `Too many requests. Please try again later. IP address is banned for ${time}`;
-                    res.status(statusCode).json({ status: 'error', code: statusCode, message });
+                    res.status(statusCode).json({ status: 'error', code: statusCode, message, banExpiresAt: req.ipBanned.banDuration });
                     return;
                 } else if (!req.ipBanned.banned && remainingRequests == 0) {
                     const clientIp = req.ip;
@@ -56,12 +56,12 @@ const rateLimitermiddleware = rateLimit({
                     const time = moment(banExpiresAt).fromNow().replace(/^in\s+/, '');
                     const statusCode = 419;
                     const message = `Too many requests. Please try again later. IP address is banned for ${time}`;
-                    res.status(statusCode).json({ status: 'error', code: statusCode, message });
+                    res.status(statusCode).json({ status: 'error', code: statusCode, message: message, banExpiresAt: banExpiresAt });
                     return;
                 }
             }
         } catch (err) {
-            // throw new Error(`Error banning IP address: ${err.message}`);
+            throw new Error(`Error banning IP address: ${err.message}`);
         }
     },
 });

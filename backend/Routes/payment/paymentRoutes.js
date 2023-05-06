@@ -3,9 +3,11 @@ const authenticateMiddleware = require("../../middleware/authenticateMiddleware"
 
 const router = require("express").Router();
 const stripe = require("stripe")("sk_test_51HTOQGCH0xfOm9H95fTqnzn5FXJ004IjhWnpb7EtesBucXomOPnww0bmUmJ4hJWgATawLLW7UEngu9QaYDSFUlzi00qJb5ijjb");
+const customLogger = require('../../utils/logHandler')
 
 router.post("/intent", async (req, res) => {
   try {
+    customLogger("user", "intent stripe payment", req)
     const paymentIntent = await stripe.paymentIntents.create({
       amount: req.body.amount * 100,
       currency: 'inr',
@@ -22,6 +24,7 @@ router.post("/transaction", [authenticateMiddleware], async (req, res) => {
   const { type, amount, paymentMethod } = req.body;
 
   try {
+    customLogger("user", "new transaction initiated", req)
     const findOldTransaction = await Transaction.find({
       customer: req.user._id,
       status: 'Pending'
@@ -99,8 +102,8 @@ router.post("/transaction", [authenticateMiddleware], async (req, res) => {
 router.put("/transaction/:transactionId", [authenticateMiddleware], async (req, res) => {
   const { status } =
     req.body;
-  console.log(req.params.transactionId)
   try {
+    customLogger("user", `transaction updated:- ${status} - ${req.params.transactionId}`, req)
     const transaction = await Transaction.findOne({
       trans_id: req.params.transactionId
     });

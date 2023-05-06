@@ -10,8 +10,10 @@ const sendEmail = require('../../utils/sendEmail');
 const { default: mongoose } = require('mongoose');
 const Seller = require('../../models/seller/sellerSchema');
 const generateCode = require('../../utils/generateCode');
+const customLogger = require('../../utils/logHandler');
 
 exports.signup = async (req, res) => {
+    customLogger("user", "signup", req)
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
         return handleError(res, {
@@ -68,11 +70,13 @@ exports.signup = async (req, res) => {
 
         res.status(200).json({ status: 'success' });
     } catch (err) {
+        customLogger("user", "signup", req)
         return handleError(res, err);
     }
 };
 
 exports.login = async (req, res) => {
+    customLogger("user", "signin", req)
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
         return handleError(res, {
@@ -175,6 +179,7 @@ exports.login = async (req, res) => {
 };
 
 exports.getUser = async (req, res) => {
+    customLogger("user", "user deatils", req)
     try {
         const token = req.cookies.token;
         // Check if user is authenticated
@@ -224,6 +229,7 @@ exports.getUser = async (req, res) => {
 };
 
 exports.updateProfile = async (req, res) => {
+    customLogger("user", "update profile", req)
     try {
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
@@ -282,6 +288,7 @@ exports.updateProfile = async (req, res) => {
 };
 
 exports.updatePassword = async (req, res) => {
+    customLogger("user", "update password", req)
     try {
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
@@ -338,6 +345,7 @@ exports.updatePassword = async (req, res) => {
 };
 
 exports.logout = async (req, res) => {
+    customLogger("user", "user logout", req)
     try {
         res.clearCookie('token');
         const user = await User.findById(req.user._id);
@@ -350,6 +358,7 @@ exports.logout = async (req, res) => {
 };
 
 exports.deleteAccount = async (req, res) => {
+    customLogger("user", "user account delete", req)
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
         return handleError(res, {

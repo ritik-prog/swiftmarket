@@ -31,3 +31,16 @@ export const reassignTicketApi = async (id: any, data: any) => {
   );
   return response.data;
 };
+
+export const verifyApi = async (code: any) => {
+  const response = await instance.post("/auth/verify", {
+    code,
+  });
+  return response;
+};
+
+export const ResendVerificationMail = async () => {
+  const response = await instance.post("/auth/sendVerificationCodeAgain");
+  return response;
+};
+

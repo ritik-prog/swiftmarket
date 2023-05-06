@@ -20,6 +20,8 @@ const SellerLayout: React.FC<UserLayoutProps> = ({ children }) => {
       setActiveTab("Seller Requests");
     } else if (window.location.pathname.includes("/updateseller")) {
       setActiveTab("Update Seller");
+    } else if (window.location.pathname.includes("/newsellerdetails")) {
+      setActiveTab("New Seller");
     }
   };
 
@@ -42,7 +44,7 @@ const SellerLayout: React.FC<UserLayoutProps> = ({ children }) => {
           }
           onClick={() => navigate("/sellerrequests")}
         >
-          Seller Requests
+          Applied Seller Requests
         </button>
         {activeTab === "Update Seller" && (
           <button
@@ -51,6 +53,15 @@ const SellerLayout: React.FC<UserLayoutProps> = ({ children }) => {
             }
           >
             Update Seller
+          </button>
+        )}
+        {activeTab === "New Seller" && (
+          <button
+            className={
+              activeTab === "New Seller" ? activeClass : inactiveClass
+            }
+          >
+            Applied Seller Details
           </button>
         )}
       </div>

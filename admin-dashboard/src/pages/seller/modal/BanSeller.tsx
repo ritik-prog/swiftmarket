@@ -1,20 +1,27 @@
 import { useState } from "react";
+import { CreateToast } from "../../../utils/Toast";
+import { banSeller } from "../../../api/seller";
 
-function ResetPassword({ isOpen, closeModal, setLoading }: any) {
-  const [password, setPassword] = useState("");
-  const [newPassword, setNewPassword] = useState("");
+function BanSeller({ isOpen, closeModal, sellerId }: any) {
+  const [violationName, setViolationName] = useState("");
+  const [violationReason, setViolationReason] = useState("");
+  const [expiresAt, setExpiresAt] = useState<any>();
 
   // reset password
-  const handleResetPassword = async () => {
-    setLoading(true);
+  const handleBanSeller = async (e: any) => {
+    e.preventDefault();
     try {
       const data = {
-        currentPassword: password,
-        newPassword: newPassword,
+        expiresAt: new Date(expiresAt).getTime(),
+        violationName: violationName,
+        violationReason: violationReason,
       };
-      setLoading(false);
+      const result = await banSeller(sellerId, data);
+      if (result.status === "success") {
+        CreateToast("banseller", result.message, "success");
+        closeModal();
+      }
     } catch (error) {}
-    setLoading(false);
   };
 
   return (
@@ -35,46 +42,62 @@ function ResetPassword({ isOpen, closeModal, setLoading }: any) {
             </span>
 
             <div className="relative inline-block px-4 pt-5 pb-4 overflow-hidden text-left align-bottom transition-all transform bg-white rounded-lg shadow-xl rtl:text-right dark:bg-gray-900 border-gray-800 sm:my-8 sm:align-middle sm:max-w-sm sm:w-full sm:p-6 text-black dark:text-white">
-              <form onSubmit={handleResetPassword}>
+              <form onSubmit={handleBanSeller}>
                 <div className="grid w-full max-w-sm items-center gap-1.5">
                   <label
                     className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                    htmlFor="Current-Password"
+                    htmlFor=" ViolationName"
                   >
-                    Current Password
+                    Violation Name
                   </label>
                   <input
                     className="flex h-10 w-full rounded-md border border-gray-300 bg-transparent py-2 px-3 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-gray-400 focus:ring-offset-1 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-700 dark:text-gray-50 dark:focus:ring-gray-400 dark:focus:ring-offset-gray-900"
-                    type="password"
-                    id="Current-Password"
-                    placeholder="Current Password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
+                    type="text"
+                    id="Violation-Name"
+                    placeholder="Violation Name"
+                    value={violationName}
+                    onChange={(e) => setViolationName(e.target.value)}
                     required
                   />
                   <p className="text-sm text-gray-500">
-                    Enter your Current Password.
+                    Enter type of violation name or code.
                   </p>
                 </div>
                 <div className="grid w-full max-w-sm items-center gap-1.5 mt-4">
                   <label
                     className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                    htmlFor="New-Password"
+                    htmlFor="Violation-Reason"
                   >
-                    New Password
+                    Violation Reason
                   </label>
                   <input
                     className="flex h-10 w-full rounded-md border border-gray-300 bg-transparent py-2 px-3 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-gray-400 focus:ring-offset-1 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-700 dark:text-gray-50 dark:focus:ring-gray-400 dark:focus:ring-offset-gray-900"
-                    type="password"
-                    id="New-Password"
-                    value={newPassword}
-                    onChange={(e) => setNewPassword(e.target.value)}
-                    placeholder="New Password"
+                    type="text"
+                    id="Violation-Reason"
+                    value={violationReason}
+                    onChange={(e) => setViolationReason(e.target.value)}
+                    placeholder="Violation Reason"
                     required
                   />
                   <p className="text-sm text-gray-500">
-                    Enter your New Password.
+                    Enter violation reason.
                   </p>
+                </div>
+                <div className="grid w-full max-w-sm items-center gap-1.5 mt-4">
+                  <label
+                    htmlFor="start-date"
+                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                  >
+                    Ban duration
+                  </label>
+                  <input
+                    id="start-date"
+                    type="date"
+                    name="start-date"
+                    value={expiresAt}
+                    onChange={(e) => setExpiresAt(e.target.value)}
+                    className="block w-full px-4 py-2 text-sm font-medium placeholder-gray-500 border border-gray-300 rounded-md shadow-sm appearance-none focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:placeholder-gray-400"
+                  />
                 </div>
 
                 <div className="mt-5 sm:flex sm:items-center sm:justify-end">
@@ -90,7 +113,7 @@ function ResetPassword({ isOpen, closeModal, setLoading }: any) {
                       type="submit"
                       className="w-full px-4 py-2 mt-2 text-sm font-medium tracking-wide text-white capitalize transition-colors duration-300 transform bg-blue-600 rounded-md sm:w-auto sm:mt-0 hover:bg-blue-500 focus:outline-none focus:ring focus:ring-blue-300 focus:ring-opacity-40"
                     >
-                      Update Password
+                      Ban User
                     </button>
                   </div>
                 </div>
@@ -104,4 +127,4 @@ function ResetPassword({ isOpen, closeModal, setLoading }: any) {
   );
 }
 
-export default ResetPassword;
+export default BanSeller;

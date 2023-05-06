@@ -1,9 +1,16 @@
 import React from "react";
 import { RootState } from "../../redux/rootReducer";
 import { useSelector } from "react-redux";
+import { banRemoved } from "../../redux/user/userSlice";
+import { useDispatch } from "react-redux";
 
 const IpBanned = () => {
+  const ban = useSelector((state: RootState) => state.user.ban);
+  const dispatch = useDispatch();
   const banMessage = useSelector((state: RootState) => state.user.ban.message);
+  // if (ban?.banExpiresAt < Date.now() && ban?.status) {
+  //   dispatch(banRemoved());
+  // }
   return (
     <section className="bg-white dark:bg-gray-900 ">
       <div className="container flex items-center min-h-screen px-6 py-12 mx-auto">

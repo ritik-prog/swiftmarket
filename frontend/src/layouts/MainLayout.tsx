@@ -24,6 +24,7 @@ interface AuthenticationResponse {
 
 const MainLayout = ({ children }: Props) => {
   const ban = useSelector((state: RootState) => state.user.ban);
+  const dispatch = useDispatch();
   const { isAuthenticated, user } = useSelector(
     (state: RootState) => state.user
   );
@@ -31,6 +32,10 @@ const MainLayout = ({ children }: Props) => {
   if (ban?.status && ban?.banExpiresAt < Date.now()) {
     return <IpBanned />;
   }
+
+  // if (ban?.banExpiresAt < Date.now() && ban?.status) {
+  //   dispatch(banRemoved());
+  // }
 
   if (isAuthenticated && !user.verificationStatus) {
     return <Navigate to="/verification" />;

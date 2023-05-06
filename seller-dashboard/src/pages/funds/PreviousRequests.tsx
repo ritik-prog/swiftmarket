@@ -1,28 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getAmount, getWithdrawalRequests } from "../../api/payroll";
-const people = [
-  {
-    name: "John Doe",
-    title: "Front-end Developer",
-    department: "Engineering",
-    email: "john@devui.com",
-    role: "Developer",
-    image:
-      "https://images.unsplash.com/photo-1628157588553-5eeea00af15c?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1160&q=80",
-  },
-  {
-    name: "Jane Doe",
-    title: "Back-end Developer",
-    department: "Engineering",
-    email: "jane@devui.com",
-    role: "CTO",
-    image:
-      "https://images.unsplash.com/photo-1639149888905-fb39731f2e6c?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=928&q=80",
-  },
-];
+
 const PreviousRequests = () => {
   const [accountBalance, setaccountBalance] = useState(0);
+  const [walletBalance, setWalletBalance] = useState(0);
   const [withdrawalRequests, setWithdrawalRequests] = useState([]);
 
   const navigate = useNavigate();
@@ -31,6 +13,7 @@ const PreviousRequests = () => {
     const requests = await getWithdrawalRequests();
     setWithdrawalRequests(requests);
     setaccountBalance(result.amount);
+    setWalletBalance(result.availableAmount)
   };
 
   useEffect(() => {
@@ -47,9 +30,9 @@ const PreviousRequests = () => {
   return (
     <div className="mt-10">
       <div className="rounded-lg shadow-lg p-4 bg-white bg-opacity-70 m-6">
-        <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center justify-between mb-2">
           <div className="text-lg font-bold text-gray-800">
-            Total Account Balance
+            Total Sales Revenue
           </div>
           <div className="text-2xl text-gray-800">
             <i className="fas fa-chart-line"></i>
@@ -58,6 +41,9 @@ const PreviousRequests = () => {
         <div className="flex items-center justify-between">
           <div className="text-4xl font-bold text-gray-800">
             ₹{accountBalance || 0}
+            <div className="text-base text-gray-800">
+              Wallet Balance: ₹{walletBalance || 0}
+            </div>
           </div>
           <button
             onClick={() => navigate("/request-withdrawal")}

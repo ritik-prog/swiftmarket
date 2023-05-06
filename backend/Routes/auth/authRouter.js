@@ -2,12 +2,12 @@ const express = require('express');
 const { check, validationResult } = require('express-validator');
 const authController = require('../../controllers/auth/authController');
 const authenticateMiddleware = require('../../middleware/authenticateMiddleware');
-const checkBanMiddleware = require('../../Middleware/checkBanMiddleware');
+const checkUserBanMiddleware = require('../../Middleware/checkUserBanMiddleware');
 const signupRateLimiter = require('../../Middleware/signupRateLimiter');
 const { sendVerificationCodeAgain, verifyUser } = require('../../controllers/auth/verificationController');
 const handleError = require('../../utils/errorHandler');
 const checkVerificationMiddleware = require('../../middleware/checkVerificationMiddleware');
-
+const customLogger = require('../../utils/logHandler');
 
 const router = express.Router();
 
@@ -15,8 +15,7 @@ const router = express.Router();
 router.post(
     '/signup',
     [
-        signupRateLimiter,
-        checkBanMiddleware,
+        checkUserBanMiddleware,
         check('username', 'Username is required').not().isEmpty().isLength({ min: 4, max: 15 }),
         check('email', 'Please include a valid email').isEmail(),
         check('password', 'Please enter a password with 6 or more characters').isLength({ min: 6 }),
@@ -28,7 +27,7 @@ router.post(
 router.post(
     '/login',
     [
-        checkBanMiddleware,
+        checkUserBanMiddleware,
         check('email', 'Please include a valid email').isEmail(),
         check('password', 'Password is required').exists(),
     ],
@@ -36,12 +35,13 @@ router.post(
 );
 
 // check if user is logged in
-router.get('/check', [checkBanMiddleware, authenticateMiddleware], (req, res) => res.status(200).json({ status: 'success', message: 'User is logged in', user: req.user }));
+router.get('/check', [authenticateMiddleware], (req, res) => res.status(200).json({ status: 'success', message: 'User is logged in', user: req.user }));
 
 // Email Verification
 router.post('/sendVerificationCodeAgain',
     [authenticateMiddleware],
     async (req, res) => {
+        customLogger("user", "user logout", req)
         try {
             const { email } = req.user;
             const status = await sendVerificationCodeAgain(email);
@@ -57,6 +57,7 @@ router.post('/verify',
         authenticateMiddleware
     ],
     async (req, res) => {
+        customLogger("user", "user logout", req)
         try {
             const errors = validationResult(req);
             if (!errors.isEmpty()) {
@@ -81,13 +82,12 @@ router.post('/verify',
 
 // Get user details
 router.get('/profile', [
-    checkBanMiddleware, authenticateMiddleware, checkVerificationMiddleware], authController.getUser);
+    authenticateMiddleware, checkVerificationMiddleware], authController.getUser);
 
 // Update user details
 router.put(
     '/updateprofile',
     [
-        checkBanMiddleware,
         authenticateMiddleware, checkVerificationMiddleware,
         check('username', 'Username is required').notEmpty().trim(),
         check('name', 'Name is required').notEmpty().trim(),
@@ -102,7 +102,6 @@ router.put(
 router.put(
     '/updatepassword',
     [
-        checkBanMiddleware,
         authenticateMiddleware,
         checkVerificationMiddleware,
         check('currentPassword', 'Current password is required').exists(),
@@ -112,11 +111,11 @@ router.put(
 );
 
 // Delete account
-router.put('/deleteaccount', [checkBanMiddleware, authenticateMiddleware,
+router.put('/deleteaccount', [authenticateMiddleware,
     checkVerificationMiddleware,], authController.deleteAccount);
 
 // Logout route
-router.post('/logout', [checkBanMiddleware, authenticateMiddleware,
+router.post('/logout', [authenticateMiddleware,
     checkVerificationMiddleware,], authController.logout);
 
 module.exports = router;

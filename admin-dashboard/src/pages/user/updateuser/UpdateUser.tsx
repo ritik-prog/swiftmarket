@@ -1,12 +1,19 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import ResetPassword from "./ResetPassword";
+import BanAccount from "./BanAccount";
 import DeleteAccount from "./DeleteAccount";
+import { getUser, updateProfileApi } from "../../../api/user";
+import { CreateToast } from "../../../utils/Toast";
+import FullPageLoading from "../../loading/FullPageLoading";
+import UpdateRole from "./UpdateRole";
 
 const UpdateUser = () => {
   const [loading, setLoading] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const [deleteAccountModal, setDeleteAccountModal] = useState(false);
+
+  // update role modal state
+  const [updateRoleModal, setUpdateRoleModal] = useState(false);
 
   const { userId } = useParams();
 
@@ -16,6 +23,9 @@ const UpdateUser = () => {
     email: "",
     number: "",
     address: "",
+    violationName: "",
+    violationReason: "",
+    role: "",
   });
 
   const handleChange = (e: any) => {
@@ -23,9 +33,43 @@ const UpdateUser = () => {
     setFormData((prevFormData) => ({ ...prevFormData, [name]: value }));
   };
 
+  const fetchData = async () => {
+    try {
+      const result = await getUser(userId);
+      const userData = result.user; // Assuming the user data is returned in the "data" field of the response object
+      setFormData({
+        username: userData.username,
+        name: userData.name,
+        email: userData.email,
+        number: userData.number,
+        address: userData.address,
+        violationName: "",
+        violationReason: "",
+        role: userData.role,
+      });
+    } catch (error) {}
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
   const handleUpdateProfile = async () => {
+    if (
+      formData.username.trim() === "" ||
+      formData.email.trim() === "" ||
+      formData.violationName.trim() === "" ||
+      formData.violationReason.trim() === ""
+    ) {
+      CreateToast("errorfieldempty", "Fill required fields", "error");
+      return;
+    }
     setLoading(true);
     try {
+      const result = await updateProfileApi(userId, formData);
+      if (result) {
+        CreateToast("profileupdate", "Profile updated successfully", "success");
+      }
       setLoading(false);
     } catch (error) {}
     setLoading(false);
@@ -46,7 +90,7 @@ const UpdateUser = () => {
                   htmlFor="username"
                   className="block text-gray-700 dark:text-gray-400 font-medium mb-1"
                 >
-                  Username
+                  Username<span className="text-red-400">*</span>
                 </label>
                 <input
                   type="text"
@@ -82,7 +126,7 @@ const UpdateUser = () => {
                   htmlFor="email"
                   className="block text-gray-700 dark:text-gray-400 font-medium mb-1"
                 >
-                  Email Address
+                  Email Address<span className="text-red-400">*</span>
                 </label>
                 <input
                   type="email"
@@ -129,6 +173,40 @@ const UpdateUser = () => {
                   className="w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded py-2 px-3 mb-2 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
                 />
               </div>
+              <div className="col-span-2 sm:col-span-1">
+                <label
+                  htmlFor="role"
+                  className="block text-gray-700 dark:text-gray-400 font-medium mb-1"
+                >
+                  Violation Name<span className="text-red-400">*</span>
+                </label>
+                <input
+                  type="text"
+                  name="violationName"
+                  id="violationName"
+                  value={formData.violationName}
+                  required
+                  onChange={handleChange}
+                  className="w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded py-2 px-3 mb-2 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
+                />
+              </div>
+              <div className="col-span-2 sm:col-span-1">
+                <label
+                  htmlFor="role"
+                  className="block text-gray-700 dark:text-gray-400 font-medium mb-1"
+                >
+                  Violation Reason<span className="text-red-400">*</span>
+                </label>
+                <input
+                  type="text"
+                  name="violationReason"
+                  id="violationReason"
+                  value={formData.violationReason}
+                  required
+                  onChange={handleChange}
+                  className="w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded py-2 px-3 mb-2 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
+                />
+              </div>
             </div>
           </div>
           <div className="w-full md:w-1/2 px-2 mt-10">
@@ -136,6 +214,26 @@ const UpdateUser = () => {
 
             <div className="flex">
               <div className="">
+                <label
+                  htmlFor="reset-password"
+                  className="block text-gray-700 dark:text-gray-400 font-medium mb-1"
+                >
+                  Update Role
+                </label>
+                <button
+                  onClick={() => setUpdateRoleModal(true)}
+                  className="inline-block bg-green-500 hover:bg-green-700 text-white font-medium py-2 px-4 rounded focus:outline-none focus:shadow-outline-green"
+                >
+                  Update Role
+                </button>
+                <UpdateRole
+                  isOpen={updateRoleModal}
+                  closeModal={() => setUpdateRoleModal(false)}
+                  userId={userId}
+                  userRole={formData.role}
+                />
+              </div>
+              <div className="pl-4">
                 <label
                   htmlFor="reset-password"
                   className="block text-gray-700 dark:text-gray-400 font-medium mb-1"
@@ -179,19 +277,23 @@ const UpdateUser = () => {
               </div>
             </div>
           </div>
-          <ResetPassword
+          <BanAccount
             isOpen={isOpen}
             closeModal={() => setIsOpen(false)}
             setLoading={setLoading}
+            userId={userId}
           />
           <DeleteAccount
             isOpen={deleteAccountModal}
             closeModal={() => setDeleteAccountModal(false)}
             setLoading={setLoading}
+            userId={userId}
           />
         </div>
       ) : (
-        <>loading</>
+        <>
+          <FullPageLoading />
+        </>
       )}
     </div>
   );

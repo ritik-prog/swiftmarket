@@ -20,7 +20,10 @@ const transactionSchema = new mongoose.Schema(
         customer: {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'User',
-            required: true
+        },
+        seller: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Seller',
         },
         type: {
             type: String,
@@ -28,12 +31,17 @@ const transactionSchema = new mongoose.Schema(
         },
         amount: {
             type: Number,
+            default: 0,
             required: true
+        },
+        refundedAmount: {
+            type: Number,
+            default: 0
         },
         status: {
             type: String,
             required: true,
-            enum: ['Pending', 'Completed', 'Failed', 'Refunded']
+            enum: ['Pending', 'Completed', 'Failed', 'Refunded', 'Partially Refunded']
         },
         paymentMethod: {
             type: String,

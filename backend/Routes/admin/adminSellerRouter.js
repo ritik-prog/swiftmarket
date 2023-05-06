@@ -13,15 +13,32 @@ router.get(
     adminController.getAllApplySellers
 );
 
+// get applied seller by id 
+router.get(
+    "/applied-seller/:sellerId",
+    [authenticateMiddleware, authorizeMiddleware(["admin", "superadmin", "root"]), checkVerificationMiddleware],
+    adminController.getApplySellerById
+);
+
 // Accept seller
 router.post(
-    "/approve-seller/:id",
+    "/approve-seller/:sellerId",
     [authenticateMiddleware, authorizeMiddleware(["admin", "superadmin", "root"]), checkVerificationMiddleware],
     adminController.acceptSeller
 );
 
+// reject seller
+router.post(
+    "/reject-seller/:sellerId",
+    [authenticateMiddleware, authorizeMiddleware(["admin", "superadmin", "root"]), checkVerificationMiddleware],
+    adminController.rejectSeller
+);
+
 // Get all sellers
 router.get("/sellers", [authenticateMiddleware, authorizeMiddleware(["admin", "superadmin", "root"]), checkVerificationMiddleware], adminController.getAllSellers);
+
+// get seller by id
+router.get("/getsellerbyid/:id", [authenticateMiddleware, authorizeMiddleware(["admin", "superadmin", "root"]), checkVerificationMiddleware], adminController.getSellerById);
 
 // Update seller
 router.put("/updateseller/:id", [
@@ -30,6 +47,9 @@ router.put("/updateseller/:id", [
 ], adminController.updateSeller);
 
 // Delete seller
-router.delete("/deleteseller/:id", [authenticateMiddleware, authorizeMiddleware(["admin", "superadmin", "root"]), checkVerificationMiddleware], adminController.deleteSeller);
+router.put("/deleteseller/:id", [authenticateMiddleware, authorizeMiddleware(["admin", "superadmin", "root"]), checkVerificationMiddleware], adminController.deleteSeller);
+
+// ban seller
+router.put("/banseller/:id", [authenticateMiddleware, authorizeMiddleware(["admin", "superadmin", "root"]), checkVerificationMiddleware], adminController.banSeller);
 
 module.exports = router;

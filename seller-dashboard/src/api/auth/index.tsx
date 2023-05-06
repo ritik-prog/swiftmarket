@@ -1,5 +1,11 @@
 import instance from "../../utils/Axios";
 
+// seller verify
+export const sellerVerify = async (data: any) => {
+  const result = await instance.post(`/seller/verify`, data);
+  return result.data;
+}
+
 export const login = async (data: any) => {
   const result = await instance.post(`/seller/login/${data.email}`, data);
   console.log(result);

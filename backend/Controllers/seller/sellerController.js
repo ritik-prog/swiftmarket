@@ -11,10 +11,12 @@ const { default: mongoose } = require('mongoose');
 const User = require('../../models/auth/userSchema');
 const bcrypt = require('bcryptjs');
 const RefundRequest = require('../../models/transaction/refundRequestSchema');
+const customLogger = require('../../utils/logHandler');
 
 // Apply for seller account
 const applyForSellerAccount = async (req, res, next) => {
     try {
+        customLogger("user", "Applied for seller", req)
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
             return handleError(res, {
@@ -41,14 +43,15 @@ const applyForSellerAccount = async (req, res, next) => {
         const existingSeller = await Seller.findOne({
             $or: [
                 { businessEmail: businessEmail },
-                { businessUsername: businessUsername }
+                { businessUsername: businessUsername },
+                { user: req.user._id }
             ]
         });
-        if (existingSeller) {
+        if (existingSeller || req.seller) {
             return handleError(res, {
                 code: 'already_exists',
                 status: 'error',
-                message: 'There is already an existing seller with the same business email or business username',
+                message: 'There is already an existing seller with the same business email or business username or user account',
             });
         }
 
@@ -81,6 +84,7 @@ const applyForSellerAccount = async (req, res, next) => {
 
 // Verify a seller
 const verifySeller = async (req, res) => {
+    customLogger("seller", "Verify Seller", req)
     // Check for validation errors
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -90,13 +94,12 @@ const verifySeller = async (req, res) => {
             errors: errors.array()
         });
     }
-    console.log(req.user)
-    const { code, paymentPreferences, blockchainWalletAddress, paypalAccountEmailAddress, businessLogo } = req.body;
+    const { code, businessLogo } = req.body;
 
     try {
         // Find the seller by the verification code
-        const seller = req.seller;
-
+        const seller = await Seller.findOne({ email: req.body.email, verificationStatus: false });
+        console.log(seller)
         if (!seller) {
             return handleError(res, {
                 code: 'not_found',
@@ -126,9 +129,6 @@ const verifySeller = async (req, res) => {
                 res.status(200).json({ status: 'success', message: 'Verification code sent' });
             } else {
                 if (seller.verificationCode === code) {
-                    seller.paymentPreferences = paymentPreferences;
-                    seller.blockchainWalletAddress = blockchainWalletAddress;
-                    seller.paypalAccountEmailAddress = paypalAccountEmailAddress;
                     seller.businessLogo = businessLogo;
                     seller.verificationStatus = true;
                     seller.verificationCode = null;
@@ -150,6 +150,7 @@ const verifySeller = async (req, res) => {
 
 // seller login
 const loginSeller = async (req, res) => {
+    customLogger("seller", "Seller login", req)
     try {
         // Find the seller by the verification code
         const seller = await Seller.findOne({ businessEmail: req.params.email });
@@ -209,6 +210,7 @@ const loginSeller = async (req, res) => {
 // check verification code
 const checkVerificationCode = async (req, res) => {
     try {
+        customLogger("seller", "Check Verification Code", req)
         // Find the seller by the verification code
         const seller = await Seller.findOne({ businessEmail: req.params.email });
 
@@ -228,7 +230,6 @@ const checkVerificationCode = async (req, res) => {
     }
 }
 
-
 // Get a seller by ID
 const getSellerProfile = async (req, res) => {
     try {
@@ -241,6 +242,7 @@ const getSellerProfile = async (req, res) => {
 // Update a seller by ID
 const updateSellerById = async (req, res) => {
     const errors = validationResult(req);
+    customLogger("seller", "Update Profile", req)
     if (!errors.isEmpty()) {
         return handleError(res, {
             code: 'CustomValidationError',
@@ -306,6 +308,7 @@ const updateSellerById = async (req, res) => {
 // Delete a seller by ID
 const deleteSellerById = async (req, res) => {
     try {
+        customLogger("seller", "delete seller profile", req)
         const seller = req.seller
         if (!seller) {
             return handleError(res, {
@@ -335,6 +338,7 @@ const deleteSellerById = async (req, res) => {
 // Create product for seller
 const createProductForSeller = async (req, res, next) => {
     try {
+        customLogger("seller", "new product created", req)
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
             return handleError(res, {
@@ -400,6 +404,7 @@ const getSellerProducts = async (req, res) => {
 // Update product for seller
 const updateProductForSeller = async (req, res) => {
     try {
+        customLogger("seller", "update product", req)
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
             return handleError(res, {
@@ -444,7 +449,6 @@ const updateProductForSeller = async (req, res) => {
         }
 
         await product.save();
-        console.log(product)
 
         res.status(200).json({
             status: 'success',
@@ -462,7 +466,7 @@ const updateProductForSeller = async (req, res) => {
 // DELETE a product of a seller
 const deleteProductForSeller = async (req, res) => {
     try {
-        console.log(req.body)
+        customLogger("seller", "delete product", req)
         const product = await Product.findOneAndDelete({ _id: req.body._id, seller: req.seller._id });
         if (!product) {
             return handleError(res, {
@@ -748,11 +752,12 @@ const getRefundRequestById = async (req, res, next) => {
 };
 
 // update refund status
-
 const updateRefundRequestStatus = async (req, res) => {
     try {
         const { refundId } = req.params;
         const { status } = req.body;
+
+        customLogger("seller", `Refund status update:- ${status} - ${refundId}`, req)
 
         // Check if the status is valid
         if (!['Approved', 'Rejected', 'Seller Received Products'].includes(status)) {
@@ -812,7 +817,7 @@ const updateOrderStatus = async (req, res) => {
     const { _id, newStatus } = req.body;
 
     try {
-        console.log(newStatus)
+        customLogger("seller", `Order status update:- ${newStatus} - ${_id}`, req)
         const updatedOrder = await Order.findByIdAndUpdate(_id, { orderStatus: newStatus }, { new: true }).populate('products.product');
         console.log(updateOrderStatus)
         if (!updatedOrder) {
@@ -830,6 +835,7 @@ const acceptOrder = async (req, res) => {
     const { _id } = req.body;
 
     try {
+        customLogger("seller", `Accept Order - ${_id}`, req)
         const updatedOrder = await Order.findByIdAndUpdate(_id, { orderStatus: "Confirmed" }, { new: true }).populate(['customer', 'products.product']);
         if (!updatedOrder) {
             return res.status(404).json({ message: 'Order not found' });
@@ -853,6 +859,7 @@ const cancelOrder = async (req, res) => {
     const { _id, reason } = req.body;
 
     try {
+        customLogger("seller", `Cancel Order - ${reason} - ${_id}`, req)
         const updatedOrder = await Order.findById(_id).populate('customer');
         if (!updatedOrder) {
             return res.status(404).json({ message: 'Order not found' });

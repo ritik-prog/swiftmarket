@@ -9,7 +9,7 @@ const checkBanMiddleware = async (req, res, next) => {
             if (user.banStatus.banExpiresAt) {
                 const banExpiresAt = moment(user.banStatus.banExpiresAt);
                 const now = moment();
-                if (now.isAfter(banExpiresAt)) {
+                if (user.banStatus.banExpiresAt < Date.now()) {
                     // Ban has expired, unban the user
                     user.banStatus.isBanned = false;
                     user.banStatus.banExpiresAt = null;

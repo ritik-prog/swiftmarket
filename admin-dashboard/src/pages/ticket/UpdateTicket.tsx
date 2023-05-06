@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import OrderDetails from "./OrderDeatils";
+import { addMessageToTicket, getTicketById } from "../../api/ticket";
 
 interface Ticket {
   _id: string;
@@ -78,81 +79,8 @@ interface Ticket {
 
 const UpdateTicket = () => {
   const [message, setMessage] = useState("");
-  const { id } = useParams();
-  const [ticket, setTicket] = useState<Ticket | any>({
-    _id: "609afbbc4d4ee13b6c7f6d8a",
-    type: "Support Request",
-    subject: "Order Status Inquiry",
-    order: {
-      _id: "609afb3a3ca8c838d0a9c820",
-      fullname: "Jane Doe",
-      cartId: "abc123",
-      seller: {
-        _id: "609afbbe4d4ee13b6c7f6d8b",
-        businessUsername: "examplestore",
-        user: {
-          _id: "609afb984d4ee13b6c7f6d88",
-          email: "seller@example.com",
-        },
-      },
-      shippingAddress: "123 Main St, Anytown USA",
-      number: "1234567890",
-      customer: {
-        _id: "609afbce3ca8c838d0a9c821",
-        username: "janedoe",
-      },
-      products: [
-        {
-          product: {
-            _id: "609afcd34d4ee13b6c7f6d8c",
-            seller: {
-              _id: "609afbbe4d4ee13b6c7f6d8b",
-              businessEmail: "seller@example.com",
-              businessName: "Example Store",
-              businessUsername: "examplestore",
-              user: {
-                _id: "609afb984d4ee13b6c7f6d88",
-                email: "seller@example.com",
-              },
-              businessLogo: "https://example.com/logo.png",
-            },
-            productName: "Widget",
-            id: "abc123",
-          },
-          quantity: 1,
-          price: 10.99,
-          discountedPrice: 9.99,
-          _id: "609afcf74d4ee13b6c7f6d8d",
-        },
-      ],
-      orderStatus: "Shipped",
-      transactionId: "xyz789",
-      orderAmount: 10.99,
-      totalDiscount: 1,
-      orderTotal: 9.99,
-      orderDate: "2022-04-01T10:00:00.000Z",
-      createdAt: "2022-04-01T11:00:00.000Z",
-      updatedAt: "2022-04-01T12:00:00.000Z",
-      orderId: "def456",
-      __v: 0,
-    },
-    description: "I would like to know the status of my order",
-    status: "Open",
-    priority: "Medium",
-    customer_id: "609afbce3ca8c838d0a9c821",
-    messages: [
-      {
-        message:
-          "Hi, I was wondering if you could provide an update on my order?",
-        user_id: {
-          _id: "609afbce3ca8c838d0a9c821",
-          username: "janedoe",
-        },
-        _id: "609afcd34d4ee13b6c7f6d8c",
-        time: "2022-04-01T13:00:00.000Z",
-      },
-    ],
-  });
+  const { ticketId } = useParams();
+  const [ticket, setTicket] = useState<Ticket | any>({});
   const bottomRef = useRef<HTMLDivElement>(null);
 
   // modals
@@ -173,7 +101,7 @@ const UpdateTicket = () => {
       return;
     }
     try {
-      //   await addMessageToTicket(id, message);
+      await addMessageToTicket(ticketId, message);
       fetchData();
     } catch (error) {}
     setMessage("");
@@ -181,8 +109,8 @@ const UpdateTicket = () => {
 
   const fetchData = async () => {
     try {
-      //   const result = await getTicketById(id);
-    //   setTicket(result.ticket);
+      const result = await getTicketById(ticketId);
+      setTicket(result.ticket);
       setTimeout(() => {
         bottomRef.current?.scrollIntoView({ behavior: "smooth" });
       }, 0);
@@ -195,12 +123,12 @@ const UpdateTicket = () => {
 
   return (
     JSON.stringify(ticket) !== "{}" && (
-      <div className="px-4 sm:px-6 lg:px-8 mt-10 flex space-x-5 mb-4">
-        <div>
+      <div className="px-4 sm:px-6 lg:px-8 mt-10 flex space-x-5 mb-4 flex-wrap">
+        <div className="w-max flex-auto">
           <div className="bg-white shadow overflow-hidden rounded-md">
             <div className="px-4 py-5 sm:p-6">
               <h1 className="text-3xl font-bold text-gray-900 mb-4">
-                Subject:- {ticket.subject}
+                Subject:- {ticket?.subject}
               </h1>
               <h2 className="text-xl font-medium text-gray-900 mb-4">
                 Details
@@ -239,7 +167,7 @@ const UpdateTicket = () => {
               </dl>
             </div>
           </div>
-          <div className="bg-white shadow overflow-hidden rounded-md mt-4">
+          <div className="bg-slate-200 shadow overflow-hidden rounded-md mt-4">
             <div className="px-4 py-5 sm:p-6">
               <h2 className="text-xl font-medium text-gray-900 mb-4">
                 Order Details
@@ -248,7 +176,7 @@ const UpdateTicket = () => {
             </div>
           </div>
         </div>
-        <div className="bg-white shadow overflow-hidden rounded-md">
+        <div className="bg-white shadow overflow-hidden rounded-md w-max flex-auto mt-10">
           <div className="px-4 py-5 sm:p-6">
             <h2 className="text-xl font-medium text-gray-900 mb-4">Messages</h2>
             <div className="max-h-60 overflow-y-scroll">
@@ -259,13 +187,19 @@ const UpdateTicket = () => {
                       <div className="flex-1 space-y-2">
                         <div className="text-sm font-medium text-gray-900">
                           {message?.user_id?.username ||
-                            message?.agent_id?.username}
+                            message?.agent_id?.username}{" "}
+                          - {message?.user_id.role}
                         </div>
                         <div className="text-sm text-gray-500">
                           {new Date(message.time).toLocaleString()}
                         </div>
                       </div>
-                      <p className="text-sm text-gray-500">{message.message}</p>
+                      <p
+                        className="text-sm text-gray-500"
+                        style={{ wordBreak: "break-all" }}
+                      >
+                        {message.message}
+                      </p>
                     </div>
                   </li>
                 ))}

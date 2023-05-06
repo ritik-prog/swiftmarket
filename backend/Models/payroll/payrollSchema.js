@@ -4,10 +4,10 @@ const { Schema } = mongoose;
 // Define Payroll schema
 const PayrollSchema = new Schema(
     {
-        user: { type: Schema.Types.ObjectId, ref: "User", required: true }, // Reference to User schema
+        seller: { type: Schema.Types.ObjectId, ref: "Seller", required: true }, // Reference to User schema
         role: {
             type: String,
-            enum: ["seller", "admin", "ticketmaster", "superadmin"],
+            enum: ["seller"],
         },
         salary: {
             type: Number,

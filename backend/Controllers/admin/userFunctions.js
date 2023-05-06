@@ -3,6 +3,10 @@ const { validationResult } = require('express-validator');
 const User = require('../../models/auth/userSchema');
 const authorizeChangeMiddleware = require('../../middleware/authorizeChangeMiddleware');
 const handleError = require('../../utils/errorHandler');
+const sendEmail = require('../../utils/sendEmail');
+
+const bcrypt = require('bcrypt');
+const customLogger = require('../../utils/logHandler');
 
 // Get all users
 const getAllUsers = async (req, res) => {
@@ -14,11 +18,24 @@ const getAllUsers = async (req, res) => {
     }
 };
 
+const getAllTicketMasters = async (req, res) => {
+    try {
+        const ticketMasters = await User.find({ role: { $in: ['ticketmaster'] } });
+        res.status(200).json({ status: 'success', message: 'Ticket Masters retrieved successfully', ticketmasters: ticketMasters });
+    } catch (err) {
+        return handleError(res, err);
+    }
+};
+
 const getUserById = async (req, res) => {
     try {
-        const user = await User.findById(req.params.id);
+        const user = await User.findById(req.params.id).select('-password -tokens -orders -tickets').lean();
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
+        }
+        const result = authorizeChangeMiddleware(user.role, req, res);
+        if (result === -1) {
+            return;
         }
         res.status(200).json({ status: 'success', user: user });
     } catch (err) {
@@ -29,6 +46,7 @@ const getUserById = async (req, res) => {
 
 // Create new user
 const createUser = async (req, res) => {
+    customLogger(req.user.role, "create user", req)
     try {
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
@@ -50,7 +68,10 @@ const createUser = async (req, res) => {
             });
         }
 
-        authorizeChangeMiddleware(user.role);
+        const result = authorizeChangeMiddleware("user", req, res);
+        if (result === -1) {
+            return;
+        }
 
         // Create new user
         user = new User({ username, email, password });
@@ -60,11 +81,9 @@ const createUser = async (req, res) => {
         user.password = await bcrypt.hash(password, salt);
         await user.save();
 
-        // Generate JWT token and send response
-        const token = await user.generateAuthToken();
         const data = {
             newUser: {
-                name: user.name,
+                name: user.username,
                 email: user.email,
                 role: user.role,
                 password: password
@@ -73,9 +92,12 @@ const createUser = async (req, res) => {
             subject: 'New user Account - SwiftMarket'
         };
 
+        res.status(200).json({ status: 'success' });
+
         await sendEmail(user.email, data, './violationOfTerms/userTerms.hbs');
 
-        res.status(200).json({ status: 'success', data: { user, token } });
+        // Generate JWT token and send response
+        await user.generateAuthToken();
 
     } catch (err) {
         return handleError(res, err);
@@ -84,6 +106,7 @@ const createUser = async (req, res) => {
 
 // update user
 const updateUser = async (req, res) => {
+    customLogger(req.user.role, "update user", req)
     try {
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
@@ -105,7 +128,10 @@ const updateUser = async (req, res) => {
             });
         }
 
-        authorizeChangeMiddleware(user.role);
+        const result = authorizeChangeMiddleware(user.role, req, res);
+        if (result === -1) {
+            return;
+        }
 
         // update user information
         const { username, name, email, number, address } = req.body;
@@ -121,7 +147,7 @@ const updateUser = async (req, res) => {
 
         const data = {
             userUpdated: {
-                code: user.name,
+                name: user.username,
                 email: user.email,
                 role: user.role
             },
@@ -140,12 +166,51 @@ const updateUser = async (req, res) => {
     }
 };
 
+// update role
+const updateRole = async (req, res) => {
+    customLogger(req.user.role, "update role", req)
+    try {
+        const { id } = req.params;
+        const { role } = req.body;
+        const user = await User.findById(id);
+        if (!user) {
+            return handleError(res, {
+                code: 'not_found',
+                status: 'error',
+                message: 'User not found',
+            });
+        }
+        if (user.role === "seller") {
+            return res.status(499).json({
+                status: 'error',
+                message: 'You cannot change the role of a seller'
+            })
+        }
+        if (role === "seller") {
+            return res.status(499).json({
+                status: 'error',
+                message: 'You cannot change the role to a seller'
+            })
+        }
+        const result = authorizeChangeMiddleware(user.role, req, res);
+        if (result === -1) {
+            return;
+        }
+        user.role = role;
+        await user.save();
+        res.status(200).json({ status: 'success', message: 'User role updated successfully' });
+    } catch (err) {
+        return handleError(res, err);
+    }
+};
+
 // delete user
 const deleteUser = async (req, res) => {
+    customLogger(req.user.role, "delete user", req)
     try {
         const { id } = req.params;
         const user = await User.findById(id);
-
+        console.log(user)
         if (!user) {
             return handleError(res, {
                 code: 'not_found',
@@ -154,17 +219,21 @@ const deleteUser = async (req, res) => {
             });
         }
 
-        authorizeChangeMiddleware(user.role);
-
+        const result = authorizeChangeMiddleware(user.role, req, res);
+        if (result === -1) {
+            return;
+        }
         await user.delete();
+        res.status(200).json({ status: 'success', message: 'User deleted successfully' });
+
         const data = {
             userDeleted: {
-                code: user.name,
+                name: user.username,
                 email: user.email,
                 role: user.role
             },
             violation: {
-                code: req.body.violationName,
+                name: req.body.violationName,
                 reason: req.body.violationReason,
                 adminUsername: req.user.fullname,
             },
@@ -173,7 +242,6 @@ const deleteUser = async (req, res) => {
 
         await sendEmail(user.email, data, './violationOfTerms/userTerms.hbs');
 
-        res.status(200).json({ status: 'success', message: 'User deleted successfully' });
     } catch (err) {
         return handleError(res, err);
     }
@@ -181,6 +249,7 @@ const deleteUser = async (req, res) => {
 
 // ban user
 const banUser = async (req, res) => {
+    customLogger(req.user.role, "ban user", req)
     try {
         const { id } = req.params;
         const user = await User.findById(id);
@@ -192,18 +261,26 @@ const banUser = async (req, res) => {
                 message: 'User not found',
             });
         }
-        authorizeChangeMiddleware(user.role);
+
+        const result = authorizeChangeMiddleware(user.role, req, res);
+        if (result === -1) {
+            return;
+        }
+        
         user.banStatus.isBanned = true;
         user.banStatus.banExpiresAt = req.body.expiresAt;
+        user.tokens = [];
         await user.save();
+
+        res.status(200).json({ status: 'success', message: 'User has been banned successfully' });
 
         const data = {
             userBanned: {
-                code: user.name,
+                name: user.username,
                 email: user.email,
             },
             violation: {
-                code: req.body.violationName,
+                name: req.body.violationName,
                 reason: req.body.violationReason,
                 adminUsername: req.user.fullname,
             },
@@ -211,12 +288,9 @@ const banUser = async (req, res) => {
         };
 
         await sendEmail(user.email, data, './violationOfTerms/userTerms.hbs');
-
-
-        res.status(200).json({ status: 'success', message: 'User has been banned successfully' });
     } catch (err) {
         return handleError(res, err);
     }
 };
 
-module.exports = { getUserById, getAllUsers, createUser, updateUser, deleteUser, banUser };
+module.exports = { getAllTicketMasters, updateRole, getUserById, getAllUsers, createUser, updateUser, deleteUser, banUser };

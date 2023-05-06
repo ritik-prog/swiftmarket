@@ -1,9 +1,11 @@
 const { validationResult } = require('express-validator');
 const Ticket = require('../../models/ticket/ticketSchema');
 const handleError = require('../../utils/errorHandler');
+const customLogger = require('../../utils/logHandler');
 
 const createTicket = async (req, res) => {
     try {
+        customLogger("user", "create ticket", req)
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
             return res.status(400).json({ errors: errors.array() });

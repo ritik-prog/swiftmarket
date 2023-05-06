@@ -191,50 +191,7 @@ const OrderDetails = () => {
       </div>
       <hr className="border-gray-300 m-6" />
       {/* transaction deatils */}
-      <div className="border border-gray-400 rounded-lg p-4 my-4">
-        <div className="flex justify-between mb-4">
-          <span className="font-bold">Transaction ID:</span>
-          <span>{transaction.trans_id}</span>
-        </div>
-        <div className="flex justify-between mb-4">
-          <span className="font-bold">Customer ID:</span>
-          <span>{transaction.customer}</span>
-        </div>
-        <div className="flex justify-between mb-4">
-          <span className="font-bold">Type:</span>
-          <span>{transaction.type}</span>
-        </div>
-        <div className="flex justify-between mb-4">
-          <span className="font-bold">Amount:</span>
-          <span>₹{transaction.amount}</span>
-        </div>
-        <div className="flex justify-between mb-4">
-          <span className="font-bold">Status:</span>
-          <span>{transaction.status}</span>
-        </div>
-        <div className="flex justify-between mb-4">
-          <span className="font-bold">Payment Method:</span>
-          <span>{transaction.paymentMethod}</span>
-        </div>
-        <div className="flex justify-between mb-4">
-          <span className="font-bold">Version:</span>
-          <span>{transaction.version}</span>
-        </div>
-        <div className="flex justify-between mb-4">
-          <span className="font-bold">Created At:</span>
-          <span>{new Date(transaction.createdAt).toLocaleString()}</span>
-        </div>
-        <div className="flex justify-between mb-4">
-          <span className="font-bold">Previous Transaction:</span>
-          <span>
-            {transaction.previous ? transaction.previous.trans_id : "N/A"}
-          </span>
-        </div>
-        <div className="flex justify-between mb-4">
-          <span className="font-bold">Cart ID:</span>
-          <span>{transaction.cartId}</span>
-        </div>
-      </div>
+      ]
     </div>
   ) : (
     <FullPageLoading />

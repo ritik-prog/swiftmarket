@@ -15,7 +15,7 @@ import UpdateProduct from "../pages/product/UpdateProduct";
 import TicketLayout from "../layouts/TicketLayout";
 import Tickets from "../pages/ticket/Tickets";
 import UpdateTicket from "../pages/ticket/UpdateTicket";
-import OrderRefundLayout from "../layouts/OrderRefundeLayout";
+import OrderRefundLayout from "../layouts/OrderRefundLayout";
 import OrderRefund from "../pages/order/OrderRefund";
 import Transactions from "../pages/transaction/Transactions";
 import TransactionsLayout from "../layouts/TransactionLayout";
@@ -23,6 +23,14 @@ import WithdrawalRequestLayout from "../layouts/WithdrawalRequest";
 import WithdrawalRequest from "../pages/payroll/WithdrawalRequest";
 import Dashboard from "../pages/dashboard/Dashboard";
 import Login from "../pages/login/login";
+import NewSellerDeatils from "../pages/seller/NewSellerDeatils";
+import RefundDetails from "../pages/order/RefundDetails";
+import SellerTransactions from "../pages/transaction/SellerTransactions";
+import TicketMasters from "../pages/ticket/TicketMasters";
+import DatabasesLayout from "../layouts/DatabasesLayout";
+import AdminDatabase from "../pages/databases/AdminDatabase";
+import SuperAdminDatabase from "../pages/databases/SuperAdminDatabase";
+
 const routes = [
     {
         path: "/",
@@ -34,14 +42,20 @@ const routes = [
             { path: "/updateuser/:userId", element: <><UserLayout><UpdateUser /></UserLayout></> },
             { path: "/seller", element: <><SellerLayout><Seller /></SellerLayout></> },
             { path: "/sellerrequests", element: <><SellerLayout><SellerRequests /></SellerLayout></> },
-            { path: "/updateseller", element: <><SellerLayout><UpdateSeller /></SellerLayout></> },
+            { path: "/newsellerdetails/:newSellerId", element: <><SellerLayout><NewSellerDeatils /></SellerLayout></> },
+            { path: "/updateseller/:sellerId", element: <><SellerLayout><UpdateSeller /></SellerLayout></> },
             { path: "/product", element: <><ProductLayout><Products /></ProductLayout></> },
-            { path: "/updateproduct", element: <><ProductLayout><UpdateProduct /></ProductLayout></> },
+            { path: "/updateproduct/:productId", element: <><ProductLayout><UpdateProduct /></ProductLayout></> },
             { path: "/ticket", element: <><TicketLayout><Tickets /></TicketLayout></> },
-            { path: "/updateticket", element: <><TicketLayout><UpdateTicket /></TicketLayout></> },
+            { path: "/ticketmasters", element: <><TicketLayout><TicketMasters /></TicketLayout></> },
+            { path: "/updateticket/:ticketId", element: <><TicketLayout><UpdateTicket /></TicketLayout></> },
             { path: "/orderrefund", element: <><OrderRefundLayout><OrderRefund /></OrderRefundLayout></> },
+            { path: "/refunddetails/:refundId", element: <><OrderRefundLayout><RefundDetails /></OrderRefundLayout></> },
             { path: "/transaction", element: <><TransactionsLayout><Transactions /></TransactionsLayout></> },
+            { path: "/sellertransaction", element: <><TransactionsLayout><SellerTransactions /></TransactionsLayout></> },
             { path: "/payroll", element: <><WithdrawalRequestLayout><WithdrawalRequest /></WithdrawalRequestLayout></> },
+            { path: "/databases", element: <><DatabasesLayout><AdminDatabase /></DatabasesLayout></> },
+            { path: "/superadmindatabase", element: <><DatabasesLayout><SuperAdminDatabase /></DatabasesLayout></> },
             {
                 path: "*",
                 element: <Error404 />,

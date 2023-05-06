@@ -6,6 +6,7 @@ import {
 } from "../../../api/order";
 import { CreateToast } from "../../../utils/Toast";
 import { ClipLoader } from "react-spinners";
+import RefundRequest from "../refund/RefundRequest";
 
 type ModalProps = {
   isOpen: boolean;
@@ -16,6 +17,17 @@ type ModalProps = {
 function RefundModel({ isOpen, closeModal, orderId }: ModalProps) {
   const [cancellationReason, setCancellationReason] = useState<any>("");
   const [loading, setLoading] = useState(false);
+  const [bankDetails, setBankDetails] = useState({
+    accountHolderName: "",
+    accountNumber: "",
+    bankName: "",
+    ifscCode: "",
+  });
+
+  const handleInputChange = (event: any) => {
+    const { name, value } = event.target;
+    setBankDetails({ ...bankDetails, [name]: value });
+  };
 
   // handle submit review
   const handleSubmit = async (e: any) => {
@@ -23,6 +35,7 @@ function RefundModel({ isOpen, closeModal, orderId }: ModalProps) {
     const data = {
       orderId: orderId,
       reason: cancellationReason,
+      bankDetails: bankDetails,
     };
     try {
       setLoading(true);
@@ -78,6 +91,74 @@ function RefundModel({ isOpen, closeModal, orderId }: ModalProps) {
                         setCancellationReason(event.target.value)
                       }
                       required
+                    />
+                  </div>
+                  <div className="my-4">
+                    <label
+                      htmlFor="accountHolderName"
+                      className="block text-gray-700 font-medium mb-2"
+                    >
+                      Account Holder Name
+                    </label>
+                    <input
+                      type="text"
+                      id="accountHolderName"
+                      name="accountHolderName"
+                      value={bankDetails.accountHolderName}
+                      onChange={handleInputChange}
+                      required
+                      className="w-full px-4 py-2 border border-gray-400 rounded-lg outline-none focus:border-blue-500"
+                    />
+                  </div>
+                  <div className="my-4">
+                    <label
+                      htmlFor="accountNumber"
+                      className="block text-gray-700 font-medium mb-2"
+                    >
+                      Account Number
+                    </label>
+                    <input
+                      type="number"
+                      id="accountNumber"
+                      name="accountNumber"
+                      value={bankDetails.accountNumber}
+                      onChange={handleInputChange}
+                      required
+                      className="w-full px-4 py-2 border border-gray-400 rounded-lg outline-none focus:border-blue-500"
+                    />
+                  </div>
+                  <div className="my-4">
+                    <label
+                      htmlFor="bankName"
+                      className="block text-gray-700 font-medium mb-2"
+                    >
+                      Bank Name
+                    </label>
+                    <input
+                      type="text"
+                      id="bankName"
+                      name="bankName"
+                      value={bankDetails.bankName}
+                      onChange={handleInputChange}
+                      required
+                      className="w-full px-4 py-2 border border-gray-400 rounded-lg outline-none focus:border-blue-500"
+                    />
+                  </div>
+                  <div className="my-4">
+                    <label
+                      htmlFor="ifscCode"
+                      className="block text-gray-700 font-medium mb-2"
+                    >
+                      IFSC Code
+                    </label>
+                    <input
+                      type="text"
+                      id="ifscCode"
+                      name="ifscCode"
+                      value={bankDetails.ifscCode}
+                      onChange={handleInputChange}
+                      required
+                      className="w-full px-4 py-2 border border-gray-400 rounded-lg outline-none focus:border-blue-500"
                     />
                   </div>
                   <div className="mt-5 sm:flex sm:items-center sm:justify-end">

@@ -1,23 +1,18 @@
 import { AxiosError } from "axios";
-import { banImposed, logoutSuccess } from "../redux/user/userSlice";
+import { logoutSuccess as logoutSuccessUser } from "../redux/user/userSlice";
 import { store } from "../redux/store";
 import { CreateToast } from "./Toast";
+import { logoutSuccess } from "../redux/seller/sellerSlice";
 
 const HandleError = async (e: any, onError: (error: any) => void) => {
   const error = e as AxiosError;
-  const data = error.response?.data as { code: string };
   const message = error.response?.data as { message: string };
-  const status = error.response?.data as { status: string };
-  if (status.status === "error") {
-    CreateToast("error", message.message, "error");
-    return;
-  }
   switch (error.response?.status) {
     case 400:
       switch (e.response.data.error) {
         case "CustomValidationError":
           const errorMessages = e.response.data.message.map(
-            (err: any) => err.msg
+            (err: any) => `${err.msg} - ${err.param}`
           );
           CreateToast("ValidationError", errorMessages.join(", "), "error");
           break;
@@ -33,18 +28,16 @@ const HandleError = async (e: any, onError: (error: any) => void) => {
       break;
     case 404:
       CreateToast("notfound", "404 Not Found", "error");
+      console.log("Resource not found error occurred.");
       break;
     case 401:
       onError(error);
       CreateToast("notfound", message.message, "error");
+      console.log("Authentication failed error occurred.");
       break;
     case 403:
       onError(error);
-      CreateToast(
-        "unauthaccess",
-        "Oops! It looks like you're not logged in. Please log in to access this page.",
-        "error"
-      );
+      console.log("Unauthorized access error occurred.");
       break;
     case 410:
       CreateToast("already_exists", "Email or Username already taken", "error");
@@ -81,21 +74,17 @@ const HandleError = async (e: any, onError: (error: any) => void) => {
       console.log("User not authorized error occurred.");
       break;
     case 417:
-      store.dispatch(
-        banImposed({
-          message: message.message,
-        })
-      );
+      CreateToast("ratelimit", message.message, "error");
       console.log(
         `Banned error occurred. Time until unban: ${error.response.data} hours.`
       );
       break;
     case 418:
-      store.dispatch(banImposed({ message: message.message }));
+      CreateToast("ratelimitt", message.message, "error");
       console.log("Permanent ban error occurred.");
       break;
     case 419:
-      store.dispatch(banImposed({ message: message.message }));
+      CreateToast("ratelimitt", message.message, "error");
       console.log(message.message);
       break;
     case 420:

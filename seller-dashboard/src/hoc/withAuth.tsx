@@ -11,7 +11,12 @@ function withAuth(children: () => JSX.Element) {
     if (isAuthenticated && user.verificationStatus && seller) {
       // Render the child components if the user is authenticated and verified
       return <>{children()}</>;
-    } else if (isAuthenticated && !user.verificationStatus && seller) {
+    } else if (
+      isAuthenticated &&
+      !user.verificationStatus &&
+      seller &&
+      !seller.verificationStatus
+    ) {
       CreateToast(
         "verifyaccount",
         "Please verify your account to access this page.",

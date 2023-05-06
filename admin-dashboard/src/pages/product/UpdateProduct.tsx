@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { categories } from "../seller/data/categories";
-
+import { getProductById, updateProduct } from "../../api/product";
+import { CreateToast } from "../../utils/Toast";
+import DeleteProduct from "./DeleteProduct";
 
 const UpdateProduct = () => {
-  const { id } = useParams();
-  const [product, setProduct] = useState(false);
+  const { productId } = useParams();
+  const [loading, setLoading] = useState(false);
   const [productName, setProductName] = useState("");
   const [productDescription, setProductDescription] = useState("");
   const [quantity, setQuantity] = useState("");
@@ -127,27 +129,27 @@ const UpdateProduct = () => {
   // fetch product
   async function fetchData() {
     try {
-    //   const result = await getProductById(id);
-      setProduct(true);
-    //   setProductName(result.product.productName);
-    //   setProductDescription(result.product.productDescription);
-    //   setQuantity(result.product.quantity);
-    //   setPrice(result.product.price);
-    //   setDiscount(
-    //     (
-    //       ((result.product.price - result.product.discountedPrice) /
-    //         result.product.price) *
-    //       100
-    //     ).toFixed(0)
-    //   );
-    //   setCategory(result.product.category);
-    //   setFaqs(result.product.faqs);
-    //   setKeywords(result.product.keywords);
-    //   setLinks(result.product.imagesUrl);
-    //   setTags(result.product.tags);
-    //   setThumbnailUrl(result.product.thumbnailUrl);
+      const result = await getProductById(productId);
+      setLoading(true);
+      setProductName(result.product.productName);
+      setProductDescription(result.product.productDescription);
+      setQuantity(result.product.quantity);
+      setPrice(result.product.price);
+      setDiscount(
+        (
+          ((result.product.price - result.product.discountedPrice) /
+            result.product.price) *
+          100
+        ).toFixed(0)
+      );
+      setCategory(result.product.category);
+      setFaqs(result.product.faqs);
+      setKeywords(result.product.keywords);
+      setLinks(result.product.imagesUrl);
+      setTags(result.product.tags);
+      setThumbnailUrl(result.product.thumbnailUrl);
     } catch (error) {
-      setProduct(false);
+      setLoading(false);
     }
   }
 
@@ -161,11 +163,12 @@ const UpdateProduct = () => {
     }
   }
 
+  const [updateReason, setUpdateReason] = useState("");
+
   const handleSubmit = async (e: any) => {
     e.preventDefault();
     try {
       const dataToSend = {
-        productId: id,
         imagesUrl: links,
         thumbnailUrl: thumbnailUrl,
         productName: productName,
@@ -177,34 +180,27 @@ const UpdateProduct = () => {
         faqs: faqs,
         keywords: keywords,
         tags: tags,
+        updateReason: updateReason,
       };
-    //   const result = await updateProduct(dataToSend);
-    //   console.log(result);
-    //   if (result) {
-    //     await fetchData();
-    //     CreateToast("updated", "Product updated successfully", "success");
-    //   }
+      const result = await updateProduct(productId, dataToSend);
+      console.log(result);
+      if (result) {
+        await fetchData();
+        CreateToast("updated", "Product updated successfully", "success");
+      }
     } catch (err) {
       console.log(err);
     }
   };
 
+  // delete product model
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+
   const handleDeleteProduct = async () => {
-    try {
-      const data = {
-        _id: id,
-      };
-    //   const result = await deleteProduct(data);
-    //   if (result.status === "success") {
-    //     CreateToast("deleted", "Product deleted successfully", "success");
-    //     navigate("/products");
-    //   }
-    } catch (error) {
-      console.log(error);
-    }
+    setShowDeleteModal(true);
   };
 
-  return product ? (
+  return loading ? (
     <div className="flex flex-col justify-center">
       <form
         onSubmit={handleSubmit}
@@ -550,6 +546,27 @@ const UpdateProduct = () => {
               keywords from the list.
             </p>
           </div>
+
+          <div className="grid w-full max-w-sm items-center gap-1.5 mt-10">
+            <label
+              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+              htmlFor="updatereason"
+            >
+              Update Reason <span className="text-red-400">*</span>
+            </label>
+            <input
+              className="flex h-10 w-full rounded-md border border-gray-300 bg-transparent py-2 px-3 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-gray-400 focus:ring-offset-1 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-700 dark:text-gray-50 dark:focus:ring-gray-400 dark:focus:ring-offset-gray-900"
+              type="text"
+              id="updatereason"
+              placeholder="......"
+              min={0}
+              onKeyDown={handleKeyDown}
+              max={60}
+              required
+              defaultValue={updateReason}
+              onChange={(event) => setUpdateReason(event.target.value)}
+            />
+          </div>
         </div>
         {/* buttons */}
         <div className="p-4 flex justify-end">
@@ -566,6 +583,12 @@ const UpdateProduct = () => {
           >
             Delete Product
           </button>
+          <DeleteProduct
+            isOpen={showDeleteModal}
+            closeModal={() => setShowDeleteModal(false)}
+            setLoading={setLoading}
+            productId={productId}
+          />
         </div>
       </form>
     </div>

@@ -12,6 +12,9 @@ const { ObjectId } = require("mongodb");
 const { default: mongoose } = require("mongoose");
 const RefundRequest = require("../../models/transaction/refundRequestSchema");
 const sendEmail = require("../../utils/sendEmail");
+const handleError = require("../../utils/errorHandler");
+
+const customLogger = require('../../utils/logHandler');
 
 // Create a place order
 router.post(
@@ -25,6 +28,7 @@ router.post(
         check("fullname").not().isEmpty(),
     ],
     async (req, res) => {
+        customLogger("user", "user place order", req)
         // Data validation
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
@@ -156,11 +160,19 @@ router.get("/all-orders", authenticateMiddleware, async (req, res) => {
 router.post('/refund', [
     body('orderId').notEmpty(),
     body('reason').notEmpty(),
+    body('bankDetails.accountHolderName').notEmpty(),
+    body('bankDetails.bankName').notEmpty(),
+    body('bankDetails.accountNumber').notEmpty(),
+    body('bankDetails.ifscCode').notEmpty(),
 ], async (req, res) => {
     try {
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
-            return res.status(400).json({ errors: errors.array() });
+            return handleError(res, {
+                code: 'CustomValidationError',
+                status: 'error',
+                errors: errors.array()
+            });
         }
 
         const { orderId, reason } = req.body;
@@ -171,6 +183,7 @@ router.post('/refund', [
         }
         updatedOrder.orderStatus = "Cancelled"
         updatedOrder.notes.cancelOrderReason = reason;
+
         await updatedOrder.save();
 
         const refundRequest = new RefundRequest({
@@ -181,10 +194,16 @@ router.post('/refund', [
             seller: updatedOrder.seller,
             customer: updatedOrder.customer
         });
+        refundRequest.bankDetails.accountHolderName = req.body.bankDetails.accountHolderName
+        refundRequest.bankDetails.bankName = req.body.bankDetails.bankName;
+        refundRequest.bankDetails.accountNumber = req.body.bankDetails.accountNumber;
+        refundRequest.bankDetails.ifscCode = req.body.bankDetails.ifscCode;
 
         await refundRequest.save();
 
         res.status(200).json({ status: 'success' });
+
+        customLogger("user", "user requested for refund", req)
 
         const data = {
             subject: 'Cancel Request Received - SwiftMarket'
@@ -241,6 +260,7 @@ router.post('/rating/:productId/give', authenticateMiddleware, async (req, res) 
 
         res.status(200).json(updatedProduct);
 
+        customLogger("user", "user rated for product", req)
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: 'Internal server error' });

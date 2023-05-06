@@ -125,8 +125,8 @@ const TicketDetails = () => {
 
   return (
     JSON.stringify(ticket) !== "{}" && (
-      <div className="px-4 sm:px-6 lg:px-8 flex space-x-5 h-screen overflow-scroll">
-        <div className="h-screen overflow-scroll">
+      <div className="px-4 sm:px-6 lg:px-8 mt-10 flex space-x-5 mb-4 flex-wrap">
+        <div className="w-max flex-auto">
           <div className="bg-white shadow overflow-hidden rounded-md">
             <div className="px-4 py-5 sm:p-6">
               <h1 className="text-3xl font-bold text-gray-900 mb-4">
@@ -178,7 +178,7 @@ const TicketDetails = () => {
             </div>
           </div>
         </div>
-        <div className="bg-white shadow overflow-hidden rounded-md h-fit">
+        <div className="bg-white shadow overflow-hidden rounded-md w-max flex-auto mt-10">
           <div className="px-4 py-5 sm:p-6">
             <h2 className="text-xl font-medium text-gray-900 mb-4">Messages</h2>
             <div className="max-h-60 overflow-y-scroll">
@@ -188,15 +188,18 @@ const TicketDetails = () => {
                     <div className="flex space-x-3">
                       <div className="flex-1 space-y-2">
                         <div className="text-sm font-medium text-gray-900">
-                          {message?.user_id?.username ||
-                            message?.agent_id?.username}{" "}
-                          {ticket.messages.length} - {index}
+                          {message?.user_id?.username} - {message?.user_id.role}
                         </div>
                         <div className="text-sm text-gray-500">
                           {new Date(message.time).toLocaleString()}
                         </div>
                       </div>
-                      <p className="text-sm text-gray-500">{message.message}</p>
+                      <p
+                        className="text-sm text-gray-500"
+                        style={{ wordBreak: "break-all" }}
+                      >
+                        {message.message}
+                      </p>
                     </div>
                   </li>
                 ))}

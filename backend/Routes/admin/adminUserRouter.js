@@ -9,8 +9,11 @@ const router = express.Router();
 // Display all users
 router.get("/users", [authenticateMiddleware, authorizeMiddleware(["admin", "superadmin", "root"]), checkVerificationMiddleware], adminController.getAllUsers);
 
+// Display all ticket masters
+router.get("/ticketmasters", [authenticateMiddleware, authorizeMiddleware(["admin", "superadmin", "root"]), checkVerificationMiddleware], adminController.getAllTicketMasters);
+
 // Get user by ID
-router.get('/user/:id', [authenticateMiddleware, authorizeMiddleware(["admin", "superadmin", "root"]), checkVerificationMiddleware], adminController.getUserById);
+router.get('/userbyid/:id', [authenticateMiddleware, authorizeMiddleware(["admin", "superadmin", "root"]), checkVerificationMiddleware], adminController.getUserById);
 
 // Create a new user
 router.post(
@@ -37,8 +40,19 @@ router.put(
     adminController.updateUser
 );
 
+// update user role
+router.put(
+    "/updaterole/:id",
+    [
+        authenticateMiddleware,
+        authorizeMiddleware(["admin", "superadmin", "root"]),
+        checkVerificationMiddleware,
+    ],
+    adminController.updateRole
+);
+
 // Delete a user
-router.delete(
+router.put(
     "/deleteuser/:id",
     [authenticateMiddleware,
         authorizeMiddleware(["admin", "superadmin", "root"]),
@@ -47,7 +61,7 @@ router.delete(
 );
 
 // Ban a user
-router.put('/users/:id/ban', [authenticateMiddleware,
+router.put('/banuser/:id', [authenticateMiddleware,
     authorizeMiddleware(["admin", "superadmin", "root"]),
     checkVerificationMiddleware,], adminController.banUser);
 

@@ -13,6 +13,7 @@ import NewProduct from "./pages/products/NewProduct";
 import PreviousRequests from "./pages/funds/PreviousRequests";
 import Refunds from "./pages/refund/Refunds";
 import RefundDetails from "./pages/refund/RefundDetails";
+import Verification from "./pages/login/Verification";
 
 const router = createBrowserRouter([
     {
@@ -72,6 +73,10 @@ const router = createBrowserRouter([
     {
         path: "/login/:email",
         element: <Login />,
+    },
+    {
+        path: "/verify/:email",
+        element: <Verification />,
     },
     {
         path: "error",

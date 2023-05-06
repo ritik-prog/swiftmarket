@@ -15,7 +15,9 @@ const TransactionsLayout: React.FC<UserLayoutProps> = ({ children }) => {
 
   const handleTab = () => {
     if (window.location.pathname === "/transaction") {
-      setActiveTab("Transaction");
+      setActiveTab("User Transaction");
+    } else if (window.location.pathname === "/sellertransaction") {
+      setActiveTab("Seller Transaction");
     }
   };
 
@@ -27,10 +29,20 @@ const TransactionsLayout: React.FC<UserLayoutProps> = ({ children }) => {
     <div className="mt-10 p-4">
       <div className="flex overflow-x-auto whitespace-nowrap w-full">
         <button
-          className={activeTab === "Transaction" ? activeClass : inactiveClass}
+          className={
+            activeTab === "User Transaction" ? activeClass : inactiveClass
+          }
           onClick={() => navigate("/transaction")}
         >
-          Transaction
+          User Transactions
+        </button>
+        <button
+          className={
+            activeTab === "Seller Transaction" ? activeClass : inactiveClass
+          }
+          onClick={() => navigate("/sellertransaction")}
+        >
+          Seller Transactions
         </button>
       </div>
       <div className="mt-4">{children}</div>

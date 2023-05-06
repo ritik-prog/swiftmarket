@@ -42,7 +42,7 @@ const FundRelease = () => {
 
   const fetchData = async () => {
     const result = await getAmount();
-    setaccountBalance(result.amount);
+    setaccountBalance(result.availableAmount);
     if (result.amount === 0) {
       CreateToast(
         "requestWithdrawal",
@@ -63,7 +63,7 @@ const FundRelease = () => {
         <div className="rounded-lg shadow-lg p-4 bg-white bg-opacity-70">
           <div className="flex items-center justify-between mb-4">
             <div className="text-lg font-bold text-gray-800">
-              Total Account Balance
+              Total Available Balance
             </div>
             <div className="text-2xl text-gray-800">
               <i className="fas fa-chart-line"></i>

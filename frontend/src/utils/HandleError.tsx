@@ -1,11 +1,10 @@
 import { AxiosError } from "axios";
-import { banImposed, logoutSuccess } from "../redux/user/userSlice";
+import { banImposed, banRemoved, logoutSuccess } from "../redux/user/userSlice";
 import { store } from "../redux/store";
 import { CreateToast } from "./Toast";
 
 const HandleError = async (e: any, onError: (error: any) => void) => {
   const error = e as AxiosError;
-  const data = error.response?.data as { code: string };
   const message = error.response?.data as { message: string };
   switch (error.response?.status) {
     case 400:
@@ -28,6 +27,10 @@ const HandleError = async (e: any, onError: (error: any) => void) => {
       break;
     case 404:
       CreateToast("notfound", "404 Not Found", "error");
+      console.log("Resource not found error occurred.");
+      break;
+    case 409:
+      CreateToast("notfound", message.message, "error");
       console.log("Resource not found error occurred.");
       break;
     case 401:
@@ -74,21 +77,23 @@ const HandleError = async (e: any, onError: (error: any) => void) => {
       console.log("User not authorized error occurred.");
       break;
     case 417:
-      store.dispatch(
-        banImposed({
-          message: message.message,
-        })
-      );
+      CreateToast("ratelimit", message.message, "error");
       console.log(
         `Banned error occurred. Time until unban: ${error.response.data} hours.`
       );
       break;
     case 418:
-      store.dispatch(banImposed({ message: message.message }));
+      // store.dispatch(
+      //   banImposed({ message: message.message, banExpiresAt: banExpiresAt })
+      // );
+      CreateToast("ratelimitt", message.message, "error");
       console.log("Permanent ban error occurred.");
       break;
     case 419:
-      store.dispatch(banImposed({ message: message.message }));
+      // store.dispatch(
+      //   banImposed({ message: message.message, banExpiresAt: banExpiresAt })
+      // );
+      CreateToast("ratelimitt", message.message, "error");
       console.log(message.message);
       break;
     case 420:

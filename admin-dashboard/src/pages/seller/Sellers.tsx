@@ -5,12 +5,11 @@ import { getSellers } from "../../api/seller";
 
 const Sellers = () => {
   // users state
-  const [users, setUsers] = React.useState([]);
+  const [sellers, setSellers] = React.useState([]);
   // fetch function to get user data using getUsers
   const fetchUsers = async () => {
     const response = await getSellers();
-    console.log(response);
-    // setUsers(response.users);
+    setSellers(response.sellers);
   };
 
   const navigate = useNavigate();
@@ -45,13 +44,25 @@ const Sellers = () => {
                         scope="col"
                         className="px-4 py-3.5 text-sm font-normal text-left rtl:text-right text-gray-500 dark:text-gray-400"
                       >
-                        email
+                        name
+                      </th>
+                      <th
+                        scope="col"
+                        className="px-4 py-3.5 text-sm font-normal text-left rtl:text-right text-gray-500 dark:text-gray-400"
+                      >
+                        type
                       </th>
                       <th
                         scope="col"
                         className="px-4 py-3.5 text-sm font-normal text-left rtl:text-right text-gray-500 dark:text-gray-400"
                       >
                         Joined on
+                      </th>
+                      <th
+                        scope="col"
+                        className="px-4 py-3.5 text-sm font-normal text-left rtl:text-right text-gray-500 dark:text-gray-400"
+                      >
+                        email
                       </th>
 
                       <th scope="col" className="relative py-3.5 px-4">
@@ -60,19 +71,22 @@ const Sellers = () => {
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200 dark:divide-gray-700 dark:bg-gray-900">
-                    {users.map((user: any) => (
+                    {sellers.map((seller: any) => (
                       <tr>
                         <td className="px-4 py-4 text-sm text-gray-500 dark:text-gray-300 whitespace-nowrap">
-                          {user?._id}
+                          {seller?._id}
                         </td>
                         <td className="px-4 py-4 text-sm text-gray-500 dark:text-gray-300 whitespace-nowrap">
-                          {user?.username}
+                          {seller?.businessUsername}
                         </td>
                         <td className="px-4 py-4 text-sm text-gray-500 dark:text-gray-300 whitespace-nowrap">
-                          {user?.email}
+                          {seller?.businessName}
                         </td>
                         <td className="px-4 py-4 text-sm text-gray-500 dark:text-gray-300 whitespace-nowrap">
-                          {new Date(user?.createdAt).toLocaleDateString(
+                          {seller?.businessType}
+                        </td>
+                        <td className="px-4 py-4 text-sm text-gray-500 dark:text-gray-300 whitespace-nowrap">
+                          {new Date(seller?.createdAt).toLocaleDateString(
                             "en-US",
                             {
                               month: "long",
@@ -81,15 +95,25 @@ const Sellers = () => {
                             }
                           )}
                         </td>
+                        <td className="px-4 py-4 text-sm text-gray-500 dark:text-gray-300 whitespace-nowrap">
+                          <a
+                            className="text-blue-500 transition-colors duration-200 hover:text-indigo-500 focus:outline-none"
+                            href={`mailto:${seller?.businessEmail}`}
+                          >
+                            Send
+                          </a>
+                          <br />
+                          {seller?.businessEmail}
+                        </td>
                         <td className="px-4 py-4 text-sm whitespace-nowrap">
                           <div className="flex items-center gap-x-6">
                             <button
                               onClick={() =>
-                                navigate(`/updateuser/${user._id}`)
+                                navigate(`/updateseller/${seller._id}`)
                               }
                               className="text-blue-500 transition-colors duration-200 hover:text-indigo-500 focus:outline-none"
                             >
-                              View Details
+                              Update Details
                             </button>
                           </div>
                         </td>

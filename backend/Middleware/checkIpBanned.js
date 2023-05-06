@@ -10,22 +10,26 @@ const ipBannedMiddleware = async (req, res, next) => {
             if (existingIp.isBanned) {
                 const banExpiresAt = moment(existingIp.banExpiresAt);
                 const now = moment();
-                if (banExpiresAt.isAfter(now)) {
+                if (existingIp.banExpiresAt < Date.now()) {
                     // Remove ban
-                    await existingIp.remove();
+                    await existingIp.delete();
                 } else {
                     const duration = moment.duration(banExpiresAt.diff(now));
                     const hours = duration.asHours().toFixed(2);
-                    throw new Error({ message: `IP address is banned for ${hours} hours`, banExpiresAt: existingIp.banExpiresAt });
+                    return res.status(419).json({
+                        code: 419,
+                        message: `IP address is banned for ${hours} hours`,
+                        banExpiresAt: existingIp.banExpiresAt
+                    });
                 }
             }
         }
         next();
     } catch (err) {
-        res.status(419).send({
+        console.log(err)
+        return res.status(500).send({
             code: 419,
-            message: err.message || "Internal Server Error",
-            banExpiresAt: err.banExpiresAt
+            message: "Internal Server Error",
         });
     }
 };

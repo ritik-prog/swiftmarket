@@ -4,6 +4,8 @@ const authenticateMiddleware = require("../../middleware/authenticateMiddleware"
 const authorizeMiddleware = require("../../middleware/authorizeMiddleware");
 const sellerController = require("../../controllers/seller/sellerController");
 const checkVerificationMiddleware = require("../../middleware/checkVerificationMiddleware");
+const checkSellerBanMiddleware = require("../../middleware/checkSellerBanMiddleware");
+const checkSellerBanEmailMiddleware = require('../../middleware/checkSellerBanEmailMiddleware')
 
 const router = express.Router();
 
@@ -31,20 +33,8 @@ router.post(
 router.post(
     "/verify",
     [
-        authenticateMiddleware,
+        checkSellerBanMiddleware,
         check("code", "Verification code is required").notEmpty(),
-        check(
-            "paymentPreferences",
-            "Please include a valid payment preferences"
-        ).notEmpty(),
-        check(
-            "blockchainWalletAddress",
-            "Please include a valid wallet address"
-        ).notEmpty(),
-        check(
-            "paypalAccountEmailAddress",
-            "Please include a valid email"
-        ).isEmail(),
         check("businessLogo", "Please include a Logo")
     ],
     sellerController.verifySeller
@@ -54,6 +44,7 @@ router.post(
 router.post(
     "/login/:email",
     [
+        checkSellerBanEmailMiddleware,
         check("email", "email is required").notEmpty().isEmail(),
         check("code", "code is required").notEmpty(),
         check("password", "password is required").notEmpty(),
@@ -72,6 +63,7 @@ router.get(
     "/profile",
     [
         authenticateMiddleware,
+        checkSellerBanMiddleware,
         authorizeMiddleware(["seller"]),
         checkVerificationMiddleware,
     ],
@@ -83,6 +75,7 @@ router.put(
     "/updateprofile",
     [
         authenticateMiddleware,
+        checkSellerBanMiddleware,
         authorizeMiddleware(["seller"]),
         checkVerificationMiddleware,
         check("businessEmail").isEmail(),
@@ -104,6 +97,7 @@ router.delete(
     "/deleteprofile",
     [
         authenticateMiddleware,
+        checkSellerBanMiddleware,
         authorizeMiddleware(["seller"]),
         checkVerificationMiddleware,
     ],
@@ -115,6 +109,7 @@ router.get(
     "/products",
     [
         authenticateMiddleware,
+        checkSellerBanMiddleware,
         authorizeMiddleware(["seller"]),
         checkVerificationMiddleware,
     ],
@@ -126,6 +121,7 @@ router.get(
     "/product/:id",
     [
         authenticateMiddleware,
+        checkSellerBanMiddleware,
         authorizeMiddleware(["seller"]),
         checkVerificationMiddleware,
     ],
@@ -137,6 +133,7 @@ router.post(
     "/createproduct",
     [
         authenticateMiddleware,
+        checkSellerBanMiddleware,
         authorizeMiddleware(["seller"]),
         checkVerificationMiddleware,
     ],
@@ -148,6 +145,7 @@ router.put(
     "/updateproduct",
     [
         authenticateMiddleware,
+        checkSellerBanMiddleware,
         authorizeMiddleware(["seller"]),
         checkVerificationMiddleware,
     ],
@@ -159,6 +157,7 @@ router.post(
     "/deleteproduct",
     [
         authenticateMiddleware,
+        checkSellerBanMiddleware,
         authorizeMiddleware(["seller"]),
         checkVerificationMiddleware,
     ],
@@ -170,6 +169,7 @@ router.get(
     "/get-metrics",
     [
         authenticateMiddleware,
+        checkSellerBanMiddleware,
         authorizeMiddleware(["seller"]),
         checkVerificationMiddleware,
     ],
@@ -181,6 +181,7 @@ router.get(
     "/get-sales-data",
     [
         authenticateMiddleware,
+        checkSellerBanMiddleware,
         authorizeMiddleware(["seller"]),
         checkVerificationMiddleware,
     ],
@@ -192,6 +193,7 @@ router.get(
     "/get-orders",
     [
         authenticateMiddleware,
+        checkSellerBanMiddleware,
         authorizeMiddleware(["seller"]),
         checkVerificationMiddleware,
     ],
@@ -203,6 +205,7 @@ router.get(
     "/get-order/:orderId",
     [
         authenticateMiddleware,
+        checkSellerBanMiddleware,
         authorizeMiddleware(["seller"]),
         checkVerificationMiddleware,
     ],
@@ -214,6 +217,7 @@ router.get(
     "/get-refund-data",
     [
         authenticateMiddleware,
+        checkSellerBanMiddleware,
         authorizeMiddleware(["seller"]),
         checkVerificationMiddleware,
     ],
@@ -225,6 +229,7 @@ router.get(
     "/get-refund-data/id/:refundId",
     [
         authenticateMiddleware,
+        checkSellerBanMiddleware,
         authorizeMiddleware(["seller"]),
         checkVerificationMiddleware,
     ],
@@ -236,6 +241,7 @@ router.put(
     "/update-refund-status/:refundId",
     [
         authenticateMiddleware,
+        checkSellerBanMiddleware,
         authorizeMiddleware(["seller"]),
         checkVerificationMiddleware,
     ],
@@ -247,6 +253,7 @@ router.put(
     "/update-order-status",
     [
         authenticateMiddleware,
+        checkSellerBanMiddleware,
         authorizeMiddleware(["seller"]),
         checkVerificationMiddleware,
     ],
@@ -258,6 +265,7 @@ router.put(
     "/cancel-order",
     [
         authenticateMiddleware,
+        checkSellerBanMiddleware,
         authorizeMiddleware(["seller"]),
         checkVerificationMiddleware,
     ],
@@ -269,6 +277,7 @@ router.put(
     "/add-tracking-details",
     [
         authenticateMiddleware,
+        checkSellerBanMiddleware,
         authorizeMiddleware(["seller"]),
         checkVerificationMiddleware,
     ],
@@ -280,6 +289,7 @@ router.put(
     "/accept-order",
     [
         authenticateMiddleware,
+        checkSellerBanMiddleware,
         authorizeMiddleware(["seller"]),
         checkVerificationMiddleware,
     ],

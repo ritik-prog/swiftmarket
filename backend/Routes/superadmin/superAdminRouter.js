@@ -4,6 +4,6 @@ const router = express.Router();
 
 const manageAdmins = require('./manageAdmins');
 
-router.use('/admins', manageAdmins);
+router.use('/admin', manageAdmins);
 
 module.exports = router;
