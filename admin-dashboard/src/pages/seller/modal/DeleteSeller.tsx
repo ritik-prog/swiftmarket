@@ -83,12 +83,12 @@ function DeleteSeller({ isOpen, closeModal, sellerId }: any) {
                     Enter violation reason.
                   </p>
                 </div>
-                <p className="text-sm text-red-500 mt-4">
-                  Warning: If you delete this account, all associated data will
-                  be permanently deleted and cannot be retrieved.
-                </p>
               </div>
 
+              <p className="text-sm text-red-500 mt-4">
+                Warning: If you delete this account, all associated data will be
+                permanently deleted and cannot be retrieved.
+              </p>
               <div className="mt-5 sm:flex sm:items-center sm:justify-end">
                 <div className="sm:flex sm:items-center ">
                   <button

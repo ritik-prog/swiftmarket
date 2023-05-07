@@ -76,7 +76,6 @@ exports.signup = async (req, res) => {
 };
 
 exports.login = async (req, res) => {
-    customLogger("user", "signin", req)
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
         return handleError(res, {
@@ -85,6 +84,7 @@ exports.login = async (req, res) => {
             errors: errors.array()
         });
     }
+
 
     const { email, password } = req.body;
 
@@ -98,6 +98,9 @@ exports.login = async (req, res) => {
                     code: 'authentication_failed'
                 });
             }
+            req.user = user;
+            customLogger(req.user.role, `${user.role} login`, req)
+            delete req.user;
 
             if (user.role === "seller") {
                 const seller = await Seller.findById(user.seller);
@@ -179,7 +182,7 @@ exports.login = async (req, res) => {
 };
 
 exports.getUser = async (req, res) => {
-    customLogger("user", "user deatils", req)
+    customLogger(req.user.role, "user deatils", req)
     try {
         const token = req.cookies.token;
         // Check if user is authenticated
@@ -229,7 +232,7 @@ exports.getUser = async (req, res) => {
 };
 
 exports.updateProfile = async (req, res) => {
-    customLogger("user", "update profile", req)
+    customLogger(req.user.role, "update profile", req)
     try {
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
@@ -288,7 +291,7 @@ exports.updateProfile = async (req, res) => {
 };
 
 exports.updatePassword = async (req, res) => {
-    customLogger("user", "update password", req)
+    customLogger(req.user.role, "update password", req)
     try {
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
@@ -345,7 +348,7 @@ exports.updatePassword = async (req, res) => {
 };
 
 exports.logout = async (req, res) => {
-    customLogger("user", "user logout", req)
+    customLogger(req.user.role, "user logout", req)
     try {
         res.clearCookie('token');
         const user = await User.findById(req.user._id);
@@ -358,7 +361,7 @@ exports.logout = async (req, res) => {
 };
 
 exports.deleteAccount = async (req, res) => {
-    customLogger("user", "user account delete", req)
+    customLogger(req.user.role, "user account delete", req)
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
         return handleError(res, {
@@ -395,6 +398,7 @@ exports.deleteAccount = async (req, res) => {
         }
 
         await user.remove();
+        
         const data = {
             userDeleted: {
                 code: user.name,
@@ -403,13 +407,13 @@ exports.deleteAccount = async (req, res) => {
             },
             subject: 'Account Deleted - SwiftMarket'
         };
-
-        await sendEmail(user.email, data, './userActions/userAccountChange.hbs');
-
+        res.clearCookie('token');
         res.status(200).json({
             status: 'success',
             message: 'User deleted successfully'
         });
+
+        await sendEmail(user.email, data, './userActions/userAccountChange.hbs');
 
     } catch (err) {
         return handleError(res, err);

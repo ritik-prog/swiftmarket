@@ -371,7 +371,7 @@ const SearchFilter = () => {
                     sellers.map((seller: any) => (
                       <div
                         key={seller._id}
-                        className="bg-gray-100 rounded-md p-4 w-full"
+                        className="bg-gray-100 rounded-md p-4 w-full mt-4"
                       >
                         <p className="text-lg font-medium text-gray-800">
                           {seller.businessName}

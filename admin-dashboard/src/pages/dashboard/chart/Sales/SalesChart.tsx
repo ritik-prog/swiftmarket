@@ -10,6 +10,7 @@ import {
   ChartOptions,
 } from "chart.js";
 import { Bar } from "react-chartjs-2";
+import { getSalesMetricsData } from "../../../../api/dashboard";
 
 ChartJS.register(
   CategoryScale,
@@ -57,8 +58,8 @@ export function SalesChart(props: SalesChartProps) {
 
   const getData = async () => {
     try {
-      // const data = await getSalesMetricsData();
-      // setLiveData(data);
+      const data = await getSalesMetricsData();
+      setLiveData(data);
     } catch {}
   };
 

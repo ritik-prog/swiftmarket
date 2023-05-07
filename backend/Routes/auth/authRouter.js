@@ -111,7 +111,7 @@ router.put(
 );
 
 // Delete account
-router.put('/deleteaccount', [authenticateMiddleware,
+router.post('/deleteaccount', [authenticateMiddleware,
     checkVerificationMiddleware,], authController.deleteAccount);
 
 // Logout route

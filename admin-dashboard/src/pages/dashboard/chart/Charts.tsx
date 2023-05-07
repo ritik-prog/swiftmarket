@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 // import { getMetrics } from "../../../api/dashboard";
 import TopSellingProducts from "./TopSellingProducts";
 import DateRangePicker from "../datetimepicker/DateRangePicker";
+import { getMetrics } from "../../../api/dashboard";
 
 const initialState = {
   orderTotal: 0,
@@ -14,6 +15,10 @@ const initialState = {
   customerRetentionRate: 0,
   retentionRate: 0,
   totalViews: 0,
+  totalTickets: 0,
+  totalSearches: 0,
+  totalUsers: 0,
+  totalSellers: 0,
 };
 
 const DashboardCharts = () => {
@@ -25,8 +30,9 @@ const DashboardCharts = () => {
 
   const getData = async () => {
     try {
-      // const result = await getMetrics(value);
-      // setMetrics(result);
+      const result = await getMetrics(value);
+      setMetrics(result);
+      console.log(result);
     } catch {}
   };
 
@@ -37,22 +43,22 @@ const DashboardCharts = () => {
   const websitedata = [
     {
       title: "New Users",
-      value: "₹" + 0,
+      value: metrics.totalUsers,
       icon: "fas fa-chart-line",
     },
     {
-      title: "New Customers",
-      value: 0,
+      title: "New Sellers",
+      value: metrics.totalSellers,
       icon: "fas fa-users",
     },
     {
       title: "Total Searches",
-      value: metrics.totalOrders,
+      value: metrics.totalSearches,
       icon: "fas fa-shopping-cart",
     },
     {
       title: "Total Tickets",
-      value: metrics.conversionRate + "%",
+      value: metrics.totalTickets,
       icon: "fas fa-chart-pie",
     },
   ];
@@ -102,10 +108,9 @@ const DashboardCharts = () => {
 
   const handleChange = async (values: any) => {
     try {
-      // setValue(values);
-      // console.log(values)
-      // const result = await getMetrics(values);
-      // setMetrics(result);
+      setValue(values);
+      const result = await getMetrics(values);
+      setMetrics(result);
     } catch (error) {
       console.log(error);
     }

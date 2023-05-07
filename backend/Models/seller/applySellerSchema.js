@@ -5,7 +5,6 @@ const applySellerSchema = new mongoose.Schema({
     businessEmail: {
         type: String,
         required: true,
-        unique: true,
         validate: {
             validator: validator.isEmail,
             message: 'Invalid Email Address',
@@ -26,13 +25,11 @@ const applySellerSchema = new mongoose.Schema({
     businessUsername: {
         type: String,
         required: true,
-        unique: true,
         index: true,
     },
     businessRegistrationNumber: {
         type: String,
         required: true,
-        unique: true,
         index: true,
     },
     businessType: {
@@ -51,7 +48,6 @@ const applySellerSchema = new mongoose.Schema({
     taxIDNumber: {
         type: String,
         required: true,
-        unique: true,
     },
     productCategories: {
         type: [String],

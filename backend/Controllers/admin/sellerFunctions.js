@@ -118,6 +118,7 @@ const acceptSeller = async (req, res, next) => {
         await sendEmail(newSeller.businessEmail, data, './verification/verifySeller.hbs');
 
     } catch (error) {
+        console.log(error)
         return handleError(res, error);
     }
 };

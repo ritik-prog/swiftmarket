@@ -12,6 +12,7 @@ const User = require('../../models/auth/userSchema');
 const bcrypt = require('bcryptjs');
 const RefundRequest = require('../../models/transaction/refundRequestSchema');
 const customLogger = require('../../utils/logHandler');
+const generateCode = require('../../utils/generateCode');
 
 // Apply for seller account
 const applyForSellerAccount = async (req, res, next) => {
@@ -44,14 +45,35 @@ const applyForSellerAccount = async (req, res, next) => {
             $or: [
                 { businessEmail: businessEmail },
                 { businessUsername: businessUsername },
+                { businessRegistrationNumber: businessRegistrationNumber },
+                { taxIDNumber: taxIDNumber },
                 { user: req.user._id }
             ]
         });
-        if (existingSeller || req.seller) {
+
+        if (existingSeller) {
+            let errorMessage = 'There is already an existing seller with the same ';
+            if (existingSeller.businessEmail === businessEmail) {
+                errorMessage += 'Business Email';
+            } else if (existingSeller.businessUsername === businessUsername) {
+                errorMessage += 'Business Username';
+            } else if (existingSeller.businessRegistrationNumber === businessRegistrationNumber) {
+                errorMessage += 'Business Registration Number';
+            } else if (existingSeller.taxIDNumber === taxIDNumber) {
+                errorMessage += 'tax ID number';
+            } else if (existingSeller.user._id.toString() === req.user._id.toString()) {
+                errorMessage += 'User Account';
+            } else {
+                errorMessage += 'email or username or Business registration number or tax ID number or user account';
+            }
+
+            if (!errorMessage.includes("User Account")) {
+                errorMessage += ' already exists';
+            }
             return handleError(res, {
                 code: 'already_exists',
                 status: 'error',
-                message: 'There is already an existing seller with the same business email or business username or user account',
+                message: errorMessage,
             });
         }
 
@@ -71,7 +93,7 @@ const applyForSellerAccount = async (req, res, next) => {
         });
 
         // Save the new seller instance to the database
-        const savedSeller = await newSeller.save();
+        await newSeller.save();
 
         res.status(200).json({
             status: 'success',
@@ -133,17 +155,35 @@ const verifySeller = async (req, res) => {
                     seller.verificationStatus = true;
                     seller.verificationCode = null;
                     seller.verificationCodeExpiresAt = null;
+
+                    const verificationCode = generateCode();
+                    const codeExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000); // 1 day from now
+
+                    seller.loginCode = verificationCode;
+                    seller.loginCodeExpiresAt = codeExpiry;
                     await seller.save();
+
+                    const data1 = {
+                        subject: 'Seller Login - SwiftMarket',
+                        username: seller.businessName,
+                        verificationCode: seller.loginCode,
+                        verificationLink: `/login/${seller.businessEmail}`
+                    };
+
+                    res.status(200).json({ status: 'success', message: 'Seller account verified successfully', login: `/login/${seller.businessEmail}` });
+
+                    await sendEmail(seller.businessEmail, data1, './seller/loginVerification.hbs');
+
                 } else {
                     return res.status(412).json({ message: 'Invalid or expired verification code', status: 'success' });
                 }
             }
             // Send a success response
-            res.status(200).json({ status: 'success', message: 'Seller account verified successfully' });
         } else {
             res.status(411).json({ status: 'error', message: 'Seller account already verified' });
         }
     } catch (err) {
+        console.log(err)
         return handleError(res, err);
     }
 };
@@ -174,7 +214,7 @@ const loginSeller = async (req, res) => {
                 const isMatch = await bcrypt.compare(password, user.password);
 
                 if (!isMatch) {
-                    return res.status(403).json({ status: 'error', message: 'Invalid credentials' });
+                    return res.status(499).json({ status: 'error', message: 'Invalid credentials' });
                 } else {
                     const token = user.tokens[0].token;
                     res.cookie('token', token, {

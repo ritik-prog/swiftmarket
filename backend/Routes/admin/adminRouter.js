@@ -7,6 +7,8 @@ const adminTransactionRouter = require("./adminTransactionRouter");
 const adminTicketRouter = require("./adminTicketRouter");
 const adminOrderRouter = require("./adminOrderRouter");
 const adminPayrollRouter = require("./adminPayrollRouter");
+const adminLogsRouter = require("./adminLogsRouter");
+const adminStatsRouter = require("./adminStatsRouter");
 
 const { check, validationResult } = require("express-validator");
 const handleError = require("../../utils/errorHandler");
@@ -49,7 +51,7 @@ router.post("/login", [
                     sameSite: 'strict', // cookie should only be sent for same-site requests
                     maxAge: 5 * 60 * 60 * 1000 // 5hr
                 });
-                
+
                 res.status(200).json({
                     user: {
                         id: user._id,
@@ -64,7 +66,9 @@ router.post("/login", [
                     status: 'success'
                 });
 
+                req.user = user
                 customLogger(user.role, "login", req)
+                delete req.user;
 
             } else {
                 return handleError(res, {
@@ -92,5 +96,7 @@ router.use('/transaction', adminTransactionRouter);
 router.use('/ticket', adminTicketRouter);
 router.use('/order', adminOrderRouter);
 router.use('/payroll', adminPayrollRouter);
+router.use('/logs', adminLogsRouter);
+router.use('/stats', adminStatsRouter);
 
 module.exports = router;

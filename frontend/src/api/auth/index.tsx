@@ -49,7 +49,6 @@ export const updatePasswordApi = async (data: any) => {
 
 // delete account
 export const deleteAccountApi = async (data: any) => {
-  console.log(data);
-  const response = await instance.put("/auth/deleteaccount", data);
+  const response = await instance.post("/auth/deleteaccount", data);
   return response.data;
 };

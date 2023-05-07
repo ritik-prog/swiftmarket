@@ -43,7 +43,7 @@ const HandleError = async (e: any, onError: (error: any) => void) => {
       console.log("Unauthorized access error occurred.");
       break;
     case 410:
-      CreateToast("already_exists", "Email or Username already taken", "error");
+      CreateToast("already_exists", message.message, "error");
       console.log("User already exists :- email or username already taken.");
       break;
     case 411:

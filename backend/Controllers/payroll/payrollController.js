@@ -8,7 +8,7 @@ const customLogger = require("../../utils/logHandler");
 // Get a payroll by ID
 const getPayroll = async (req, res) => {
     try {
-        let payroll = await Payroll.findOne({ user: req.seller._id });
+        let payroll = await Payroll.findOne({ seller: req.seller._id });
         if (!payroll) {
             payroll = new Payroll({ seller: req.seller._id, role: 'seller' });
         }
@@ -65,7 +65,7 @@ const requestWithdrawal = async (req, res) => {
 
 const getWithdrawalRequests = async (req, res) => {
     try {
-        const withdrawalRequests = await WithdrawalRequest.find({ user: req.seller._id });
+        const withdrawalRequests = await WithdrawalRequest.find({ seller: req.seller._id });
         res.status(200).json({ status: 200, requests: withdrawalRequests });
     } catch (err) {
         res.status(500).json({ message: 'Server Error' });

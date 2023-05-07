@@ -2,7 +2,7 @@ const winston = require('winston');
 const { transports } = winston;
 const MongoDB = require('winston-mongodb').MongoDB;
 
-const logs = require('../models/log/logSchema');
+// const logs = require('../models/log/logSchema');
 
 const createMongoTransport = (level) => {
     return new MongoDB({
@@ -27,7 +27,12 @@ const logger = winston.createLogger({
     level: 'info',
     format: winston.format.combine(
         winston.format.timestamp(),
-        winston.format.json()
+        winston.format.json(),
+        winston.format.colorize(),
+        winston.format.printf((info) => {
+            const { timestamp, level, message, meta } = info;
+            return `${timestamp} ${level}: ${message} ${meta ? JSON.stringify(meta) : ''}`;
+        }),
     ),
     transports: [
         new transports.Console(),
@@ -36,14 +41,14 @@ const logger = winston.createLogger({
 });
 
 const customLogger = (role, action, req) => {
-    const { method, url, query, body } = req;
+    const { method, url, query } = req;
     const routeName = req?.route ? req?.route?.path : 'unknown route';
     logger.info({
         message: `${role}`, meta: {
             action: action,
             username: req?.user?.username || "",
             method,
-            url,
+            url: `${req.headers.origin}${url}`,
             query,
             routeName
         }
@@ -51,3 +56,4 @@ const customLogger = (role, action, req) => {
 }
 
 module.exports = customLogger
+

@@ -351,6 +351,10 @@ const UpdateProfile = () => {
               </span>
             </div>
           </div>
+          <p className="text-sm text-red-500 mt-4">
+            Warning: If you delete this account, all associated data will be
+            permanently deleted and cannot be retrieved.
+          </p>
         </div>
       </div>
     </div>

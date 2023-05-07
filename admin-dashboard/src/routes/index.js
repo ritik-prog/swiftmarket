@@ -30,6 +30,13 @@ import TicketMasters from "../pages/ticket/TicketMasters";
 import DatabasesLayout from "../layouts/DatabasesLayout";
 import AdminDatabase from "../pages/databases/AdminDatabase";
 import SuperAdminDatabase from "../pages/databases/SuperAdminDatabase";
+import LogsLayout from "../layouts/LogsLayout";
+import UserLogs from "../pages/logs/UserLogs";
+import AdminLogs from "../pages/logs/AdminLogs";
+import SuperAdminLogs from "../pages/logs/SuperAdminLogs";
+import ErrorLogs from "../pages/logs/ErrorLogs";
+import SellerLogs from "../pages/logs/SellerLogs";
+import TicketMasterLogs from "../pages/logs/TicketMasterLogs";
 
 const routes = [
     {
@@ -56,6 +63,12 @@ const routes = [
             { path: "/payroll", element: <><WithdrawalRequestLayout><WithdrawalRequest /></WithdrawalRequestLayout></> },
             { path: "/databases", element: <><DatabasesLayout><AdminDatabase /></DatabasesLayout></> },
             { path: "/superadmindatabase", element: <><DatabasesLayout><SuperAdminDatabase /></DatabasesLayout></> },
+            { path: "/logs", element: <><LogsLayout><UserLogs /></LogsLayout></> },
+            { path: "/adminlogs", element: <><LogsLayout><AdminLogs /></LogsLayout></> },
+            { path: "/superadminlogs", element: <><LogsLayout><SuperAdminLogs /></LogsLayout></> },
+            { path: "/errorlogs", element: <><LogsLayout><ErrorLogs /></LogsLayout></> },
+            { path: "/sellerlogs", element: <><LogsLayout><SellerLogs /></LogsLayout></> },
+            { path: "/ticketmasterlogs", element: <><LogsLayout><TicketMasterLogs /></LogsLayout></> },
             {
                 path: "*",
                 element: <Error404 />,

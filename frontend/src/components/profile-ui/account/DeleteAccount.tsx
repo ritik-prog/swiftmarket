@@ -25,7 +25,10 @@ function DeleteAccount({ isOpen, closeModal, setLoading }: any) {
         closeModal();
       }
       setLoading(false);
-    } catch (error) {}
+    } catch (error) {
+      setLoading(false);
+      console.log(error);
+    }
     setLoading(false);
   };
 
@@ -67,6 +70,10 @@ function DeleteAccount({ isOpen, closeModal, setLoading }: any) {
                   <p className="text-sm text-gray-500">Enter your Password.</p>
                 </div>
 
+                <p className="text-sm text-red-500 mt-4">
+                  Warning: If you delete this account, all associated data will
+                  be permanently deleted and cannot be retrieved.
+                </p>
                 <div className="mt-5 sm:flex sm:items-center sm:justify-end">
                   <div className="sm:flex sm:items-center ">
                     <button

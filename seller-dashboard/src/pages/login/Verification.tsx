@@ -99,7 +99,7 @@ function Verification() {
       .then((res) => {
         CreateToast("Emailverified", "Email verified!", "success");
         setLoading(false);
-        window.location.href = "http://localhost:3000/signin";
+        navigate(res.login);
       })
       .catch((err) => {});
     setLoading(false);

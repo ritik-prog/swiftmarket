@@ -68,11 +68,9 @@ const sellerSchema = new mongoose.Schema({
     },
     blockchainWalletAddress: {
         type: String,
-        unique: true
     },
     paypalAccountEmailAddress: {
         type: String,
-        unique: true
     },
     productCategories: {
         type: [String],

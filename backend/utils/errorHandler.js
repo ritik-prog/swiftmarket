@@ -3,12 +3,22 @@ const errorCode = require("../data/errorCode");
 
 
 function handleError(res, err) {
-    console.log(err);
 
     if (err.code === 'CustomValidationError') {
         return res.status(400).json({
             error: "CustomValidationError",
             message: err.errors
+        });
+    }
+    
+    if (err.code === 11000) {
+        const keyPattern = /index: (\S+) dup key/;
+        const keyMatch = err.message.match(keyPattern);
+        const duplicateKey = keyMatch ? keyMatch[1] : 'unknown';
+        const errMessage = `Already Exists ${duplicateKey}`;
+        return res.status(499).json({
+            status: "error",
+            message: errMessage
         });
     }
 
@@ -89,11 +99,12 @@ function handleError(res, err) {
         });
     }
 
-
-    return res.status(500).json({
-        error: errorCode.SERVER_ERROR.code,
-        message: errorCode.SERVER_ERROR.message
-    });
+    if (err) {
+        return res.status(500).json({
+            error: errorCode.SERVER_ERROR.code,
+            message: errorCode.SERVER_ERROR.message
+        });
+    }
 }
 
 

@@ -90,10 +90,7 @@ function Modal({ isOpen, openModal, closeModal }: ModalProps) {
           productCategories: [],
         });
       }
-      console.log(result);
     } catch (error) {}
-    console.log(formData);
-    // handle form submission
   };
 
   return (
