@@ -58,40 +58,33 @@ router.post("/transaction", [authenticateMiddleware], async (req, res) => {
         res.status(499).json({ message: "Kindly wait for a while..." });
       }
     } else {
-      const now = Date.now();
-      const fiveMinutesAgo = now - 5 * 60 * 1000; // 5 minutes ago in milliseconds
       const oldTransaction = findOldTransaction[0];
-      if (oldTransaction?.createdAt.getTime() < fiveMinutesAgo) {
-        // transaction is older than 5 minutes, change status to 'Failed'
-        oldTransaction.status = 'Failed';
-        await oldTransaction.save();
+      oldTransaction.status = 'Failed';
+      await oldTransaction.save();
 
-        // create new transaction
-        const newTransaction = new Transaction({
-          type,
-          amount,
-          status: "Pending",
-          paymentMethod,
-          customer: req.user._id
-        });
+      // create new transaction
+      const newTransaction = new Transaction({
+        type,
+        amount,
+        status: "Pending",
+        paymentMethod,
+        customer: req.user._id
+      });
 
-        await newTransaction.save();
+      await newTransaction.save();
 
-        // Delay the status update by 5 minutes
-        setTimeout(async () => {
-          const transaction = await Transaction.findById(newTransaction._id);
-          if (transaction && transaction?.status === "Pending") {
-            transaction.status = "Failed";
-            await transaction.save();
-            console.log(`Transaction ${transaction._id} has failed`);
-          }
-        }, 300000); // 5 minutes in milliseconds
+      // Delay the status update by 5 minutes
+      setTimeout(async () => {
+        const transaction = await Transaction.findById(newTransaction._id);
+        if (transaction && transaction?.status === "Pending") {
+          transaction.status = "Failed";
+          await transaction.save();
+          console.log(`Transaction ${transaction._id} has failed`);
+        }
+      }, 300000); // 5 minutes in milliseconds
 
-        res.status(200).json({ transaction: newTransaction, status: 200 });
-      } else {
-        // transaction is less than 5 minutes old
-        res.status(499).json({ message: "Kindly try after 5 minutes" });
-      }
+      res.status(200).json({ transaction: newTransaction, status: 200 });
+
     }
   } catch (err) {
     console.log(err)

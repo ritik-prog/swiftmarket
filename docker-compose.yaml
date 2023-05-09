@@ -1,8 +1,8 @@
-version: '3'
+version: "3"
 services:
   frontend:
     build:
-      context: './frontend'
+      context: "./frontend"
       dockerfile: Dockerfile
     ports:
       - 3000:3000
@@ -16,9 +16,57 @@ services:
       - /app/node_modules
     depends_on:
       - backend
+  seller-dashboard:
+    build:
+      context: "./seller-dashboard"
+      dockerfile: Dockerfile
+    ports:
+      - 3001:3001
+    container_name: seller-react-container
+    environment:
+      - WATCHPACK_POLLING=true
+    networks:
+      - mern-stack-network
+    volumes:
+      - ./seller-dashboard:/app
+      - /app/node_modules
+    depends_on:
+      - backend
+  admin-dashboard:
+    build:
+      context: "./admin-dashboard"
+      dockerfile: Dockerfile
+    ports:
+      - 3003:3003
+    container_name: admin-react-container
+    environment:
+      - WATCHPACK_POLLING=true
+    networks:
+      - mern-stack-network
+    volumes:
+      - ./admin-dashboard:/app
+      - /app/node_modules
+    depends_on:
+      - backend
+  ticket-master-dashboard:
+    build:
+      context: "./ticket-master-dashboard"
+      dockerfile: Dockerfile
+    ports:
+      - 3002:3002
+    container_name: ticket-master-react-container
+    environment:
+      - WATCHPACK_POLLING=true
+    networks:
+      - mern-stack-network
+    volumes:
+      - ./ticket-master-dashboard:/app
+      - /app/node_modules
+    depends_on:
+      - backend
   backend:
     build:
-      context: './backend'
+      context: "./backend"
       dockerfile: Dockerfile
     ports:
       - 5500:5500
@@ -67,7 +115,3 @@ networks:
 volumes:
   mongo-data:
   mongo-logs:
-
-
-
-

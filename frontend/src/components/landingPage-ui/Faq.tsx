@@ -2,11 +2,11 @@ import React, { useState } from "react";
 
 function Faq() {
   const [openFaq1, setOpenFaq1] = useState(true);
-  const [openFaq2, setOpenFaq2] = useState(false);
+  const [openFaq2, setOpenFaq2] = useState(true);
   const [openFaq3, setOpenFaq3] = useState(true);
-  const [openFaq4, setOpenFaq4] = useState(false);
+  const [openFaq4, setOpenFaq4] = useState(true);
   return (
-    <section className="relative z-10 overflow-hidden bg-white dark:bg-gray-900 pt-20 lg:pt-[120px]">
+    <section className="relative overflow-hidden bg-white dark:bg-gray-900 pt-20 lg:pt-[120px]">
       <div className="container mx-auto">
         <div className="-mx-4 flex flex-wrap bg-dark">
           <div className="w-full px-4">

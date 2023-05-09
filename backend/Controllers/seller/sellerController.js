@@ -755,7 +755,7 @@ const getOrders = async (req, res) => {
 // get refund requests
 const getRefundRequest = async (req, res, next) => {
     try {
-        const refundRequest = await RefundRequest.find({ seller: req.seller._id });
+        const refundRequest = await RefundRequest.find({ seller: req.seller._id }).sort({ createdAt: -1 });
         if (!refundRequest) {
             return res.status(404).json({
                 message: `Refund request not found for seller ${req.seller._id}`,

@@ -27,9 +27,9 @@ export const getTrandingProductsThree = async () => {
   return data;
 };
 
-export const getTopProductsByTopCategorySearched = async () => {
+export const getTopProductsByTopCategorySearched = async (limit: number) => {
   const { data } = await instance.get(
-    "product/getTopProductsByTopCategorySearched"
+    `product/getTopProductsByTopCategorySearched?limit=${limit}`
   );
   return data;
 };

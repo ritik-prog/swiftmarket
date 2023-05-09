@@ -9,6 +9,8 @@ const RefundRequest = require('../../models/transaction/refundRequestSchema');
 const orderSchema = require('../../models/order/orderSchema');
 const sendEmail = require('../../utils/sendEmail');
 
+const customLogger = require('../../utils/logHandler')
+
 // refund requests
 router.get("/refundrequests", authenticateMiddleware, checkVerificationMiddleware, authorizeMiddleware(["admin", "superadmin", "root"]), async (req, res) => {
     try {

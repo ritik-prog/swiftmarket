@@ -1,28 +1,38 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 
 function Footer() {
+  const navigate = useNavigate();
   return (
     <div className="bg-white dark:bg-gray-900">
-      <footer className="container mx-auto px-10 md:px-0 py-10">
-        <div className="mb-16 flex flex-col md:flex-row md:items-center justify-between">
+      <footer className="container mx-auto px-10 md:px-0 py-4">
+        <div className="flex flex-col md:flex-row md:items-center justify-between">
           <div>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="rgba(37,99,235,1)"
-              className="w-10 h-10"
+            <span
+              className="text-xl text-black-300 dark:text-gray-300 cursor-pointer flex space-x-1"
+              onClick={() => navigate("/")}
             >
-              <path
-                fill-rule="evenodd"
-                d="M9.315 7.584C12.195 3.883 16.695 1.5 21.75 1.5a.75.75 0 01.75.75c0 5.056-2.383 9.555-6.084 12.436A6.75 6.75 0 019.75 22.5a.75.75 0 01-.75-.75v-4.131A15.838 15.838 0 016.382 15H2.25a.75.75 0 01-.75-.75 6.75 6.75 0 017.815-6.666zM15 6.75a2.25 2.25 0 100 4.5 2.25 2.25 0 000-4.5z"
-                clip-rule="evenodd"
-              ></path>
-              <path d="M5.26 17.242a.75.75 0 10-.897-1.203 5.243 5.243 0 00-2.05 5.022.75.75 0 00.625.627 5.243 5.243 0 005.022-2.051.75.75 0 10-1.202-.897 3.744 3.744 0 01-3.008 1.51c0-1.23.592-2.323 1.51-3.008z"></path>
-            </svg>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke-width="1.5"
+                stroke="currentColor"
+                className="w-6 h-6"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M13.5 21v-7.5a.75.75 0 01.75-.75h3a.75.75 0 01.75.75V21m-4.5 0H2.36m11.14 0H18m0 0h3.64m-1.39 0V9.349m-16.5 11.65V9.35m0 0a3.001 3.001 0 003.75-.615A2.993 2.993 0 009.75 9.75c.896 0 1.7-.393 2.25-1.016a2.993 2.993 0 002.25 1.016c.896 0 1.7-.393 2.25-1.016a3.001 3.001 0 003.75.614m-16.5 0a3.004 3.004 0 01-.621-4.72L4.318 3.44A1.5 1.5 0 015.378 3h13.243a1.5 1.5 0 011.06.44l1.19 1.189a3 3 0 01-.621 4.72m-13.5 8.65h3.75a.75.75 0 00.75-.75V13.5a.75.75 0 00-.75-.75H6.75a.75.75 0 00-.75.75v3.75c0 .415.336.75.75.75z"
+                />
+              </svg>
+
+              <span>SwiftMarket</span>
+            </span>
           </div>
           <div className="grow mt-4 md:mt-0 md:ml-12">
             <p className="font-semibold text-base text-gray-500 dark:text-gray-300">
-              © 2023 DevUI Component Library
+              © 2023 SwiftMarket
             </p>
           </div>
           <div className="flex space-x-6 mt-4 md:mt-0 text-blue-600">
@@ -129,62 +139,14 @@ function Footer() {
           </div>
         </div>
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-center lg:space-x-12 w-[100%]">
-          <div className="mb-4">
-            <h4 className="font-medium text-xl md:text-[26px] md:leading-[30.3px] lg:text-[31px] lg:leading-[40.3px] text-gray-700 dark:text-gray-100">
-              Newsletter
-            </h4>
-            <p className="text-sm md:text-base lg:text-lg text-gray-500 dark:text-gray-400 font-medium mt-4 w-[320px] md:w-[391px]">
-              When your team needs to kick off a project, and more, DevUI
-              Covered You.
-            </p>
-            <form className="mt-4 flex items-center space-x-2">
-              <input
-                className="flex h-10 w-full rounded-md border border-gray-300 bg-transparent py-2 px-3 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-gray-400 focus:ring-offset-1 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-700 dark:text-gray-50 dark:focus:ring-gray-400 dark:focus:ring-offset-gray-900"
-                type="email"
-                placeholder="Email"
-              />
-              <button className="active:scale-95 inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus:outline-none focus:ring-1 focus:ring-blue-400 focus:ring-offset-1 dark:hover:bg-blue-700 dark:hover:text-gray-100 disabled:opacity-50 dark:focus:ring-blue-400 disabled:pointer-events-none dark:focus:ring-offset-gray-900 bg-blue-600 dark:bg-blue-600 text-white hover:bg-blue-700 h-10 py-2 px-4">
-                Subscribe
-              </button>
-            </form>
-          </div>
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-12 mt-8 lg:mt-0">
-            <div className="mb-4">
-              <p className="text-lg font-semibold text-gray-700 dark:text-gray-100 mb-6">
-                Our Stores
-              </p>
-              <ul className="flex flex-col space-y-4 font-medium text-[14px] text-gray-500 dark:text-gray-400">
-                <li>Washington</li>
-                <li>New Hampshire</li>
-                <li>Maine</li>
-                <li>Texas</li>
-                <li>Indiana</li>
-              </ul>
-            </div>
-            <div className="mb-4">
-              <p className="text-lg font-semibold text-gray-700 dark:text-gray-100 mb-6">
-                Services
-              </p>
-              <ul className="flex flex-col space-y-4 font-medium text-[14px] text-gray-500 dark:text-gray-400">
-                <li>UI / UX Design</li>
-                <li>App Development</li>
-                <li>API reference</li>
-                <li>API status</li>
-                <li>Documentation</li>
-              </ul>
-            </div>
-            <div className="mb-4">
-              <p className="text-lg font-semibold text-gray-700 dark:text-gray-100 mb-6">
-                Legal
-              </p>
-              <ul className="flex flex-col space-y-4 font-medium text-[14px] text-gray-500 dark:text-gray-400">
-                <li>Privacy Policy</li>
-                <li>Terms of Service</li>
-                <li>Cookie Policy</li>
-                <li>Disclaimer</li>
-                <li>Media Policy</li>
-              </ul>
-            </div>
+          <div className="m-4 w-full text-center flex justify-center">
+            <ul className="flex flex-row space-x-4 font-medium text-[14px] text-gray-500 dark:text-gray-400">
+              <li>Privacy Policy</li>
+              <li>Terms of Service</li>
+              <li>Cookie Policy</li>
+              <li>Disclaimer</li>
+              <li>Media Policy</li>
+            </ul>
           </div>
         </div>
       </footer>

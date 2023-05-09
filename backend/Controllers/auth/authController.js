@@ -118,8 +118,7 @@ exports.login = async (req, res) => {
                     verificationLink: `http://localhost:3001/login/${seller.businessEmail}`
                 };
 
-                await sendEmail(seller.businessEmail, data, './seller/loginVerification.hbs');
-
+                sendEmail(seller.businessEmail, data, './seller/loginVerification.hbs');
 
                 // Set token in cookies
                 res.cookie('token', token, {
@@ -398,7 +397,7 @@ exports.deleteAccount = async (req, res) => {
         }
 
         await user.remove();
-        
+
         const data = {
             userDeleted: {
                 code: user.name,

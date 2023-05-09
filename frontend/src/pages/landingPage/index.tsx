@@ -4,6 +4,7 @@ import SellerBanner from "../../components/landingPage-ui/SellerBanner";
 import Services from "../../components/landingPage-ui/Services";
 import Faq from "../../components/landingPage-ui/Faq";
 import Hero from "../../components/landingPage-ui/Hero";
+import Team from "../../components/landingPage-ui/Team";
 
 function LandingPage() {
   const [isOpen, setIsOpen] = useState(true);
@@ -12,9 +13,10 @@ function LandingPage() {
     <>
       <Hero />
       <ProductBanner />
-      <SellerBanner />
       <Services />
+      <Team />
       <Faq />
+      <SellerBanner />
     </>
   );
 }

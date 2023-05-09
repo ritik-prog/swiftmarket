@@ -24,8 +24,8 @@ function ApplyAsSeller() {
       <Modal isOpen={isOpen} openModal={openModal} closeModal={closeModal} />
       <About />
       <Features />
-      <RegistrationSteps openModal={openModal} />
       <Pricing isOpen={isOpen} openModal={openModal} />
+      <RegistrationSteps openModal={openModal} />
       <SellerFaq />
     </div>
   );

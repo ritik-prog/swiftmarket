@@ -24,6 +24,7 @@ interface Ticket {
     customer: {
       _id: string;
       username: string;
+      role: string;
     };
     products: {
       product: {
@@ -188,7 +189,7 @@ const UpdateTicket = () => {
                         <div className="text-sm font-medium text-gray-900">
                           {message?.user_id?.username ||
                             message?.agent_id?.username}{" "}
-                          - {message?.user_id.role}
+                          - {message?.user_id?.role}
                         </div>
                         <div className="text-sm text-gray-500">
                           {new Date(message.time).toLocaleString()}

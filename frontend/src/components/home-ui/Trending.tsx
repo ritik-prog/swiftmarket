@@ -9,7 +9,6 @@ export default function Trending() {
 
   async function getProducts() {
     const response = await getTrandingProducts();
-    console.log(response);
     setProducts(response.products);
   }
 

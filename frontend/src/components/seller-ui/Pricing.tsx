@@ -7,7 +7,7 @@ type PricingProps = {
 
 const Pricing = ({ isOpen, openModal }: PricingProps) => {
   return (
-    <div className="bg-white dark:bg-gray-900">
+    <div className="bg-white dark:bg-gray-900" id="registrationmodel">
       <div className="container px-6 py-8 mx-auto">
         <h1 className="text-2xl font-semibold text-center text-gray-800 capitalize lg:text-3xl dark:text-white">
           Pricing Plan

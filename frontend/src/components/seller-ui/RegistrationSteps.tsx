@@ -7,7 +7,7 @@ const RegistrationSteps = ({ openModal }: any) => {
       className="text-gray-600 body-font bg-white shadow-md dark:bg-gray-900 dark:text-white"
       id="registrationsteps"
     >
-      <div className="container px-5 py-24 mx-auto flex flex-wrap">
+      <div className="container px-5 mx-auto flex flex-wrap">
         <div className="flex flex-wrap w-full">
           <div className="lg:w-2/5 md:w-1/2 md:pr-10 md:py-6">
             <div className="flex relative pb-12">

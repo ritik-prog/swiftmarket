@@ -88,7 +88,7 @@ exports.getProductById = async (req, res, next) => {
                 message: "Product not found",
             });
         }
-        
+
         // Send the response to the client
         res.status(200).json({
             status: "success",
@@ -195,7 +195,7 @@ exports.getTopProductsByTopCategorySearched = async (req, res) => {
         const searchResults = await Search.aggregate([
             { $group: { _id: "$category", count: { $sum: 1 } } },
             { $sort: { count: -1 } },
-            { $limit: 4 },
+            { $limit: 10 },
         ]);
         const topCategories = searchResults.map((result) => result._id);
         const topProducts = await Promise.all(
@@ -489,11 +489,20 @@ exports.getRecommendations = async (req, res) => {
 exports.searchProductsByCategory = async (req, res, next) => {
     try {
         const { category } = req.params;
-        const regex = new RegExp(category, 'i');
-        const products = await Product.find({ category: regex }).sort({ popularityScore: -1 });
-        const sellers = await Seller.find({ productCategories: { $in: [regex] } }).sort({ ratingsAvg: -1 });
-        res.status(200).json({ products, sellers });
-        console.log(regex)
+
+        let products;
+        if (category.toLowerCase() === "all") {
+            products = await Product.find({ isAvailable: true })
+                .sort({ popularityScore: -1 })
+            const sellers = await Seller.find({}).sort({ ratingsAvg: -1 }).limit(5);
+
+            res.json({ products, sellers: sellers });
+        } else {
+            const regex = new RegExp(category, 'i');
+            products = await Product.find({ category: regex }).sort({ popularityScore: -1 });
+            const sellers = await Seller.find({ productCategories: { $in: [regex] } }).sort({ ratingsAvg: -1 });
+            res.status(200).json({ products, sellers });
+        }
 
         const searchQuery = new Search({
             category: products[0] ? products[0].category : '',

@@ -17,11 +17,13 @@ const Reviews = (product: any) => {
               <div className="flex flex-wrap items-center">
                 <img
                   className="mr-6"
-                  src={`https://ui-avatars.com/api/?name=${item.user.username}&rounded=true`}
+                  src={`https://ui-avatars.com/api/?name=${
+                    item?.user?.username || "Deleted User"
+                  }&rounded=true`}
                   alt={item.name}
                 />
                 <h4 className="w-full md:w-auto text-xl font-heading font-medium">
-                  {item.user.username}
+                  {item?.user?.username || "Deleted User"}
                 </h4>
                 <div className="w-full md:w-px h-2 md:h-8 mx-8 bg-transparent md:bg-gray-200"></div>
                 <span className="mr-4 text-xl font-heading font-medium">

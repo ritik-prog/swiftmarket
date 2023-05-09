@@ -23,7 +23,6 @@ const Recommendations = () => {
 
   async function getProducts() {
     const response = await getRecommendedProducts();
-    console.log(response);
     setProducts(response.products);
   }
 

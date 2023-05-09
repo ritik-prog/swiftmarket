@@ -8,7 +8,7 @@ const Collection = () => {
   const isMountedRef = useRef(false);
 
   async function getProducts() {
-    const response = await getTopProductsByTopCategorySearched();
+    const response = await getTopProductsByTopCategorySearched(4);
     setProducts(response);
   }
 
@@ -28,10 +28,10 @@ const Collection = () => {
         <header>
           <h2 className="text-xl font-bold sm:text-3xl">Product Collection</h2>
 
-          <p className="mt-4 max-w-md text-gray-500">
-            Lorem ipsum, dolor sit amet consectetur adipisicing elit. Itaque
-            praesentium cumque iure dicta incidunt est ipsam, officia dolor
-            fugit natus?
+          <p className="mt-4 max-w-sm text-gray-500">
+            Explore our curated selection of top products that are in high
+            demand among our customers. At our store, we are committed to
+            delivering a superior shopping experience.
           </p>
         </header>
 
