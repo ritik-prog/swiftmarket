@@ -170,23 +170,25 @@ const OrderDetails = () => {
       </div>
       {/* User deatils */}
       <div className="border border-gray-300 rounded-md p-4">
-        <h1 className="text-lg font-medium mb-2">{user.username}</h1>
-        <p className="text-gray-500 mb-4">{user.email}</p>
+        <h1 className="text-lg font-medium mb-2">
+          {user?.username || "Deleted User"}
+        </h1>
+        <p className="text-gray-500 mb-4">{user?.email || ""}</p>
         <div className="flex mb-4">
           <span className="mr-2">Role:</span>
-          <span className="font-medium">{user.role}</span>
+          <span className="font-medium">{user?.role || ""}</span>
         </div>
         <div className="flex mb-4">
           <span className="mr-2">Address:</span>
-          <span className="font-medium">{user.address}</span>
+          <span className="font-medium">{user?.address || ""}</span>
         </div>
         <div className="flex mb-4">
           <span className="mr-2">Phone:</span>
-          <span className="font-medium">{user.number}</span>
+          <span className="font-medium">{user?.number || ""}</span>
         </div>
         <div className="flex mb-4">
           <span className="mr-2">Name:</span>
-          <span className="font-medium">{user.name}</span>
+          <span className="font-medium">{user?.name || ""}</span>
         </div>
       </div>
       <hr className="border-gray-300 m-6" />

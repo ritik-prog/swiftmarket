@@ -92,7 +92,7 @@ const Transactions = () => {
                           {transaction?.trans_id}
                         </td>
                         <td className="px-4 py-4 text-sm text-gray-500 dark:text-gray-300 whitespace-nowrap">
-                          {transaction?.customer.username}
+                          {transaction?.customer?.username || "Deleted User"}
                         </td>
                         <td className="px-4 py-4 text-sm text-gray-500 dark:text-gray-300 whitespace-nowrap">
                           {transaction?.paymentMethod}

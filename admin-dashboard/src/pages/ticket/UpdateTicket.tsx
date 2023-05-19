@@ -187,9 +187,8 @@ const UpdateTicket = () => {
                     <div className="flex space-x-3">
                       <div className="flex-1 space-y-2">
                         <div className="text-sm font-medium text-gray-900">
-                          {message?.user_id?.username ||
-                            message?.agent_id?.username}{" "}
-                          - {message?.user_id?.role}
+                          {message?.user_id?.username || "Deleted User"} -{" "}
+                          {message?.user_id?.role || "Deleted User"}
                         </div>
                         <div className="text-sm text-gray-500">
                           {new Date(message.time).toLocaleString()}

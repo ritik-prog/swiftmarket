@@ -84,13 +84,13 @@ const OrderDetails = ({ order }: any) => {
           <div className="sm:w-2/5 mb-2 sm:mb-0">
             <h4 className="font-semibold text-gray-600 text-lg">Seller:</h4>
             <p className="font-medium text-gray-800">
-              {order.seller.businessUsername}
+              {order?.seller?.businessUsername || "Deleted User"}
             </p>
           </div>
           <div className="sm:w-1/5 mb-2 sm:mb-0">
             <h4 className="font-semibold text-gray-600 text-lg">Customer:</h4>
             <p className="font-medium text-gray-800">
-              {order.customer.username}
+              {order?.customer?.username || "Deleted User"}
             </p>
           </div>
         </div>
@@ -138,7 +138,7 @@ const OrderDetails = ({ order }: any) => {
                   Product Name:
                 </h5>
                 <p className="font-medium text-gray-800">
-                  {product.product.productName}
+                  {product?.product?.productName || "Deleted Product"}
                 </p>
               </div>
               <div className="sm:w-1/5 mb-2 sm:mb-0">
