@@ -12,6 +12,9 @@ const Seller = require('../../models/seller/sellerSchema');
 const generateCode = require('../../utils/generateCode');
 const customLogger = require('../../utils/logHandler');
 
+const generateVerificationCode = require('../../utils/generateCode');
+const { v4: uuidv4 } = require('uuid');
+
 exports.signup = async (req, res) => {
     customLogger("user", "signup", req)
     const errors = validationResult(req);
@@ -317,6 +320,7 @@ exports.updatePassword = async (req, res) => {
         const hashedPassword = await bcrypt.hash(req.body.newPassword, salt);
 
         user.password = hashedPassword;
+        user.save()
 
         // Generate and save new auth token
         const token = await user.generateAuthToken();
@@ -333,7 +337,7 @@ exports.updatePassword = async (req, res) => {
 
         const data = {
             passwordUpdated: {
-                code: user.name,
+                name: user.username,
                 email: user.email,
             },
             subject: 'Password Updated - SwiftMarket'
@@ -418,3 +422,99 @@ exports.deleteAccount = async (req, res) => {
         return handleError(res, err);
     }
 };
+
+exports.forgotPassword = async (req, res) => {
+    try {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return handleError(res, {
+                code: 'CustomValidationError',
+                status: 'error',
+                errors: errors.array()
+            });
+        }
+
+        const user = await User.findOne({ email: req.body.email });
+
+        customLogger(user.role, "forgot password", req)
+
+        const uuid = uuidv4();
+
+        const resetPasswordCode = `resetpassword_${user._id}_${uuid}_${Date.now()}`;
+        const resetPasswordCodeExpiry = new Date(Date.now() + 5 * 60 * 1000); // 5 minutes from now
+
+        user.resetPasswordCode = resetPasswordCode;
+        user.resetPasswordCodeExpiresAt = resetPasswordCodeExpiry;
+
+        await user.save();
+
+        res.status(200).json({
+            status: 'success',
+            message: 'Reset password code sent successfully'
+        });
+
+        const data = {
+            username: user.username,
+            resetPasswordCode: resetPasswordCode,
+            subject: 'Reset Password - SwiftMarket'
+        };
+
+        await sendEmail(user.email, data, './userActions/forgotPassword.hbs');
+
+    } catch (err) {
+        console.log(err)
+        return handleError(res, err);
+    }
+}
+
+exports.resetPassword = async (req, res) => {
+    try {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return handleError(res, {
+                code: 'CustomValidationError',
+                status: 'error',
+                errors: errors.array()
+            });
+        }
+
+        const parts = req.body.resetToken.split('_'); // Split the string by underscores
+
+        const userId = parts[1];
+
+        const user = await User.findById(userId);
+
+        if (user.resetPasswordCodeExpiresAt > Date.now() && user.resetPasswordCode !== null) {
+            customLogger(user.role, "forgot password", req)
+
+            // Generate salt and hash for new password
+            const salt = await bcrypt.genSalt(10);
+            const hashedPassword = await bcrypt.hash(req.body.newPassword, salt);
+
+            user.password = hashedPassword;
+            user.resetPasswordCode = null;
+            user.resetPasswordCodeExpiresAt = null;
+            await user.save();
+
+            res.status(200).json({ message: 'Password updated successfully', status: 'success', });
+
+            const data = {
+                passwordUpdated: {
+                    name: user.username,
+                    email: user.email,
+                },
+                subject: 'Password Updated - SwiftMarket'
+            };
+
+            await sendEmail(user.email, data, './userActions/userAccountChange.hbs');
+        } else {
+            res.status(499).json({ status: "error", message: 'The reset password code has expired.' })
+
+            user.resetPasswordCode = null;
+            user.resetPasswordCodeExpiresAt = null;
+            await user.save();
+        }
+    } catch (err) {
+        return handleError(res, err);
+    }
+}

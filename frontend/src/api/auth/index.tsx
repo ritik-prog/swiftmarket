@@ -52,3 +52,15 @@ export const deleteAccountApi = async (data: any) => {
   const response = await instance.post("/auth/deleteaccount", data);
   return response.data;
 };
+
+// forgot password
+export const forgotPasswordApi = async (data: any) => {
+  const response = await instance.post("/auth/forgotpassword", data);
+  return response.data;
+};
+
+// reset password
+export const resetPasswordApi = async (data: any) => {
+  const response = await instance.put("/auth/resetpassword", data);
+  return response.data;
+};

@@ -67,7 +67,7 @@ const Recommendations = () => {
               <div
                 className="w-1/3 bg-cover cursor-pointer"
                 style={{
-                  backgroundImage: `url(${product.imagesUrl})`,
+                  backgroundImage: `url(${product.thumbnailUrl})`,
                 }}
                 onClick={() =>
                   (window.location.href = `/product?query=${product._id}`)

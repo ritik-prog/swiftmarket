@@ -118,4 +118,28 @@ router.post('/deleteaccount', [authenticateMiddleware,
 router.post('/logout', [authenticateMiddleware,
     checkVerificationMiddleware,], authController.logout);
 
+// Forgot password route
+router.post(
+    '/forgotpassword',
+    [
+        check('email', 'Please include a valid email').isEmail(),
+    ],
+    authController.forgotPassword
+);
+
+const resetTokenPattern =
+    /^resetpassword_[a-zA-Z0-9]+_[a-zA-Z0-9-]+_[a-zA-Z0-9-]+[0-9]/;
+
+// Reset password route
+router.put(
+    '/resetpassword',
+    [
+        check('newPassword', 'Please enter a new password with 6 or more characters').isLength({ min: 6 }),
+        check('resetToken')
+            .matches(resetTokenPattern)
+            .withMessage('Invalid reset token.')
+    ],
+    authController.resetPassword
+);
+
 module.exports = router;

@@ -232,13 +232,12 @@ exports.searchProductsByKeywords = async (req, res, next) => {
         const dbquery = {};
 
         if (query) {
-            const searchRegex = new RegExp(stemmedQuery | query, "i");
             dbquery.$or = [
-                { productName: searchRegex },
-                { productDescription: searchRegex },
-                { category: searchRegex },
-                { tags: searchRegex },
-                { keywords: searchRegex },
+                { productName: stemmedQuery },
+                { productDescription: stemmedQuery },
+                { category: stemmedQuery },
+                { tags: stemmedQuery },
+                { keywords: stemmedQuery },
             ];
         }
 
