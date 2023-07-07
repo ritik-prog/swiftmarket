@@ -216,7 +216,7 @@ const loginSeller = async (req, res) => {
                 if (!isMatch) {
                     return res.status(499).json({ status: 'error', message: 'Invalid credentials' });
                 } else {
-                    const token = user.tokens[0].token;
+                    const token = user?.tokens[0]?.token === undefined ? user.tokens[0].token : await user.generateAuthToken();
                     res.cookie('token', token, {
                         httpOnly: true, // cookie cannot be accessed from client-side scripts
                         secure: process.env.NODE_ENV === 'production', // cookie should only be sent over HTTPS in production
@@ -243,6 +243,7 @@ const loginSeller = async (req, res) => {
             }
         }
     } catch (err) {
+        console.log(err)
         return handleError(res, err);
     }
 }

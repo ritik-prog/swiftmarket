@@ -36,42 +36,42 @@ const DashboardCharts = () => {
   const data = [
     {
       title: "Total Revenue",
-      value: "₹" + metrics.orderTotal,
+      value: "₹" + metrics?.orderTotal || 0,
       icon: "fas fa-chart-line",
     },
     {
       title: "New Customers",
-      value: metrics.newCustomers,
+      value: metrics?.newCustomers || 0,
       icon: "fas fa-users",
     },
     {
       title: "Total Orders",
-      value: metrics.totalOrders,
+      value: metrics?.totalOrders || 0,
       icon: "fas fa-shopping-cart",
     },
     {
       title: "Conversion Rate",
-      value: metrics.conversionRate + "%",
+      value: metrics?.conversionRate || 0 + "%",
       icon: "fas fa-chart-pie",
     },
     {
       title: "Average Order Value",
-      value: "₹" + metrics.avgOrderValue,
+      value: "₹" + metrics?.avgOrderValue || 0,
       icon: "fas fa-dollar-sign",
     },
     {
       title: "Average Order Size",
-      value: metrics.avgOrderSize,
+      value: metrics?.avgOrderSize || 0,
       icon: "fas fa-file-invoice-dollar",
     },
     {
       title: "Customer Retention Rate",
-      value: metrics.retentionRate + "%",
+      value: metrics?.retentionRate || 0 + "%",
       icon: "fas fa-user-check",
     },
     {
       title: "All Time Views",
-      value: metrics.totalViews,
+      value: metrics?.totalViews || 0,
       icon: "fas fa-solid fa-eye",
     },
   ];

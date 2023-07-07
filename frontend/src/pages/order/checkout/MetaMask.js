@@ -169,7 +169,7 @@ function MetaMask() {
                   {account ? (
                     <>
                       <p className="mb-2">
-                        Connected to {account} ({balance} ETH)
+                        Connected to {account}
                       </p>
                       <button
                         type="button"

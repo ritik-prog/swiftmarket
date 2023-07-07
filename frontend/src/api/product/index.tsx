@@ -20,6 +20,11 @@ export const getTrandingProducts = async () => {
   return data;
 };
 
+export const getTrandingProductsMainCategory = async () => {
+  const { data } = await instance.get("product/trending?limit=2");
+  return data;
+};
+
 export const getTrandingProductsThree = async () => {
   const { data } = await instance.get(
     "product/getTopProductsByDifferentFilters"

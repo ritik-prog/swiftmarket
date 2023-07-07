@@ -104,7 +104,7 @@ const Login = () => {
             <div className="absolute inset-0">
               <img
                 className="object-cover object-top w-full h-full"
-                src="https://images.unsplash.com/photo-1534120247760-c44c3e4a62f1?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8MTk0fHxkZXNpZ25lcnxlbnwwfHwwfHw%3D&auto=format&fit=crop&w=800&q=60"
+                src="https://images.unsplash.com/photo-1532453288672-3a27e9be9efd?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1064&q=80"
                 alt=""
               />
             </div>
@@ -113,8 +113,7 @@ const Login = () => {
             <div className="relative">
               <div className="w-full max-w-xl xl:w-full xl:mx-auto xl:pr-24 xl:max-w-xl">
                 <h3 className="text-4xl font-bold text-white">
-                  Now you dont have to rely on your designer to create a new
-                  page
+                  Enhancing User Experience for an E-commerce Website
                 </h3>
                 <ul className="grid grid-cols-1 mt-10 sm:grid-cols-2 gap-x-8 gap-y-4">
                   <li className="flex items-center space-x-3">
@@ -134,7 +133,7 @@ const Login = () => {
                     </div>
                     <span className="text-lg font-medium text-white">
                       {" "}
-                      Commercial License{" "}
+                      Intuitive Navigation{" "}
                     </span>
                   </li>
                   <li className="flex items-center space-x-3">
@@ -154,7 +153,7 @@ const Login = () => {
                     </div>
                     <span className="text-lg font-medium text-white">
                       {" "}
-                      Unlimited Exports{" "}
+                      Responsive Design{" "}
                     </span>
                   </li>
                   <li className="flex items-center space-x-3">
@@ -174,7 +173,7 @@ const Login = () => {
                     </div>
                     <span className="text-lg font-medium text-white">
                       {" "}
-                      120+ Coded Blocks{" "}
+                      Streamlined Checkout{" "}
                     </span>
                   </li>
                   <li className="flex items-center space-x-3">
@@ -194,7 +193,7 @@ const Login = () => {
                     </div>
                     <span className="text-lg font-medium text-white">
                       {" "}
-                      Design Files Included{" "}
+                      Personalization Engine{" "}
                     </span>
                   </li>
                 </ul>

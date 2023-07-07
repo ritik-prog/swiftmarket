@@ -30,7 +30,7 @@ function UpdateRole({ isOpen, closeModal, userId, userRole }: any) {
   
   useEffect(() => {
     setRole(userRole);
-  });
+  },[]);
 
   return (
     <div className="relative flex justify-center">

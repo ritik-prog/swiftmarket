@@ -1,14 +1,17 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { getTopProductsByTopCategorySearched } from "../../../api/product";
+import {
+  getTopProductsByTopCategorySearched,
+  getTrandingProductsMainCategory,
+} from "../../../api/product";
 
 const MainCategory = () => {
   const [products, setProducts] = useState<any>([]);
   const navigate = useNavigate();
 
   async function getProducts() {
-    const response = await getTopProductsByTopCategorySearched(2);
-    setProducts(response);
+    const response = await getTrandingProductsMainCategory();
+    setProducts(response.products);
   }
 
   useEffect(() => {

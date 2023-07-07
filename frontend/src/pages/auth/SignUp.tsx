@@ -43,26 +43,26 @@ const SignUp = () => {
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 bg-white dark:bg-gray-900 h-screen">
-      <div className="relative flex items-end px-4 pb-10 pt-60 sm:px-6 sm:pb-16 md:justify-center lg:px-8 lg:pb-24">
+      <div className="h-screen relative flex items-end px-4 pb-10 pt-60 sm:pb-16 md:justify-center lg:pb-24 sm:px-6 lg:px-8">
         <div className="absolute inset-0">
           <img
-            className="h-full w-full object-cover object-top"
-            src="https://images.unsplash.com/photo-1526948128573-703ee1aeb6fa?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8M3x8c2lnbnVwfGVufDB8fDB8fA%3D%3D&auto=format&fit=crop&w=800&q=60"
+            className="object-cover object-top w-full h-full"
+            src="https://images.unsplash.com/photo-1532453288672-3a27e9be9efd?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1064&q=80"
             alt=""
           />
         </div>
         <div className="absolute inset-0 bg-gradient-to-t from-black to-transparent"></div>
 
         <div className="relative">
-          <div className="w-full max-w-xl xl:mx-auto xl:w-full xl:max-w-xl xl:pr-24">
+          <div className="w-full max-w-xl xl:w-full xl:mx-auto xl:pr-24 xl:max-w-xl">
             <h3 className="text-4xl font-bold text-white">
-              Now you dont have to rely on your designer to create a new page
+              Enhancing User Experience for an E-commerce Website
             </h3>
-            <ul className="mt-10 grid grid-cols-1 gap-x-8 gap-y-4 sm:grid-cols-2">
+            <ul className="grid grid-cols-1 mt-10 sm:grid-cols-2 gap-x-8 gap-y-4">
               <li className="flex items-center space-x-3">
-                <div className="inline-flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-blue-500">
+                <div className="inline-flex items-center justify-center flex-shrink-0 w-5 h-5 bg-blue-500 rounded-full">
                   <svg
-                    className="h-3.5 w-3.5 text-white"
+                    className="w-3.5 h-3.5 text-white"
                     xmlns="http://www.w3.org/2000/svg"
                     viewBox="0 0 20 20"
                     fill="currentColor"
@@ -70,19 +70,19 @@ const SignUp = () => {
                     <path
                       fill-rule="evenodd"
                       d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                      clipRule="evenodd"
+                      clip-rule="evenodd"
                     ></path>
                   </svg>
                 </div>
                 <span className="text-lg font-medium text-white">
                   {" "}
-                  Commercial License{" "}
+                  Intuitive Navigation{" "}
                 </span>
               </li>
               <li className="flex items-center space-x-3">
-                <div className="inline-flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-blue-500">
+                <div className="inline-flex items-center justify-center flex-shrink-0 w-5 h-5 bg-blue-500 rounded-full">
                   <svg
-                    className="h-3.5 w-3.5 text-white"
+                    className="w-3.5 h-3.5 text-white"
                     xmlns="http://www.w3.org/2000/svg"
                     viewBox="0 0 20 20"
                     fill="currentColor"
@@ -90,19 +90,19 @@ const SignUp = () => {
                     <path
                       fill-rule="evenodd"
                       d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                      clipRule="evenodd"
+                      clip-rule="evenodd"
                     ></path>
                   </svg>
                 </div>
                 <span className="text-lg font-medium text-white">
                   {" "}
-                  Unlimited Exports{" "}
+                  Responsive Design{" "}
                 </span>
               </li>
               <li className="flex items-center space-x-3">
-                <div className="inline-flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-blue-500">
+                <div className="inline-flex items-center justify-center flex-shrink-0 w-5 h-5 bg-blue-500 rounded-full">
                   <svg
-                    className="h-3.5 w-3.5 text-white"
+                    className="w-3.5 h-3.5 text-white"
                     xmlns="http://www.w3.org/2000/svg"
                     viewBox="0 0 20 20"
                     fill="currentColor"
@@ -110,19 +110,19 @@ const SignUp = () => {
                     <path
                       fill-rule="evenodd"
                       d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                      clipRule="evenodd"
+                      clip-rule="evenodd"
                     ></path>
                   </svg>
                 </div>
                 <span className="text-lg font-medium text-white">
                   {" "}
-                  120+ Coded Blocks{" "}
+                  Streamlined Checkout{" "}
                 </span>
               </li>
               <li className="flex items-center space-x-3">
-                <div className="inline-flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-blue-500">
+                <div className="inline-flex items-center justify-center flex-shrink-0 w-5 h-5 bg-blue-500 rounded-full">
                   <svg
-                    className="h-3.5 w-3.5 text-white"
+                    className="w-3.5 h-3.5 text-white"
                     xmlns="http://www.w3.org/2000/svg"
                     viewBox="0 0 20 20"
                     fill="currentColor"
@@ -130,13 +130,13 @@ const SignUp = () => {
                     <path
                       fill-rule="evenodd"
                       d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                      clipRule="evenodd"
+                      clip-rule="evenodd"
                     ></path>
                   </svg>
                 </div>
                 <span className="text-lg font-medium text-white">
                   {" "}
-                  Design Files Included{" "}
+                  Personalization Engine{" "}
                 </span>
               </li>
             </ul>
